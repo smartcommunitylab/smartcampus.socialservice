@@ -68,7 +68,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		<finalName>socialservice</finalName>
+		<finalName>core.social</finalName>
 	</build>
 
 	<repositories>
