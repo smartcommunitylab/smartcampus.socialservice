@@ -112,7 +112,7 @@ public class UserManager extends SocialEngineConnector {
 		try {
 			return authServices.loadUserBySocialId(socialId.toString());
 		} catch (Exception e) {
-			throw new SocialServiceException(e);
+			return null;
 		}
 	}
 
