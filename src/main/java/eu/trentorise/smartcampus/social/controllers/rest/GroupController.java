@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.trentorise.smartcampus.social.managers.GroupManager;
 import eu.trentorise.smartcampus.social.managers.SocialServiceException;
+import eu.trentorise.smartcampus.social.model.Constants;
 import eu.trentorise.smartcampus.social.model.Group;
 import eu.trentorise.smartcampus.social.model.Groups;
 import eu.trentorise.smartcampus.social.model.User;
@@ -133,11 +134,11 @@ public class GroupController extends RestController {
 		String userId = getUserId();
 		User user = getUserObject(userId);
 
-		if (!groupManager.checkPermission(user.getSocialId(), groupId)) {
+		if (!groupId.equals(Constants.MY_PEOPLE_GROUP_ID) && !groupManager.checkPermission(user.getSocialId(), groupId)) {
 			throw new SecurityException();
 		}
 
-		return groupManager.removeUser(userIds, groupId);
+		return groupManager.removeUser(user.getSocialId(), userIds, groupId);
 	}
 
 }

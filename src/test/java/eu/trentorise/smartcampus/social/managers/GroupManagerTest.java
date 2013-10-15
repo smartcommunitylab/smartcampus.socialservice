@@ -78,7 +78,7 @@ public class GroupManagerTest {
 		Assert.assertTrue(groupManager.addUser(user1.getId().toString(),
 				groupId, Collections.singletonList(user2.getId().toString())));
 		
-		Assert.assertTrue(groupManager.removeUser(Collections.singletonList(user2.getId().toString()),groupId));
+		Assert.assertTrue(groupManager.removeUser(user1.getId().toString(),Collections.singletonList(user2.getId().toString()),groupId));
 
 		groupManager.delete(groupId);
 		socialOperation.deleteUser(user1.getId());

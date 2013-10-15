@@ -258,6 +258,8 @@ public class GroupManager extends SocialEngineConnector {
 	/**
 	 * removes a list of users from a group
 	 * 
+	 * @param ownerIdStr
+	 *            social id of the owner of group
 	 * @param userIds
 	 *            list of social user ids to remove from the group
 	 * @param groupIdStr
@@ -265,20 +267,35 @@ public class GroupManager extends SocialEngineConnector {
 	 * @return true if operation gone fine, false otherwise
 	 * @throws SocialServiceException
 	 */
-	public boolean removeUser(List<String> userIds, String groupIdStr)
+	public boolean removeUser(String ownerIdStr, List<String> userIds, String groupIdStr)
 			throws SocialServiceException {
 		boolean success = false;
 		try {
 			Long groupId = Long.parseLong(groupIdStr);
-			UserGroup group = socialEngineClient.readUserGroup(groupId );
-			Set<Long> set = new HashSet<Long>();
-			if (userIds != null)
-				 for (String s : userIds)
-					 set.add(Long.parseLong(s));
-			if ((success = group.getUserIds().removeAll(set))) {
-				socialEngineClient.update(group);
+			if (Constants.MY_PEOPLE_GROUP_ID.equals(groupIdStr)) {
+				
+				Long ownerId = Long.parseLong(ownerIdStr);
+				it.unitn.disi.sweb.webapi.model.smartcampus.social.User owner = socialEngineClient.readUser(ownerId);
+				if (owner.getKnownUserIds() != null) {
+					for (String userId : userIds) {
+						owner.getKnownUserIds().remove(Long.parseLong(userId));
+					}
+					socialEngineClient.update(owner);
+				}
+				owner = socialEngineClient.readUser(ownerId);
+			} else {
+				
+				UserGroup group = socialEngineClient.readUserGroup(groupId );
+				Set<Long> set = new HashSet<Long>();
+				if (userIds != null)
+					 for (String s : userIds)
+						 set.add(Long.parseLong(s));
+				if (group != null && group.getUserIds() != null && (success = group.getUserIds().removeAll(set))) {
+					socialEngineClient.update(group);
+				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error("Exception removing users from group " + groupIdStr, e);
 			throw new SocialServiceException();
 		}
@@ -304,6 +321,7 @@ public class GroupManager extends SocialEngineConnector {
 			user = socialEngineClient.readUser(Long.parseLong(userId));
 			return user.getUserGroupIds().contains(Long.parseLong(groupId));
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new SocialServiceException();
 		}
 
