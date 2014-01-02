@@ -34,13 +34,25 @@
         <constructor-arg ref="dataSource" />
     </bean>
 	
-	<bean id="dataSource" destroy-method="close"
-		class="org.apache.commons.dbcp.BasicDataSource">
-		<property name="driverClassName" value="${jdbc.driver}" />
-		<property name="url" value="${jdbc.url}" />
-		<property name="username" value="${jdbc.user}" />
-		<property name="password" value="${jdbc.password}" />
-	</bean>
+<!-- 	<bean id="dataSource" destroy-method="close" -->
+<!-- 		class="org.apache.commons.dbcp.BasicDataSource"> -->
+<!-- 		<property name="driverClassName" value="${jdbc.driver}" /> -->
+<!-- 		<property name="url" value="${jdbc.url}" /> -->
+<!-- 		<property name="username" value="${jdbc.user}" /> -->
+<!-- 		<property name="password" value="${jdbc.password}" /> -->
+<!-- 	</bean> -->
+<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+  destroy-method="close">
+  <property name="driverClass" value="${jdbc.driver}" />
+  <property name="jdbcUrl" value="${jdbc.url}" />
+  <property name="user" value="${jdbc.user}" />
+  <property name="password" value="${jdbc.password}" />
+  <property name="acquireIncrement" value="5" />
+  <property name="idleConnectionTestPeriod" value="60" />
+  <property name="maxPoolSize" value="100" />
+  <property name="maxStatements" value="50" />
+  <property name="minPoolSize" value="10" />
+</bean>
 	
 	
 	<bean id="resourceAuthenticationManager" class="eu.trentorise.smartcampus.resourceprovider.filter.ResourceAuthenticationManager">
