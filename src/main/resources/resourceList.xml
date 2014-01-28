@@ -60,8 +60,10 @@
         pathPattern="/community/{cid}/entities/{eid}" method="PUT,DELETE"/>
         
    <!-- user sharing -->
+   
+   <!-- added final /  to be understood from UriManager -->
     <resourceMapping uri="socialservice.user.shared.read" 
-        pathPattern="/user/shared" method="POST"/>
+        pathPattern="/user/shared/" method="POST"/>
     <resourceMapping uri="socialservice.user.shared.read" 
         pathPattern="/user/shared/{eid}" method="GET"/>
     <resourceMapping uri="socialservice.user.shared.write" 
