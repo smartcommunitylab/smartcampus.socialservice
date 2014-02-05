@@ -13,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import eu.trentorise.smartcampus.social.engine.beans.Group;
 
@@ -27,6 +28,7 @@ public class SocialGroup implements Serializable {
 
 	private String name;
 
+	@OneToOne
 	private SocialUser creator;
 
 	private Long creationTime;

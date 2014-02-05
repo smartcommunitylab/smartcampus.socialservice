@@ -5,7 +5,6 @@ import java.util.Set;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
@@ -16,13 +15,14 @@ public class SocialEntity implements Serializable {
 
 	private static final long serialVersionUID = 4911918164725643362L;
 
-	@Id
-	@GeneratedValue
-	private Long id;
-
 	private String name;
 
+	@Id
 	private String uri;
+
+	private String namespace;
+	private String localId;
+	private String externalUri;
 
 	@OneToOne
 	private SocialUser owner;
@@ -43,14 +43,6 @@ public class SocialEntity implements Serializable {
 	private Set<SocialCommunity> communitiesSharedWith;
 
 	private boolean publicShared;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
 
 	public String getName() {
 		return name;
@@ -107,6 +99,38 @@ public class SocialEntity implements Serializable {
 
 	public void setPublicShared(boolean publicShared) {
 		this.publicShared = publicShared;
+	}
+
+	public String getUri() {
+		return uri;
+	}
+
+	public void setUri(String uri) {
+		this.uri = uri;
+	}
+
+	public String getNamespace() {
+		return namespace;
+	}
+
+	public void setNamespace(String namespace) {
+		this.namespace = namespace;
+	}
+
+	public String getLocalId() {
+		return localId;
+	}
+
+	public void setLocalId(String localId) {
+		this.localId = localId;
+	}
+
+	public String getExternalUri() {
+		return externalUri;
+	}
+
+	public void setExternalUri(String externalUri) {
+		this.externalUri = externalUri;
 	}
 
 }

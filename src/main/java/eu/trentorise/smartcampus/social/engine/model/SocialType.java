@@ -13,7 +13,6 @@ public class SocialType implements Serializable {
 	@Id
 	private Long id;
 
-	// unique
 	private String name;
 
 	private String mimeType;
@@ -32,6 +31,14 @@ public class SocialType implements Serializable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getMimeType() {
+		return mimeType;
+	}
+
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
 	}
 
 }
