@@ -16,7 +16,6 @@
 package eu.trentorise.smartcampus.social.controllers.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +28,7 @@ import eu.trentorise.smartcampus.social.model.Communities;
 import eu.trentorise.smartcampus.social.model.Community;
 import eu.trentorise.smartcampus.social.model.User;
 
-@Controller("communityController")
+//@Controller("communityController")
 public class CommunityController extends RestController {
 
 	@Autowired
@@ -37,7 +36,8 @@ public class CommunityController extends RestController {
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/community/{cid}")
 	public @ResponseBody
-	Community create(@RequestBody Community communityInRequest, @PathVariable String cid) throws SocialServiceException {
+	Community create(@RequestBody Community communityInRequest,
+			@PathVariable String cid) throws SocialServiceException {
 		return communityManager.create(communityInRequest, cid);
 	}
 
@@ -55,13 +55,15 @@ public class CommunityController extends RestController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/community/{cid}")
 	public @ResponseBody
-	Community getCommunity(@PathVariable String cid) throws SocialServiceException {
+	Community getCommunity(@PathVariable String cid)
+			throws SocialServiceException {
 		return communityManager.getCommunity(cid);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/community/social/{socialid}")
 	public @ResponseBody
-	Community getCommunityBySocialId(@PathVariable String socialid) throws SocialServiceException {
+	Community getCommunityBySocialId(@PathVariable String socialid)
+			throws SocialServiceException {
 		return communityManager.getCommunityBySocialId(socialid);
 	}
 
@@ -70,13 +72,14 @@ public class CommunityController extends RestController {
 	Communities getUserCommunities() throws SocialServiceException {
 		String userId = getUserId();
 		User user = getUserObject(userId);
-		return new Communities(communityManager.getCommunities(user.getSocialId()));
+		return new Communities(communityManager.getCommunities(user
+				.getSocialId()));
 	}
-	
-	
+
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/community/{cid}")
 	public @ResponseBody
-	boolean addUser(@PathVariable("cid") String cid) throws SocialServiceException {
+	boolean addUser(@PathVariable("cid") String cid)
+			throws SocialServiceException {
 		String userId = getUserId();
 		User user = getUserObject(userId);
 		return communityManager.addUser(user.getSocialId(), cid);
@@ -85,7 +88,8 @@ public class CommunityController extends RestController {
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/user/community/{cid}")
 	public @ResponseBody
-	boolean removeUser(@PathVariable("cid") String cid) throws SocialServiceException {
+	boolean removeUser(@PathVariable("cid") String cid)
+			throws SocialServiceException {
 		String userId = getUserId();
 		User user = getUserObject(userId);
 

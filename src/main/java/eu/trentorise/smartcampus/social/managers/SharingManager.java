@@ -15,20 +15,6 @@
  ******************************************************************************/
 package eu.trentorise.smartcampus.social.managers;
 
-import it.unitn.disi.sweb.webapi.client.WebApiException;
-import it.unitn.disi.sweb.webapi.model.entity.AttributeDef;
-import it.unitn.disi.sweb.webapi.model.entity.DataType;
-import it.unitn.disi.sweb.webapi.model.entity.Entity;
-import it.unitn.disi.sweb.webapi.model.entity.EntityBase;
-import it.unitn.disi.sweb.webapi.model.entity.Filter;
-import it.unitn.disi.sweb.webapi.model.smartcampus.ac.Operation;
-import it.unitn.disi.sweb.webapi.model.smartcampus.livetopics.LiveTopic;
-import it.unitn.disi.sweb.webapi.model.smartcampus.livetopics.LiveTopicContentType;
-import it.unitn.disi.sweb.webapi.model.smartcampus.livetopics.LiveTopicSource;
-import it.unitn.disi.sweb.webapi.model.smartcampus.livetopics.LiveTopicStatus;
-import it.unitn.disi.sweb.webapi.model.smartcampus.livetopics.LiveTopicSubject;
-import it.unitn.disi.sweb.webapi.model.smartcampus.social.Community;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,11 +24,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import eu.trentorise.smartcampus.common.SemanticHelper;
-import eu.trentorise.smartcampus.social.SocialEngineConnector;
 import eu.trentorise.smartcampus.social.converters.SocialEngineConverter;
 import eu.trentorise.smartcampus.social.model.Concept;
 import eu.trentorise.smartcampus.social.model.Constants;
@@ -57,7 +40,7 @@ import eu.trentorise.smartcampus.social.model.ShareVisibility;
  * @author mirko perillo
  * 
  */
-@Component
+// @Component
 public class SharingManager extends SocialEngineConnector {
 
 	private static final Logger logger = Logger.getLogger(SharingManager.class);
@@ -65,39 +48,40 @@ public class SharingManager extends SocialEngineConnector {
 	private SocialEngineConverter socialConverter;
 	private static final Integer DEFAULT_SUGGESSTIONS_RESULTS = 20;
 
-//	/*
-//	 * type in social engine
-//	 * 
-//	 * 
-//	 * social community event experience computer file journey person location
-//	 * portfolio narrative
-//	 */
-//
-//	private static final String[] supportedTypes = new String[] {
-//			Constants.ENTTIY_TYPE_EVENT, Constants.ENTTIY_TYPE_EXPERIENCE,
-//			Constants.ENTTIY_TYPE_FILE, Constants.ENTTIY_TYPE_JOURNEY,
-//			Constants.ENTTIY_TYPE_POI, Constants.ENTTIY_TYPE_STORY,
-//			Constants.ENTTIY_TYPE_PORTFOLIO };
-//	private static Map<String, Long> typeIds = null;
-//
-//	private Map<String, Long> getTypesIds() throws WebApiException {
-//		if (typeIds == null) {
-//			typeIds = new HashMap<String, Long>(supportedTypes.length);
-//			for (int i = 0; i < supportedTypes.length; i++) {
-//				it.unitn.disi.sweb.webapi.model.entity.EntityType eType = socialEngineClient
-//						.readEntityType(supportedTypes[i], SemanticHelper
-//								.getSCCommunityEntityBase(socialEngineClient)
-//								.getKbLabel());
-//				if (eType != null) {
-//					typeIds.put(supportedTypes[i], eType.getId());
-//				} else {
-//					logger.error("Type " + supportedTypes[i]
-//							+ " is not instantiated");
-//				}
-//			}
-//		}
-//		return typeIds;
-//	}
+	// /*
+	// * type in social engine
+	// *
+	// *
+	// * social community event experience computer file journey person location
+	// * portfolio narrative
+	// */
+	//
+	// private static final String[] supportedTypes = new String[] {
+	// Constants.ENTTIY_TYPE_EVENT, Constants.ENTTIY_TYPE_EXPERIENCE,
+	// Constants.ENTTIY_TYPE_FILE, Constants.ENTTIY_TYPE_JOURNEY,
+	// Constants.ENTTIY_TYPE_POI, Constants.ENTTIY_TYPE_STORY,
+	// Constants.ENTTIY_TYPE_PORTFOLIO };
+	// private static Map<String, Long> typeIds = null;
+	//
+	// private Map<String, Long> getTypesIds() throws WebApiException {
+	// if (typeIds == null) {
+	// typeIds = new HashMap<String, Long>(supportedTypes.length);
+	// for (int i = 0; i < supportedTypes.length; i++) {
+	// it.unitn.disi.sweb.webapi.model.entity.EntityType eType =
+	// socialEngineClient
+	// .readEntityType(supportedTypes[i], SemanticHelper
+	// .getSCCommunityEntityBase(socialEngineClient)
+	// .getKbLabel());
+	// if (eType != null) {
+	// typeIds.put(supportedTypes[i], eType.getId());
+	// } else {
+	// logger.error("Type " + supportedTypes[i]
+	// + " is not instantiated");
+	// }
+	// }
+	// }
+	// return typeIds;
+	// }
 
 	/**
 	 * shares an entity with some share options
@@ -111,10 +95,12 @@ public class SharingManager extends SocialEngineConnector {
 	 * @return true if operation gone fine
 	 * @throws SocialServiceException
 	 */
-	public boolean share(String entityId, String ownerId, ShareVisibility visibility)
-			throws SocialServiceException {
+	public boolean share(String entityId, String ownerId,
+			ShareVisibility visibility) throws SocialServiceException {
 		try {
-			SemanticHelper.shareEntity(socialEngineClient, Long.parseLong(entityId), Long.parseLong(ownerId), visibility);
+			SemanticHelper.shareEntity(socialEngineClient,
+					Long.parseLong(entityId), Long.parseLong(ownerId),
+					visibility);
 			return true;
 		} catch (WebApiException e) {
 			logger.error("Exception sharing entity " + entityId + " of user "
@@ -137,58 +123,77 @@ public class SharingManager extends SocialEngineConnector {
 	public boolean unshare(String entityId, String socialId)
 			throws SocialServiceException {
 		try {
-			SemanticHelper.unshareEntity(socialEngineClient, Long.parseLong(entityId), Long.parseLong(socialId));
+			SemanticHelper.unshareEntity(socialEngineClient,
+					Long.parseLong(entityId), Long.parseLong(socialId));
 			return true;
 		} catch (WebApiException e) {
 			logger.error("Exception unsharing entity " + entityId);
 			throw new SocialServiceException();
 		}
 	}
-	
+
 	/**
 	 * @param entityId
 	 * @param socialId
 	 * @param shareVisibility
 	 * @return
-	 * @throws SocialServiceException 
+	 * @throws SocialServiceException
 	 */
-	public eu.trentorise.smartcampus.social.model.Entity getShared(String entityId, String socialId, boolean shareVisibility) throws SocialServiceException {
+	public eu.trentorise.smartcampus.social.model.Entity getShared(
+			String entityId, String socialId, boolean shareVisibility)
+			throws SocialServiceException {
 		try {
-			Entity e = socialEngineClient.readEntity(Long.parseLong(entityId), null);
-			return socialConverter.toEntity(e, true, shareVisibility ? getAssignments(Long.parseLong(socialId), Long.parseLong(entityId)) : null);
+			Entity e = socialEngineClient.readEntity(Long.parseLong(entityId),
+					null);
+			return socialConverter.toEntity(
+					e,
+					true,
+					shareVisibility ? getAssignments(Long.parseLong(socialId),
+							Long.parseLong(entityId)) : null);
 		} catch (WebApiException e) {
-			logger.error("Failure reading entity: "+e.getMessage());
+			logger.error("Failure reading entity: " + e.getMessage());
 			return null;
 		}
 	}
 
-	public List<eu.trentorise.smartcampus.social.model.Entity> getCommunityEntities(String cid, Integer position, Integer size,
-			String filterType, Boolean addVisibility) throws SocialServiceException {
+	public List<eu.trentorise.smartcampus.social.model.Entity> getCommunityEntities(
+			String cid, Integer position, Integer size, String filterType,
+			Boolean addVisibility) throws SocialServiceException {
 		try {
 			Community c = socialEngineClient.readCommunity(cid);
-			if (c == null) throw new SocialServiceException("Community with id "+cid +"is not found.");
+			if (c == null)
+				throw new SocialServiceException("Community with id " + cid
+						+ "is not found.");
 
-			EntityBase eb = socialEngineClient.readEntityBase(c.getEntityBaseId());
+			EntityBase eb = socialEngineClient.readEntityBase(c
+					.getEntityBaseId());
 			String typeStr = "";
 			if (filterType != null) {
-				it.unitn.disi.sweb.webapi.model.entity.EntityType et = socialEngineClient.readEntityType(Long.parseLong(filterType));
-				if (et != null) typeStr = et.getName();
+				it.unitn.disi.sweb.webapi.model.entity.EntityType et = socialEngineClient
+						.readEntityType(Long.parseLong(filterType));
+				if (et != null)
+					typeStr = et.getName();
 			}
-			
-			List<Entity> list = socialEngineClient.readEntities(typeStr, eb.getLabel(), null);
+
+			List<Entity> list = socialEngineClient.readEntities(typeStr,
+					eb.getLabel(), null);
 			if (list != null) {
 				List<eu.trentorise.smartcampus.social.model.Entity> res = new ArrayList<eu.trentorise.smartcampus.social.model.Entity>();
 				for (Entity e : list) {
-					if ("community".equals(e.getEtype().getName())) continue;
+					if ("community".equals(e.getEtype().getName()))
+						continue;
 					ShareVisibility vis = null;
-					if (addVisibility) vis = getAssignments(c.getId(), e.getId());
+					if (addVisibility)
+						vis = getAssignments(c.getId(), e.getId());
 					res.add(socialConverter.toEntity(e, false, vis));
 				}
 				return res;
 			}
 			return null;
 		} catch (WebApiException e) {
-			logger.error("Erro reading community "+cid+" entities: "+e.getMessage(),e);
+			logger.error(
+					"Erro reading community " + cid + " entities: "
+							+ e.getMessage(), e);
 			throw new SocialServiceException(e.getMessage());
 		}
 	}
@@ -211,21 +216,24 @@ public class SharingManager extends SocialEngineConnector {
 	 * @param filterType
 	 *            type ID of entities to retrieve
 	 * @param addUser
-	 *            if true add user details about user who own the
-	 *            entities, none details otherwise
-	 * @param addVisibility 
-	 * 			  if true add the info about visibility to the objects	
+	 *            if true add user details about user who own the entities, none
+	 *            details otherwise
+	 * @param addVisibility
+	 *            if true add the info about visibility to the objects
 	 * @return the list of contents shared with ownerId from the list of
 	 *         userIds, groupId and communityIds, empty list if no shared
 	 *         contents are present for the user
 	 * @throws SocialServiceException
 	 */
-	public List<eu.trentorise.smartcampus.social.model.Entity> getShared(String ownerStr, List<String> userIds,
-			String groupStr, List<String> communityIds, Integer position, Integer size,
-			String filterType, boolean addUser, boolean addVisibility) throws SocialServiceException {
+	public List<eu.trentorise.smartcampus.social.model.Entity> getShared(
+			String ownerStr, List<String> userIds, String groupStr,
+			List<String> communityIds, Integer position, Integer size,
+			String filterType, boolean addUser, boolean addVisibility)
+			throws SocialServiceException {
 		try {
-			if (position == null || position < 0) position = 0;
-			
+			if (position == null || position < 0)
+				position = 0;
+
 			LiveTopic filter = new LiveTopic();
 			LiveTopicSource filterSource = new LiveTopicSource();
 			long ownerId = Long.parseLong(ownerStr);
@@ -268,7 +276,8 @@ public class SharingManager extends SocialEngineConnector {
 
 			LiveTopicContentType type = new LiveTopicContentType();
 			if (StringUtils.hasLength(filterType)) {
-				type.setEntityTypeIds(Collections.singleton(Long.parseLong(filterType)));
+				type.setEntityTypeIds(Collections.singleton(Long
+						.parseLong(filterType)));
 			} else {
 				type.setAllTypes(true);
 				type.setEntityTypeIds(new HashSet<Long>());
@@ -287,8 +296,10 @@ public class SharingManager extends SocialEngineConnector {
 					return o2 > o1 ? 1 : o2 == o1 ? 0 : -1;
 				}
 			});
-			if (position == null) position = 0;
-			if (size == null || size < 0) size = sharedIds.size();
+			if (position == null)
+				position = 0;
+			if (size == null || size < 0)
+				size = sharedIds.size();
 			if (position < sharedIds.size()) {
 				sharedIds = sharedIds.subList(position,
 						Math.min(position + size, sharedIds.size()));
@@ -297,9 +308,9 @@ public class SharingManager extends SocialEngineConnector {
 			}
 			if (!sharedIds.isEmpty()) {
 				// filter to retrieve only name attribute of entity
-//				Filter f = new Filter(null, new HashSet<String>(
-//						Arrays.asList("name")), false, false, 0, null, null,
-//						null, null);
+				// Filter f = new Filter(null, new HashSet<String>(
+				// Arrays.asList("name")), false, false, 0, null, null,
+				// null, null);
 				List<eu.trentorise.smartcampus.social.model.Entity> shared = new ArrayList<eu.trentorise.smartcampus.social.model.Entity>(
 						sharedIds.size());
 				// logger.info(String.format("START read items %s",
@@ -310,9 +321,12 @@ public class SharingManager extends SocialEngineConnector {
 				// start));
 				ShareVisibility vis = null;
 				for (Entity e : results) {
-					if ("community".equals(e.getEtype().getName())) continue;
-					if ("person".equals(e.getEtype().getName())) continue;
-					if (addVisibility) vis = getAssignments(ownerId, e.getId());
+					if ("community".equals(e.getEtype().getName()))
+						continue;
+					if ("person".equals(e.getEtype().getName()))
+						continue;
+					if (addVisibility)
+						vis = getAssignments(ownerId, e.getId());
 					shared.add(socialConverter.toEntity(e, addUser, vis));
 				}
 				return shared;
@@ -325,24 +339,24 @@ public class SharingManager extends SocialEngineConnector {
 		}
 	}
 
-//	/**
-//	 * returns sharing options of a list of entities
-//	 * 
-//	 * @param ownerId
-//	 *            the social id of the owner of entities
-//	 * @param entityIds
-//	 *            list of id of entities
-//	 * @return the list of sharing options relative to the list of entities
-//	 * @throws SocialServiceException
-//	 */
-//	private List<ShareVisibility> getAssignments(long ownerId,
-//			List<Long> entityIds) throws SocialServiceException {
-//		List<ShareVisibility> visibilities = new ArrayList<ShareVisibility>();
-//		for (Long eid : entityIds) {
-//			visibilities.add(getAssignments(ownerId, eid));
-//		}
-//		return visibilities;
-//	}
+	// /**
+	// * returns sharing options of a list of entities
+	// *
+	// * @param ownerId
+	// * the social id of the owner of entities
+	// * @param entityIds
+	// * list of id of entities
+	// * @return the list of sharing options relative to the list of entities
+	// * @throws SocialServiceException
+	// */
+	// private List<ShareVisibility> getAssignments(long ownerId,
+	// List<Long> entityIds) throws SocialServiceException {
+	// List<ShareVisibility> visibilities = new ArrayList<ShareVisibility>();
+	// for (Long eid : entityIds) {
+	// visibilities.add(getAssignments(ownerId, eid));
+	// }
+	// return visibilities;
+	// }
 
 	/**
 	 * returns the sharing options of an entity
@@ -464,8 +478,7 @@ public class SharingManager extends SocialEngineConnector {
 		}
 	}
 
-	public Concept getConceptByGlobalId(long id)
-			throws SocialServiceException {
+	public Concept getConceptByGlobalId(long id) throws SocialServiceException {
 		try {
 			return socialConverter.toConcept(socialEngineClient
 					.readConceptByGlobalId(id, SemanticHelper
@@ -480,17 +493,21 @@ public class SharingManager extends SocialEngineConnector {
 	public long getConceptGlobalId(String conceptId)
 			throws SocialServiceException {
 		try {
-			return socialEngineClient.readConcept(Long.parseLong(conceptId)).getGlobalId();
+			return socialEngineClient.readConcept(Long.parseLong(conceptId))
+					.getGlobalId();
 		} catch (WebApiException e) {
 			logger.error("Exception getting concept gloabal id", e);
 			throw new SocialServiceException();
 		}
 	}
 
-	public eu.trentorise.smartcampus.social.model.Entity createEntity(EntityRequest entityRequest, String actorId) throws SocialServiceException {
+	public eu.trentorise.smartcampus.social.model.Entity createEntity(
+			EntityRequest entityRequest, String actorId)
+			throws SocialServiceException {
 		try {
 			String entityType = null;
-			if (entityRequest.getType() == null || entityRequest.getType().length() == 0) {
+			if (entityRequest.getType() == null
+					|| entityRequest.getType().length() == 0) {
 				if (entityRequest.getTypeId() != null) {
 					EntityType t = getEntityType(entityRequest.getTypeId());
 					if (t != null) {
@@ -500,7 +517,7 @@ public class SharingManager extends SocialEngineConnector {
 				}
 			} else {
 				entityType = entityRequest.getType();
-				List<EntityType> types = getEntityTypeByName(entityType,1);
+				List<EntityType> types = getEntityTypeByName(entityType, 1);
 				if (types != null && types.size() > 0) {
 					entityRequest.setTypeId(types.get(0).getId());
 				}
@@ -515,9 +532,9 @@ public class SharingManager extends SocialEngineConnector {
 				for (String s : entityRequest.getRelations())
 					rels.add(Long.parseLong(s));
 			Long id = SemanticHelper.createEntity(socialEngineClient,
-					Long.parseLong(actorId), entityType, entityRequest.getName(),
-					entityRequest.getDescription(), entityRequest.getTags(),
-					rels).getId();
+					Long.parseLong(actorId), entityType,
+					entityRequest.getName(), entityRequest.getDescription(),
+					entityRequest.getTags(), rels).getId();
 			Entity e = socialEngineClient.readEntity(id, null);
 			return socialConverter.toEntity(e, false, null);
 		} catch (WebApiException e) {
@@ -533,9 +550,9 @@ public class SharingManager extends SocialEngineConnector {
 			if (entity.getRelations() != null)
 				for (String s : entity.getRelations())
 					rels.add(Long.parseLong(s));
-			SemanticHelper.updateEntity(socialEngineClient, Long.parseLong(entity.getId()),
-					entity.getName(), entity.getDescription(),
-					entity.getTags(), rels).getId();
+			SemanticHelper.updateEntity(socialEngineClient,
+					Long.parseLong(entity.getId()), entity.getName(),
+					entity.getDescription(), entity.getTags(), rels).getId();
 		} catch (WebApiException e) {
 			logger.error("Exception creating entity", e);
 			throw new SocialServiceException();
@@ -544,7 +561,8 @@ public class SharingManager extends SocialEngineConnector {
 
 	public boolean deleteEntity(String entityId) throws SocialServiceException {
 		try {
-			return SemanticHelper.deleteEntity(socialEngineClient, Long.parseLong(entityId));
+			return SemanticHelper.deleteEntity(socialEngineClient,
+					Long.parseLong(entityId));
 		} catch (WebApiException e) {
 			logger.error("Exception deleting entity " + entityId, e);
 			throw new SocialServiceException();
@@ -556,10 +574,11 @@ public class SharingManager extends SocialEngineConnector {
 		Filter f = new Filter(null, new HashSet<String>(Arrays.asList("name")),
 				false, false, 0, null, null, null, null);
 		try {
-			Entity e = socialEngineClient.readEntity(Long.parseLong(entityId), f);
+			Entity e = socialEngineClient.readEntity(Long.parseLong(entityId),
+					f);
 			long ownerId = socialEngineClient.readActorByEntityBase(
 					e.getEntityBase().getId()).getId();
-			return socialId.equals(ownerId+"");
+			return socialId.equals(ownerId + "");
 		} catch (WebApiException e1) {
 			logger.error("Exception reading entity " + entityId, e1);
 			throw new SocialServiceException();
@@ -570,13 +589,16 @@ public class SharingManager extends SocialEngineConnector {
 	 * @param prefix
 	 * @param maxResults
 	 * @return
-	 * @throws SocialServiceException 
+	 * @throws SocialServiceException
 	 */
-	public List<Concept> getConceptsByName(String prefix, Integer maxResults) throws SocialServiceException {
+	public List<Concept> getConceptsByName(String prefix, Integer maxResults)
+			throws SocialServiceException {
 		try {
-			return SemanticHelper.getSuggestions(socialEngineClient, prefix, maxResults);
+			return SemanticHelper.getSuggestions(socialEngineClient, prefix,
+					maxResults);
 		} catch (Exception e) {
-			throw new SocialServiceException("Failed to read suggestions: " + e.getMessage());
+			throw new SocialServiceException("Failed to read suggestions: "
+					+ e.getMessage());
 		}
 	}
 

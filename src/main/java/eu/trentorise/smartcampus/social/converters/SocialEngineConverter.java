@@ -15,20 +15,10 @@
  ******************************************************************************/
 package eu.trentorise.smartcampus.social.converters;
 
-import it.unitn.disi.sweb.webapi.client.WebApiException;
-import it.unitn.disi.sweb.webapi.model.entity.Attribute;
-import it.unitn.disi.sweb.webapi.model.entity.Entity;
-import it.unitn.disi.sweb.webapi.model.entity.Value;
-import it.unitn.disi.sweb.webapi.model.smartcampus.livetopics.LiveTopicSource;
-import it.unitn.disi.sweb.webapi.model.smartcampus.social.UserGroup;
-import it.unitn.disi.sweb.webapi.model.ss.SemanticString;
-
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import eu.trentorise.smartcampus.social.managers.CommunityManager;
 import eu.trentorise.smartcampus.social.managers.GroupManager;
@@ -48,7 +38,7 @@ import eu.trentorise.smartcampus.social.model.ShareVisibility;
  * @author mirko perillo
  * 
  */
-@Component
+// @Component
 public class SocialEngineConverter {
 
 	@Autowired
@@ -92,12 +82,13 @@ public class SocialEngineConverter {
 	}
 
 	public Community toCommunity(
-			it.unitn.disi.sweb.webapi.model.smartcampus.social.Community community, Entity entity) {
+			it.unitn.disi.sweb.webapi.model.smartcampus.social.Community community,
+			Entity entity) {
 		Community com = new Community();
 		try {
 			com.setSocialId(community.getId().toString());
 			Attribute a = findAttribute(entity, "name");
-			if (a != null && a.getFirstValue() != null)	
+			if (a != null && a.getFirstValue() != null)
 				com.setName(a.getFirstValue().getStringValue());
 			com.setId(community.getName());
 		} catch (NullPointerException e) {
@@ -128,12 +119,13 @@ public class SocialEngineConverter {
 
 	}
 
-	public List<eu.trentorise.smartcampus.social.model.Entity> toEntity(List<Entity> entities,
-			boolean addActor) throws WebApiException {
+	public List<eu.trentorise.smartcampus.social.model.Entity> toEntity(
+			List<Entity> entities, boolean addActor) throws WebApiException {
 		List<eu.trentorise.smartcampus.social.model.Entity> scList = new ArrayList<eu.trentorise.smartcampus.social.model.Entity>();
 		try {
 			for (Entity e : entities) {
-				eu.trentorise.smartcampus.social.model.Entity sc = toEntity(e, addActor, null);
+				eu.trentorise.smartcampus.social.model.Entity sc = toEntity(e,
+						addActor, null);
 				if (sc != null) {
 					scList.add(sc);
 				}
@@ -144,7 +136,8 @@ public class SocialEngineConverter {
 		return scList;
 	}
 
-	public eu.trentorise.smartcampus.social.model.Entity toEntity(Entity e, boolean addActor, ShareVisibility vis) throws WebApiException {
+	public eu.trentorise.smartcampus.social.model.Entity toEntity(Entity e,
+			boolean addActor, ShareVisibility vis) throws WebApiException {
 		eu.trentorise.smartcampus.social.model.Entity sc = null;
 		try {
 			sc = new eu.trentorise.smartcampus.social.model.Entity();
@@ -154,52 +147,56 @@ public class SocialEngineConverter {
 				sc.setCreationDate(System.currentTimeMillis());
 			}
 			sc.setEntityType(e.getEtype().getId().toString());
-			Attribute a = findAttribute(e,"name");
+			Attribute a = findAttribute(e, "name");
 			if (a != null && a.getFirstValue() != null) {
 				sc.setTitle(a.getFirstValue().getString());
 			}
-			a = findAttribute(e,"description");
+			a = findAttribute(e, "description");
 			if (a != null && a.getFirstValue() != null) {
 				sc.setDescription(a.getFirstValue().getString());
 			}
 			if (addActor) {
 				try {
-					sc.setUser(userManager.getUserByEntityBase(e.getEntityBase()));
+					sc.setUser(userManager.getUserByEntityBase(e
+							.getEntityBase()));
 				} catch (SocialServiceException e1) {
 				}
 			}
 			if (vis != null) {
 				sc.setVisibility(vis);
 			}
-			
+
 			sc.setRelations(new ArrayList<String>());
 			a = findAttribute(e, "entity");
 			if (a != null && a.getValues() != null) {
 				for (Value v : a.getValues()) {
-					sc.getRelations().add(v.getRelationEntity().getId().toString());
+					sc.getRelations().add(
+							v.getRelationEntity().getId().toString());
 				}
 			}
-			
+
 			sc.setTags(new ArrayList<Concept>());
-			a = findAttribute(e,"text");
+			a = findAttribute(e, "text");
 			if (a != null && a.getValues() != null) {
 				for (Value v : a.getValues()) {
 					Concept c = new Concept(null, v.getStringValue());
 					sc.getTags().add(c);
 				}
 			}
-			a = findAttribute(e,"semantic");
+			a = findAttribute(e, "semantic");
 			if (a != null && a.getValues() != null) {
 				for (Value v : a.getValues()) {
 					SemanticString ss = v.getSemanticStringValue();
-					it.unitn.disi.sweb.webapi.model.ss.Concept cc = ss.getTokens().get(0).getConcepts().get(0);
-					Concept c = new Concept(cc.getId().toString(),cc.getLabel());
+					it.unitn.disi.sweb.webapi.model.ss.Concept cc = ss
+							.getTokens().get(0).getConcepts().get(0);
+					Concept c = new Concept(cc.getId().toString(),
+							cc.getLabel());
 					c.setDescription(cc.getDescription());
 					c.setSummary(cc.getSummary());
 					sc.getTags().add(c);
 				}
 			}
-			
+
 		} catch (NullPointerException npe) {
 			return null;
 		}
@@ -214,7 +211,8 @@ public class SocialEngineConverter {
 	private Attribute findAttribute(Entity e, String name) {
 		if (e != null && e.getAttributes() != null && name != null) {
 			for (Attribute a : e.getAttributes()) {
-				if (name.equals(a.getAttributeDefinition().getName()) && a.getFirstValue() != null) {
+				if (name.equals(a.getAttributeDefinition().getName())
+						&& a.getFirstValue() != null) {
 					return a;
 				}
 			}

@@ -16,7 +16,6 @@
 package eu.trentorise.smartcampus.social.controllers.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,15 +29,16 @@ import eu.trentorise.smartcampus.social.model.Concepts;
 import eu.trentorise.smartcampus.social.model.EntityType;
 import eu.trentorise.smartcampus.social.model.EntityTypes;
 
-@Controller
+//@Controller
 public class TypeController extends RestController {
 
 	@Autowired
 	private SharingManager sharingManager;
-	
+
 	@RequestMapping(method = RequestMethod.POST, value = "/type")
 	public @ResponseBody
-	EntityType createEntityType(@RequestParam String conceptId) throws  SocialServiceException {
+	EntityType createEntityType(@RequestParam String conceptId)
+			throws SocialServiceException {
 
 		try {
 			return sharingManager.createEntityType(conceptId);
@@ -49,14 +49,16 @@ public class TypeController extends RestController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/type/{typeId}")
 	public @ResponseBody
-	EntityType getEntityTypeById(@PathVariable String typeId) throws  SocialServiceException {
+	EntityType getEntityTypeById(@PathVariable String typeId)
+			throws SocialServiceException {
 
 		return sharingManager.getEntityType(typeId);
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/type/concept/{cId}")
 	public @ResponseBody
-	EntityType getEntityTypeByConcept(@PathVariable String cId) throws  SocialServiceException {
+	EntityType getEntityTypeByConcept(@PathVariable String cId)
+			throws SocialServiceException {
 
 		return sharingManager.getEntityTypeByConceptId(cId);
 	}
@@ -67,17 +69,18 @@ public class TypeController extends RestController {
 			@RequestParam(required = false) Integer maxResults)
 			throws SocialServiceException {
 
-		return new EntityTypes(sharingManager.getEntityTypeByName(prefix, maxResults));
+		return new EntityTypes(sharingManager.getEntityTypeByName(prefix,
+				maxResults));
 	}
-	
+
 	@RequestMapping(method = RequestMethod.GET, value = "/concept")
 	public @ResponseBody
 	Concepts getConceptsBySuggestions(@RequestParam String prefix,
 			@RequestParam(required = false) Integer maxResults)
 			throws SocialServiceException {
 
-		return new Concepts(sharingManager.getConceptsByName(prefix, maxResults));
+		return new Concepts(
+				sharingManager.getConceptsByName(prefix, maxResults));
 	}
-	
 
 }

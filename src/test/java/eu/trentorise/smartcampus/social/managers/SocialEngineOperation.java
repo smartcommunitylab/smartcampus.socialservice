@@ -15,19 +15,6 @@
  ******************************************************************************/
 package eu.trentorise.smartcampus.social.managers;
 
-import it.unitn.disi.sweb.webapi.client.WebApiException;
-import it.unitn.disi.sweb.webapi.client.smartcampus.SCWebApiClient;
-import it.unitn.disi.sweb.webapi.model.entity.Attribute;
-import it.unitn.disi.sweb.webapi.model.entity.DataType;
-import it.unitn.disi.sweb.webapi.model.entity.Entity;
-import it.unitn.disi.sweb.webapi.model.entity.EntityBase;
-import it.unitn.disi.sweb.webapi.model.entity.EntityType;
-import it.unitn.disi.sweb.webapi.model.entity.Value;
-import it.unitn.disi.sweb.webapi.model.smartcampus.social.User;
-import it.unitn.disi.sweb.webapi.model.ss.Concept;
-import it.unitn.disi.sweb.webapi.model.ss.SemanticString;
-import it.unitn.disi.sweb.webapi.model.ss.Token;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -35,9 +22,10 @@ import java.util.Locale;
 import javax.annotation.PostConstruct;
 
 import org.apache.log4j.Logger;
-import org.springframework.stereotype.Service;
 
-@Service
+import eu.trentorise.smartcampus.social.model.Concept;
+
+//@Service
 public class SocialEngineOperation {
 
 	private static final Logger logger = Logger

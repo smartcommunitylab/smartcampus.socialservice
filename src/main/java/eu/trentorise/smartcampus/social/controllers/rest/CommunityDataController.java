@@ -18,7 +18,6 @@ package eu.trentorise.smartcampus.social.controllers.rest;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,21 +34,24 @@ import eu.trentorise.smartcampus.social.model.Entity;
 import eu.trentorise.smartcampus.social.model.EntityRequest;
 import eu.trentorise.smartcampus.social.model.ShareVisibility;
 
-@Controller
+//@Controller
 public class CommunityDataController extends RestController {
 
 	@Autowired
 	private SharingManager sharingManager;
 	@Autowired
 	private CommunityManager communityManager;
-	
+
 	@RequestMapping(method = RequestMethod.PUT, value = "/community/{cid}/shared/{entityId}")
 	public @ResponseBody
-	boolean share(@PathVariable String entityId, @PathVariable String cid, @RequestBody ShareVisibility shareVisibility)
+	boolean share(@PathVariable String entityId, @PathVariable String cid,
+			@RequestBody ShareVisibility shareVisibility)
 			throws SocialServiceException {
 
 		Community c = communityManager.getCommunity(cid);
-		if (c == null) throw new SocialServiceException("Community with id "+cid +"is not found.");
+		if (c == null)
+			throw new SocialServiceException("Community with id " + cid
+					+ "is not found.");
 		return sharingManager.share(entityId, c.getSocialId(), shareVisibility);
 	}
 
@@ -59,17 +61,21 @@ public class CommunityDataController extends RestController {
 			throws SocialServiceException {
 
 		Community c = communityManager.getCommunity(cid);
-		if (c == null) throw new SocialServiceException("Community with id "+cid +"is not found.");
+		if (c == null)
+			throw new SocialServiceException("Community with id " + cid
+					+ "is not found.");
 		return sharingManager.unshare(entityId, c.getSocialId());
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/community/{cid}/shared/{entityId}")
 	public @ResponseBody
-	Entity getSharedEntity(@PathVariable String entityId, @PathVariable String cid)
-			throws SocialServiceException {
+	Entity getSharedEntity(@PathVariable String entityId,
+			@PathVariable String cid) throws SocialServiceException {
 
 		Community c = communityManager.getCommunity(cid);
-		if (c == null) throw new SocialServiceException("Community with id "+cid +"is not found.");
+		if (c == null)
+			throw new SocialServiceException("Community with id " + cid
+					+ "is not found.");
 
 		if (!sharingManager.checkPermission(c.getSocialId(), entityId)) {
 			throw new SecurityException();
@@ -80,57 +86,59 @@ public class CommunityDataController extends RestController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/community/{cid}/shared")
 	public @ResponseBody
-	Entities getSharedEntities(
-			@PathVariable String cid,
+	Entities getSharedEntities(@PathVariable String cid,
 			@RequestBody ShareVisibility visibility,
-			@RequestParam(required=false) int position, 
-			@RequestParam(required=false) int size,
-			@RequestParam(required=false) String type) throws IOException,
+			@RequestParam(required = false) int position,
+			@RequestParam(required = false) int size,
+			@RequestParam(required = false) String type) throws IOException,
 			SocialServiceException {
-		
-		throw new UnsupportedOperationException();
-/*
-		Community c = communityManager.getCommunity(cid);
-		if (c == null) throw new SocialServiceException("Community with id "+cid +"is not found.");
 
-		String groupId = (visibility.getGroupIds() != null && !visibility
-				.getGroupIds().isEmpty()) ? visibility.getGroupIds().get(0)
-				: "-1";
-		return new Entities(sharingManager.getShared(c.getSocialId(),
-				visibility.getUserIds(), groupId, visibility.getCommunityIds(),
-				position, size, type, visibility.getCommunityIds() == null
-						|| visibility.getCommunityIds().isEmpty(), false));
-*/						
+		throw new UnsupportedOperationException();
+		/*
+		 * Community c = communityManager.getCommunity(cid); if (c == null)
+		 * throw new SocialServiceException("Community with id "+cid
+		 * +"is not found.");
+		 * 
+		 * String groupId = (visibility.getGroupIds() != null && !visibility
+		 * .getGroupIds().isEmpty()) ? visibility.getGroupIds().get(0) : "-1";
+		 * return new Entities(sharingManager.getShared(c.getSocialId(),
+		 * visibility.getUserIds(), groupId, visibility.getCommunityIds(),
+		 * position, size, type, visibility.getCommunityIds() == null ||
+		 * visibility.getCommunityIds().isEmpty(), false));
+		 */
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/community/{cid}/entities")
 	public @ResponseBody
-	Entities getMyContents(
-			@PathVariable String cid,
-			@RequestParam(required=false) Integer position, 
-			@RequestParam(required=false) Integer size,
-			@RequestParam(required=false) String type) throws SocialServiceException {
+	Entities getMyContents(@PathVariable String cid,
+			@RequestParam(required = false) Integer position,
+			@RequestParam(required = false) Integer size,
+			@RequestParam(required = false) String type)
+			throws SocialServiceException {
 
 		throw new UnsupportedOperationException();
-/*
-  		Community c = communityManager.getCommunity(cid);
-		if (c == null) throw new SocialServiceException("Community with id "+cid +"is not found.");
-
-		return new Entities(sharingManager.getShared(c.getSocialId(),
-				null, null, Collections.singletonList(c.getSocialId()), 
-				position, size, type, false, shareVisibility));
-//		return new Entities(sharingManager.getCommunityEntities(cid, 
-//				position, size, type, shareVisibility));
-*/		
+		/*
+		 * Community c = communityManager.getCommunity(cid); if (c == null)
+		 * throw new SocialServiceException("Community with id "+cid
+		 * +"is not found.");
+		 * 
+		 * return new Entities(sharingManager.getShared(c.getSocialId(), null,
+		 * null, Collections.singletonList(c.getSocialId()), position, size,
+		 * type, false, shareVisibility)); // return new
+		 * Entities(sharingManager.getCommunityEntities(cid, // position, size,
+		 * type, shareVisibility));
+		 */
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/community/{cid}/entities/{eid}")
 	public @ResponseBody
-	Entity getMyContent(@PathVariable String cid, @PathVariable String eid) throws IOException,
-			SocialServiceException {
+	Entity getMyContent(@PathVariable String cid, @PathVariable String eid)
+			throws IOException, SocialServiceException {
 
 		Community c = communityManager.getCommunity(cid);
-		if (c == null) throw new SocialServiceException("Community with id "+cid +"is not found.");
+		if (c == null)
+			throw new SocialServiceException("Community with id " + cid
+					+ "is not found.");
 
 		if (!sharingManager.checkPermission(c.getSocialId(), eid)) {
 			throw new SecurityException();
@@ -141,22 +149,26 @@ public class CommunityDataController extends RestController {
 
 	@RequestMapping(method = RequestMethod.POST, value = "/community/{cid}/entities")
 	public @ResponseBody
-	Entity createEntity(@PathVariable String cid, @RequestBody EntityRequest entity)
-			throws SocialServiceException {
+	Entity createEntity(@PathVariable String cid,
+			@RequestBody EntityRequest entity) throws SocialServiceException {
 
 		Community c = communityManager.getCommunity(cid);
-		if (c == null) throw new SocialServiceException("Community with id "+cid +" is not found.");
+		if (c == null)
+			throw new SocialServiceException("Community with id " + cid
+					+ " is not found.");
 
 		return sharingManager.createEntity(entity, c.getSocialId());
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/community/{cid}/entities/{eid}")
 	public @ResponseBody
-	boolean updateEntity(@PathVariable String cid, @PathVariable String eid, @RequestBody EntityRequest entity)
-			throws SocialServiceException {
-		
+	boolean updateEntity(@PathVariable String cid, @PathVariable String eid,
+			@RequestBody EntityRequest entity) throws SocialServiceException {
+
 		Community c = communityManager.getCommunity(cid);
-		if (c == null) throw new SocialServiceException("Community with id "+cid +"is not found.");
+		if (c == null)
+			throw new SocialServiceException("Community with id " + cid
+					+ "is not found.");
 
 		if (!sharingManager.checkPermission(c.getSocialId(), eid)) {
 			throw new SecurityException();
@@ -172,7 +184,9 @@ public class CommunityDataController extends RestController {
 			throws SocialServiceException {
 
 		Community c = communityManager.getCommunity(cid);
-		if (c == null) throw new SocialServiceException("Community with id "+cid +"is not found.");
+		if (c == null)
+			throw new SocialServiceException("Community with id " + cid
+					+ "is not found.");
 
 		if (!sharingManager.checkPermission(c.getSocialId(), eid)) {
 			throw new SecurityException();

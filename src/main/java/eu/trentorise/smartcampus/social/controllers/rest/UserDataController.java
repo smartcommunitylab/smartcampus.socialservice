@@ -18,7 +18,6 @@ package eu.trentorise.smartcampus.social.controllers.rest;
 import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,13 +27,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.trentorise.smartcampus.social.managers.SharingManager;
 import eu.trentorise.smartcampus.social.managers.SocialServiceException;
+import eu.trentorise.smartcampus.social.model.Entities;
+import eu.trentorise.smartcampus.social.model.Entity;
 import eu.trentorise.smartcampus.social.model.EntityRequest;
 import eu.trentorise.smartcampus.social.model.ShareVisibility;
-import eu.trentorise.smartcampus.social.model.Entity;
-import eu.trentorise.smartcampus.social.model.Entities;
 import eu.trentorise.smartcampus.social.model.User;
 
-@Controller
+//@Controller
 public class UserDataController extends RestController {
 
 	@Autowired
@@ -42,13 +41,15 @@ public class UserDataController extends RestController {
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/shared/{entityId}")
 	public @ResponseBody
-	boolean share(@PathVariable String entityId, @RequestBody ShareVisibility shareVisibility)
+	boolean share(@PathVariable String entityId,
+			@RequestBody ShareVisibility shareVisibility)
 			throws SocialServiceException {
 
 		String userId = getUserId();
 		User user = getUserObject(userId);
 
-		return sharingManager.share(entityId, user.getSocialId(), shareVisibility);
+		return sharingManager.share(entityId, user.getSocialId(),
+				shareVisibility);
 	}
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/user/shared/{entityId}")
@@ -79,11 +80,11 @@ public class UserDataController extends RestController {
 
 	@RequestMapping(method = RequestMethod.POST, value = "/user/shared")
 	public @ResponseBody
-	Entities getSharedEntities(
-			@RequestBody ShareVisibility visibility,
-			@RequestParam(required=false) int position, 
-			@RequestParam(required=false) int size,
-			@RequestParam(required=false) String type) throws SocialServiceException {
+	Entities getSharedEntities(@RequestBody ShareVisibility visibility,
+			@RequestParam(required = false) int position,
+			@RequestParam(required = false) int size,
+			@RequestParam(required = false) String type)
+			throws SocialServiceException {
 
 		String userId = getUserId();
 		User user = getUserObject(userId);
@@ -99,10 +100,10 @@ public class UserDataController extends RestController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/user/entities")
 	public @ResponseBody
-	Entities getMyContents(
-			@RequestParam(required=false) int position, 
-			@RequestParam(required=false) int size,
-			@RequestParam(required=false) String type) throws SocialServiceException {
+	Entities getMyContents(@RequestParam(required = false) int position,
+			@RequestParam(required = false) int size,
+			@RequestParam(required = false) String type)
+			throws SocialServiceException {
 
 		String userId = getUserId();
 		User user = getUserObject(userId);
@@ -138,9 +139,9 @@ public class UserDataController extends RestController {
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/entities/{eid}")
 	public @ResponseBody
-	boolean updateEntity(@PathVariable String eid, @RequestBody EntityRequest entity)
-			throws SocialServiceException {
-		
+	boolean updateEntity(@PathVariable String eid,
+			@RequestBody EntityRequest entity) throws SocialServiceException {
+
 		String userId = getUserId();
 		User user = getUserObject(userId);
 

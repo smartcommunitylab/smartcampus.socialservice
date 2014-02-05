@@ -15,12 +15,6 @@
  ******************************************************************************/
 package eu.trentorise.smartcampus.social.managers;
 
-import it.unitn.disi.sweb.webapi.client.WebApiException;
-import it.unitn.disi.sweb.webapi.model.entity.Attribute;
-import it.unitn.disi.sweb.webapi.model.entity.DataType;
-import it.unitn.disi.sweb.webapi.model.entity.EntityBase;
-import it.unitn.disi.sweb.webapi.model.entity.Value;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,10 +25,7 @@ import javax.annotation.PostConstruct;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import eu.trentorise.smartcampus.exceptions.SmartCampusException;
-import eu.trentorise.smartcampus.social.SocialEngineConnector;
 import eu.trentorise.smartcampus.social.converters.SocialEngineConverter;
 import eu.trentorise.smartcampus.social.model.Community;
 import eu.trentorise.smartcampus.social.model.Constants;
@@ -45,7 +36,7 @@ import eu.trentorise.smartcampus.social.model.Constants;
  * @author mirko
  * 
  */
-@Component
+// @Component
 public class CommunityManager extends SocialEngineConnector {
 
 	public CommunityManager() throws IOException {
@@ -72,7 +63,7 @@ public class CommunityManager extends SocialEngineConnector {
 				logger.info("No default community is present in the system");
 				defaultCommunity = new Community();
 				defaultCommunity.setName(Constants.SMARTCAMPUS_COMMUNITY);
-				if (create(defaultCommunity,Constants.SMARTCAMPUS_COMMUNITY) != null) {
+				if (create(defaultCommunity, Constants.SMARTCAMPUS_COMMUNITY) != null) {
 					logger.info("Created default community: "
 							+ Constants.SMARTCAMPUS_COMMUNITY);
 					defaultCommunity = getCommunity(Constants.SMARTCAMPUS_COMMUNITY);
@@ -98,8 +89,10 @@ public class CommunityManager extends SocialEngineConnector {
 	public List<Community> getCommunities() throws SocialServiceException {
 		try {
 			List<Community> res = new ArrayList<Community>();
-			for (it.unitn.disi.sweb.webapi.model.smartcampus.social.Community c : socialEngineClient.readCommunities()) {
-				res.add(socialConverter.toCommunity(c, socialEngineClient.readEntity(c.getEntityId(), null)));
+			for (it.unitn.disi.sweb.webapi.model.smartcampus.social.Community c : socialEngineClient
+					.readCommunities()) {
+				res.add(socialConverter.toCommunity(c,
+						socialEngineClient.readEntity(c.getEntityId(), null)));
 			}
 			return res;
 		} catch (WebApiException e) {
@@ -124,14 +117,18 @@ public class CommunityManager extends SocialEngineConnector {
 			throws SocialServiceException {
 		try {
 			Long socialUserId = Long.parseLong(socialUserIdStr);
-			it.unitn.disi.sweb.webapi.model.smartcampus.social.User user = socialEngineClient.readUser(socialUserId);
-			if (user.getKnownCommunityIds() == null || user.getKnownCommunityIds().isEmpty()) {
+			it.unitn.disi.sweb.webapi.model.smartcampus.social.User user = socialEngineClient
+					.readUser(socialUserId);
+			if (user.getKnownCommunityIds() == null
+					|| user.getKnownCommunityIds().isEmpty()) {
 				return Collections.emptyList();
 			} else {
 				List<Community> res = new ArrayList<Community>();
 				for (it.unitn.disi.sweb.webapi.model.smartcampus.social.Community c : socialEngineClient
-						.readCommunities(new ArrayList<Long>(user.getKnownCommunityIds()))) {
-					res.add(socialConverter.toCommunity(c, socialEngineClient.readEntity(c.getEntityId(), null)));
+						.readCommunities(new ArrayList<Long>(user
+								.getKnownCommunityIds()))) {
+					res.add(socialConverter.toCommunity(c, socialEngineClient
+							.readEntity(c.getEntityId(), null)));
 				}
 				return res;
 			}
@@ -152,10 +149,13 @@ public class CommunityManager extends SocialEngineConnector {
 	 */
 	public Community getCommunity(String cid) throws SocialServiceException {
 		try {
-			it.unitn.disi.sweb.webapi.model.smartcampus.social.Community c = socialEngineClient.readCommunity(cid);
-			if (c == null) return null;
-			it.unitn.disi.sweb.webapi.model.entity.Entity e = socialEngineClient.readEntity(c.getEntityId(), null);
-			return socialConverter.toCommunity(c,e);
+			it.unitn.disi.sweb.webapi.model.smartcampus.social.Community c = socialEngineClient
+					.readCommunity(cid);
+			if (c == null)
+				return null;
+			it.unitn.disi.sweb.webapi.model.entity.Entity e = socialEngineClient
+					.readEntity(c.getEntityId(), null);
+			return socialConverter.toCommunity(c, e);
 
 		} catch (Exception e) {
 			logger.error("Exception getting community " + cid);
@@ -174,10 +174,13 @@ public class CommunityManager extends SocialEngineConnector {
 	private Community getCommunity(long communityId, String cid)
 			throws SocialServiceException {
 		try {
-			it.unitn.disi.sweb.webapi.model.smartcampus.social.Community c = socialEngineClient.readCommunity(cid);
-			if (c == null) return null;
-			it.unitn.disi.sweb.webapi.model.entity.Entity e = socialEngineClient.readEntity(c.getEntityId(), null);
-			return socialConverter.toCommunity(c,e);
+			it.unitn.disi.sweb.webapi.model.smartcampus.social.Community c = socialEngineClient
+					.readCommunity(cid);
+			if (c == null)
+				return null;
+			it.unitn.disi.sweb.webapi.model.entity.Entity e = socialEngineClient
+					.readEntity(c.getEntityId(), null);
+			return socialConverter.toCommunity(c, e);
 		} catch (WebApiException e) {
 			logger.error("Exception getting community " + communityId);
 			throw new SocialServiceException();
@@ -189,33 +192,36 @@ public class CommunityManager extends SocialEngineConnector {
 	 * 
 	 * @param community
 	 *            data to persist
-	 * @param cid 
+	 * @param cid
 	 * @return the id of new community
 	 * @throws SocialServiceException
 	 */
 
-	public Community create(Community community, String cid) throws SocialServiceException {
+	public Community create(Community community, String cid)
+			throws SocialServiceException {
 		it.unitn.disi.sweb.webapi.model.smartcampus.social.Community toSave = new it.unitn.disi.sweb.webapi.model.smartcampus.social.Community();
 		toSave.setName(cid);
 		try {
 			EntityBase eb = new EntityBase();
-			eb.setLabel(cid+"_COMMUNITY_" + System.currentTimeMillis());
+			eb.setLabel(cid + "_COMMUNITY_" + System.currentTimeMillis());
 			// Re-read to get the ID of the default KB
 			eb = socialEngineClient.readEntityBase(socialEngineClient
 					.create(eb));
 
-			it.unitn.disi.sweb.webapi.model.entity.EntityType communityType = socialEngineClient.readEntityType("community", eb.getKbLabel());
+			it.unitn.disi.sweb.webapi.model.entity.EntityType communityType = socialEngineClient
+					.readEntityType("community", eb.getKbLabel());
 			it.unitn.disi.sweb.webapi.model.entity.Entity entity = new it.unitn.disi.sweb.webapi.model.entity.Entity();
 			entity.setEntityBase(eb);
 			entity.setEtype(communityType);
-			
+
 			List<Attribute> attrs = new ArrayList<Attribute>();
 			// name attribute
 			if (community.getName() != null) {
-				attrs.add(createTextAttribute("name", new String[] { community.getName() }, entity.getEtype()));
+				attrs.add(createTextAttribute("name",
+						new String[] { community.getName() }, entity.getEtype()));
 			}
 			entity.setAttributes(attrs);
-			
+
 			Long entityId = socialEngineClient.create(entity);
 			toSave.setEntityId(entityId);
 			toSave.setEntityBaseId(eb.getId());
@@ -237,9 +243,11 @@ public class CommunityManager extends SocialEngineConnector {
 	 */
 	public boolean delete(String cid) throws SocialServiceException {
 		try {
-			it.unitn.disi.sweb.webapi.model.smartcampus.social.Community c = socialEngineClient.readCommunity(cid);
-			if (c == null) return true;
-			
+			it.unitn.disi.sweb.webapi.model.smartcampus.social.Community c = socialEngineClient
+					.readCommunity(cid);
+			if (c == null)
+				return true;
+
 			return socialEngineClient.deleteCommunity(c.getId());
 		} catch (WebApiException e) {
 			logger.error("Exception deleting community " + cid);
@@ -261,20 +269,23 @@ public class CommunityManager extends SocialEngineConnector {
 			throws SocialServiceException {
 		try {
 			Long socialId = Long.parseLong(socialIdStr);
-			it.unitn.disi.sweb.webapi.model.smartcampus.social.User user = socialEngineClient.readUser(socialId);
+			it.unitn.disi.sweb.webapi.model.smartcampus.social.User user = socialEngineClient
+					.readUser(socialId);
 			if (user.getKnownCommunityIds() == null) {
 				user.setKnownCommunityIds(new HashSet<Long>(1));
 			}
-			
-			it.unitn.disi.sweb.webapi.model.smartcampus.social.Community c = socialEngineClient.readCommunity(cid);
-			if (c == null) return false;
-			
+
+			it.unitn.disi.sweb.webapi.model.smartcampus.social.Community c = socialEngineClient
+					.readCommunity(cid);
+			if (c == null)
+				return false;
+
 			user.getKnownCommunityIds().add(c.getId());
 			socialEngineClient.update(user);
 			return true;
 		} catch (Exception e) {
-			logger.error("Exception adding user " + socialIdStr + " to community "
-					+ cid);
+			logger.error("Exception adding user " + socialIdStr
+					+ " to community " + cid);
 			throw new SocialServiceException();
 		}
 	}
@@ -292,11 +303,15 @@ public class CommunityManager extends SocialEngineConnector {
 		boolean success = false;
 		try {
 			Long socialId = Long.parseLong(socialIdStr);
-			it.unitn.disi.sweb.webapi.model.smartcampus.social.User user = socialEngineClient.readUser(socialId);
+			it.unitn.disi.sweb.webapi.model.smartcampus.social.User user = socialEngineClient
+					.readUser(socialId);
 
-			it.unitn.disi.sweb.webapi.model.smartcampus.social.Community c = socialEngineClient.readCommunity(cid);
-			if (c == null) return false;
-			if (user.getKnownCommunityIds() != null &&  user.getKnownCommunityIds().contains(c.getId())) {
+			it.unitn.disi.sweb.webapi.model.smartcampus.social.Community c = socialEngineClient
+					.readCommunity(cid);
+			if (c == null)
+				return false;
+			if (user.getKnownCommunityIds() != null
+					&& user.getKnownCommunityIds().contains(c.getId())) {
 				if (user.getKnownCommunityIds().remove(c.getId())) {
 					socialEngineClient.update(user);
 					success = true;
@@ -311,16 +326,21 @@ public class CommunityManager extends SocialEngineConnector {
 	/**
 	 * @param socialid
 	 * @return
-	 * @throws SocialServiceException 
+	 * @throws SocialServiceException
 	 */
-	public Community getCommunityBySocialId(String socialid) throws SocialServiceException {
+	public Community getCommunityBySocialId(String socialid)
+			throws SocialServiceException {
 		try {
-			it.unitn.disi.sweb.webapi.model.smartcampus.social.Community c = socialEngineClient.readCommunity(Long.parseLong(socialid));
-			if (c == null) return null;
-			it.unitn.disi.sweb.webapi.model.entity.Entity e = socialEngineClient.readEntity(c.getEntityId(), null);
-			return socialConverter.toCommunity(c,e);
+			it.unitn.disi.sweb.webapi.model.smartcampus.social.Community c = socialEngineClient
+					.readCommunity(Long.parseLong(socialid));
+			if (c == null)
+				return null;
+			it.unitn.disi.sweb.webapi.model.entity.Entity e = socialEngineClient
+					.readEntity(c.getEntityId(), null);
+			return socialConverter.toCommunity(c, e);
 		} catch (WebApiException e) {
-			logger.error("Exception getting community with social Id " + socialid);
+			logger.error("Exception getting community with social Id "
+					+ socialid);
 			throw new SocialServiceException();
 		}
 	}

@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,14 +33,15 @@ import eu.trentorise.smartcampus.social.model.Group;
 import eu.trentorise.smartcampus.social.model.Groups;
 import eu.trentorise.smartcampus.social.model.User;
 
-@Controller("groupController")
+//@Controller("groupController")
 public class GroupController extends RestController {
 
 	@Autowired
 	private GroupManager groupManager;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/user/group")
-	public @ResponseBody Groups getUserGroups() throws SocialServiceException, IOException {
+	public @ResponseBody
+	Groups getUserGroups() throws SocialServiceException, IOException {
 
 		String userId = getUserId();
 		User user = getUserObject(userId);
@@ -50,7 +50,9 @@ public class GroupController extends RestController {
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/user/group/{groupId}")
-	public @ResponseBody Group getUserGroup(@PathVariable String groupId) throws SocialServiceException {
+	public @ResponseBody
+	Group getUserGroup(@PathVariable String groupId)
+			throws SocialServiceException {
 
 		String userId = getUserId();
 		User user = getUserObject(userId);
@@ -70,7 +72,8 @@ public class GroupController extends RestController {
 		String userId = getUserId();
 		User user = getUserObject(userId);
 
-		String id = groupManager.create(user.getSocialId(), groupInRequest.getName());
+		String id = groupManager.create(user.getSocialId(),
+				groupInRequest.getName());
 		if (id != null) {
 			groupInRequest.setSocialId(id);
 			return groupInRequest;
@@ -96,8 +99,8 @@ public class GroupController extends RestController {
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/group/{groupId}")
 	public @ResponseBody
-	boolean updateGroup(@PathVariable("groupId") String groupId, @RequestBody Group groupInRequest)
-			throws SocialServiceException {
+	boolean updateGroup(@PathVariable("groupId") String groupId,
+			@RequestBody Group groupInRequest) throws SocialServiceException {
 
 		String userId = getUserId();
 		User user = getUserObject(userId);
@@ -113,7 +116,8 @@ public class GroupController extends RestController {
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/group/{groupId}/members")
 	public @ResponseBody
-	boolean addUser(@PathVariable String groupId, @RequestParam("userIds") List<String> userIds)
+	boolean addUser(@PathVariable String groupId,
+			@RequestParam("userIds") List<String> userIds)
 			throws SocialServiceException, IOException {
 
 		String userId = getUserId();
@@ -129,12 +133,15 @@ public class GroupController extends RestController {
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/user/group/{groupId}/members")
 	public @ResponseBody
-	boolean removeUser(@PathVariable String groupId, @RequestParam("userIds") List<String> userIds) throws SocialServiceException {
+	boolean removeUser(@PathVariable String groupId,
+			@RequestParam("userIds") List<String> userIds)
+			throws SocialServiceException {
 
 		String userId = getUserId();
 		User user = getUserObject(userId);
 
-		if (!groupId.equals(Constants.MY_PEOPLE_GROUP_ID) && !groupManager.checkPermission(user.getSocialId(), groupId)) {
+		if (!groupId.equals(Constants.MY_PEOPLE_GROUP_ID)
+				&& !groupManager.checkPermission(user.getSocialId(), groupId)) {
 			throw new SecurityException();
 		}
 

@@ -15,10 +15,6 @@
  ******************************************************************************/
 package eu.trentorise.smartcampus.social.managers;
 
-import it.unitn.disi.sweb.webapi.client.WebApiException;
-import it.unitn.disi.sweb.webapi.model.entity.EntityBase;
-import it.unitn.disi.sweb.webapi.model.smartcampus.social.SocialActor;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,11 +25,8 @@ import javax.annotation.PostConstruct;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import eu.trentorise.smartcampus.exceptions.SmartCampusException;
 import eu.trentorise.smartcampus.resourceprovider.model.AuthServices;
-import eu.trentorise.smartcampus.social.SocialEngineConnector;
 import eu.trentorise.smartcampus.social.model.User;
 
 /**
@@ -43,12 +36,13 @@ import eu.trentorise.smartcampus.social.model.User;
  * @author mirko perillo
  * 
  */
-@Component
+// @Component
 public class UserManager extends SocialEngineConnector {
 
 	private static final Logger logger = Logger.getLogger(UserManager.class);
 
-	@Autowired AuthServices authServices;
+	@Autowired
+	AuthServices authServices;
 
 	@Autowired
 	private CommunityManager communityManager;
@@ -73,17 +67,17 @@ public class UserManager extends SocialEngineConnector {
 		}
 	}
 
-
 	/**
-	 * returns the {@link eu.trentorise.smartcampus.social.model.User} of the users specified with social IDs
+	 * returns the {@link eu.trentorise.smartcampus.social.model.User} of the
+	 * users specified with social IDs
 	 * 
 	 * @param socialUserIds
 	 *            list of social user ids
 	 * @return the list of minimal profiles
 	 * @throws SocialServiceException
 	 */
-	public List<eu.trentorise.smartcampus.social.model.User> getUsers(Set<Long> socialUserIds)
-			throws SocialServiceException {
+	public List<eu.trentorise.smartcampus.social.model.User> getUsers(
+			Set<Long> socialUserIds) throws SocialServiceException {
 		List<eu.trentorise.smartcampus.social.model.User> profiles = new ArrayList<eu.trentorise.smartcampus.social.model.User>();
 		try {
 			for (Long temp : socialUserIds) {
@@ -107,8 +101,8 @@ public class UserManager extends SocialEngineConnector {
 	 * @return MinimalProfile of user or null if it doesn't exist
 	 * @throws SocialServiceException
 	 */
-	public eu.trentorise.smartcampus.social.model.User getUserBySocialId(Long socialId)
-			throws SocialServiceException {
+	public eu.trentorise.smartcampus.social.model.User getUserBySocialId(
+			Long socialId) throws SocialServiceException {
 		try {
 			return authServices.loadUserBySocialId(socialId.toString());
 		} catch (Exception e) {
@@ -124,8 +118,8 @@ public class UserManager extends SocialEngineConnector {
 	 * @return MinimalProfile of user or null if it doesn't exist
 	 * @throws SocialServiceException
 	 */
-	public eu.trentorise.smartcampus.social.model.User getUserByEntityBase(EntityBase eb)
-			throws SocialServiceException {
+	public eu.trentorise.smartcampus.social.model.User getUserByEntityBase(
+			EntityBase eb) throws SocialServiceException {
 		Long socialId = entityBaseUserMap.get(eb.getId());
 		if (socialId == null) {
 			try {
