@@ -44,7 +44,7 @@ public class SocialGroupManager implements GroupOperations {
 		if (user == null) {
 			throw new IllegalArgumentException(userId + "not exists");
 		}
-		return SocialGroup.toGroup((groupRepository.findByCreatorId(userId)));
+		return SocialGroup.toGroup((groupRepository.findByCreator(userId)));
 	}
 
 	@Override
