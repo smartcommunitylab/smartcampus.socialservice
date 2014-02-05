@@ -30,15 +30,37 @@
 	http://www.springframework.org/schema/data/mongo
     http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd">
 
+<!--     <jpa:repositories base-package="eu.trentorise.smartcampus.social.engine.repo" /> -->
+    
 	<!-- Configures support for @Controllers -->
 	<mvc:annotation-driven />
-
+	
 	<!-- Scan controllers in this package -->
 	<context:component-scan
 		base-package="eu.trentorise.smartcampus.social" />
 
-	<context:property-placeholder  location="classpath:communitymanager.properties" />
+<!-- 	<context:property-placeholder location="classpath:socialservice.properties" /> -->
+	<context:property-placeholder  location="classpath:communitymanager.properties" />	
 
+	<!-- Activates various annotations to be detected in bean classes -->
+	<context:annotation-config />
+	
+		<import resource="datalayer.xml"/>
+		
+<!-- 		<bean id="dataSource" destroy-method="close" -->
+<!-- 			class="org.apache.commons.dbcp.BasicDataSource"> -->
+<!-- 			<property name="driverClassName" value="${jdbc.driver}" /> -->
+<!-- 			<property name="url" value="${jdbc.url}" /> -->
+<!-- 			<property name="username" value="${jdbc.user}" /> -->
+<!-- 			<property name="password" value="${jdbc.password}" /> -->
+<!-- 		</bean> -->
+
+<!-- 	<bean id="groupRepository" class="eu.trentorise.smartcampus.social.engine.repo.GroupRepository"/>	 -->
+	
+<!-- 	<bean class="org.springframework.orm.hibernate4.HibernateExceptionTranslator"/> -->
+	
     <bean id="authServices" class="eu.trentorise.smartcampus.social.managers.MockAuthServices"/>	
+    
+    
 
 </beans>
