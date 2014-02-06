@@ -23,6 +23,9 @@ public class SocialUser implements Serializable {
 		this.id = id;
 	}
 
+	public SocialUser() {
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		return (obj instanceof SocialUser)
