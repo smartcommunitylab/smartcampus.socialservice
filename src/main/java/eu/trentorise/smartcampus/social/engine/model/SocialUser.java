@@ -33,6 +33,11 @@ public class SocialUser implements Serializable {
 				&& ((SocialUser) obj).getId().equals(id);
 	}
 
+	@Override
+	public int hashCode() {
+		return id.hashCode();
+	}
+
 	public String getId() {
 		return id;
 	}
