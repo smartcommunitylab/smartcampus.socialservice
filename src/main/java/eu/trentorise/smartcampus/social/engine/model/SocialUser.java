@@ -8,6 +8,8 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 
+import eu.trentorise.smartcampus.social.engine.beans.User;
+
 @Entity
 public class SocialUser implements Serializable {
 
@@ -52,6 +54,12 @@ public class SocialUser implements Serializable {
 
 	public void setMyGroups(Set<SocialGroup> myGroups) {
 		this.myGroups = myGroups;
+	}
+	
+	public User toUser() {
+		User user = new User();
+		user.setId(id != null ? id : null);
+		return user;
 	}
 
 }

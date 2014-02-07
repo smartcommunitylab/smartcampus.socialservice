@@ -8,6 +8,6 @@ import eu.trentorise.smartcampus.social.engine.model.SocialGroup;
 
 public interface GroupRepository extends CrudRepository<SocialGroup, Long> {
 
-	public List<SocialGroup> findByCreator(String creatorId);
+	public List<SocialGroup> findByCreatorId(String creatorId);
 
 }

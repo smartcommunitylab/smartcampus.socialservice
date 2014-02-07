@@ -28,13 +28,13 @@ public class SocialGroup implements Serializable {
 
 	private String name;
 
-	@OneToOne
+	@OneToOne(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST })
 	private SocialUser creator;
 
 	private Long creationTime;
 	private Long lastModifiedTime;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.ALL })
+	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JoinTable(name = "group_members")
 	private Set<SocialUser> members;
 
@@ -104,7 +104,7 @@ public class SocialGroup implements Serializable {
 		group.setName(name);
 		group.setCreationTime(creationTime);
 		group.setLastModifiedTime(lastModifiedTime);
-		group.setMemberNumber(getMembers().size());
+		group.setMemberNumber(getMembers() != null ? getMembers().size() : 0);
 		return group;
 	}
 

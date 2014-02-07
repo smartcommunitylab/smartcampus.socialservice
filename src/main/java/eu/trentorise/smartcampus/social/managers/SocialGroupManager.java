@@ -1,50 +1,53 @@
 package eu.trentorise.smartcampus.social.managers;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import eu.trentorise.smartcampus.social.engine.GroupOperations;
 import eu.trentorise.smartcampus.social.engine.beans.Group;
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
-import eu.trentorise.smartcampus.social.engine.beans.Member;
 import eu.trentorise.smartcampus.social.engine.model.SocialGroup;
 import eu.trentorise.smartcampus.social.engine.model.SocialUser;
 import eu.trentorise.smartcampus.social.engine.repo.GroupRepository;
-import eu.trentorise.smartcampus.social.engine.repo.UserRepository;
 
 @Component
+@Transactional
 public class SocialGroupManager implements GroupOperations {
 
 	@Autowired
 	GroupRepository groupRepository;
 
 	@Autowired
-	UserRepository userRepository;
-
+	SocialUserManager userManager;
+	
 	@Override
 	public Group create(String userId, String name) {
 
 		// load user
-		SocialUser user = userRepository.findOne(userId);
+		SocialUser user = userManager.readSocialUser(userId);
 		if (user == null) {
-			throw new IllegalArgumentException(userId + "not exists");
+			//user = userManager.createSocial(userId);
+			user = new SocialUser(userId);
 		}
 		SocialGroup group = new SocialGroup(name, user);
+		
 		return groupRepository.save(group).toGroup();
 	}
 
 	@Override
 	public List<Group> readGroups(String userId, Limit limit) {
 		// load user
-		SocialUser user = userRepository.findOne(userId);
+		SocialUser user = userManager.readSocialUser(userId);
 		if (user == null) {
-			throw new IllegalArgumentException(userId + "not exists");
+			throw new IllegalArgumentException(userId + " not exists");
 		}
-		return SocialGroup.toGroup((groupRepository.findByCreator(userId)));
+		return SocialGroup.toGroup((groupRepository.findByCreatorId(userId)));
 	}
 
 	@Override
@@ -55,9 +58,14 @@ public class SocialGroupManager implements GroupOperations {
 	}
 
 	@Override
-	public List<Member> readMembers(String groupId, Limit limit) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<SocialUser> readMembers(String groupId, Limit limit) {
+		SocialGroup result = groupRepository.findOne(SocialGroup
+				.convertId(groupId));
+		List<SocialUser> members = new ArrayList<SocialUser>();
+		for (SocialUser su:result.getMembers()){
+			members.add(su);
+		}
+		return members;
 	}
 
 	@Override
