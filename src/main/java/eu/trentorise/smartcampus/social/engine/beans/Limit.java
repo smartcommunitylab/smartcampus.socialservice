@@ -1,26 +1,26 @@
 package eu.trentorise.smartcampus.social.engine.beans;
 
 public class Limit {
-	private int position;
-	private int size;
+	private int page;
+	private int pageSize;
 
 	private long fromDate;
 	private long toDate;
 
-	public int getPosition() {
-		return position;
+	public int getPage() {
+		return page;
+	}
+	
+	public void setPage(int page) {
+		this.page = page;
+	}	
+
+	public int getPageSize() {
+		return pageSize;
 	}
 
-	public void setPosition(int position) {
-		this.position = position;
-	}
-
-	public int getSize() {
-		return size;
-	}
-
-	public void setSize(int size) {
-		this.size = size;
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
 	}
 
 	public long getFromDate() {
