@@ -1,5 +1,7 @@
 package eu.trentorise.smartcampus.social.engine.beans;
 
+import java.util.Set;
+
 public class Community {
 
 	private String id;
@@ -9,6 +11,7 @@ public class Community {
 	private Long lastModifiedTime;
 
 	private int memberNumber;
+	private Set<String> memberIds;
 
 	public String getId() {
 		return id;
@@ -48,6 +51,14 @@ public class Community {
 
 	public void setMemberNumber(int memberNumber) {
 		this.memberNumber = memberNumber;
+	}
+
+	public Set<String> getMemberIds() {
+		return memberIds;
+	}
+
+	public void setMemberIds(Set<String> memberIds) {
+		this.memberIds = memberIds;
 	}
 
 }

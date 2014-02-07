@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +33,29 @@ public class SocialCommunityManager implements CommunityOperations {
 
 	@Override
 	public List<Community> readCommunities(Limit limit) {
-		// TODO Auto-generated method stub
-		return null;
+		if (limit != null) {
+			List<SocialCommunity> result = null;
+
+			PageRequest page = null;
+			if (limit.getPosition() >= 0 && limit.getSize() > 0) {
+				page = new PageRequest(limit.getPosition(), limit.getSize());
+			}
+			if (limit.getFromDate() > 0 && limit.getToDate() > 0) {
+				result = communityRepository.findByCreationTimeBetween(
+						limit.getFromDate(), limit.getToDate(), page);
+			} else if (limit.getFromDate() > 0) {
+				result = communityRepository.findByCreationTimeGreaterThan(
+						limit.getFromDate(), page);
+			} else if (limit.getToDate() > 0) {
+				result = communityRepository.findByCreationTimeLessThan(
+						limit.getToDate(), page);
+			} else {
+				result = communityRepository.findAll(page).getContent();
+			}
+			return SocialCommunity.toCommunity(result);
+		} else {
+			return SocialCommunity.toCommunity(communityRepository.findAll());
+		}
 	}
 
 	@Override

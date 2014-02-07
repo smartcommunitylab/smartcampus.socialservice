@@ -1,6 +1,8 @@
 package eu.trentorise.smartcampus.social.engine.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -29,6 +31,16 @@ public class SocialCommunity implements Serializable {
 	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST,
 			CascadeType.MERGE })
 	private Set<SocialUser> members;
+
+	public SocialCommunity(String name) {
+		super();
+		this.name = name;
+	}
+
+	public SocialCommunity() {
+		creationTime = System.currentTimeMillis();
+		lastModifiedTime = System.currentTimeMillis();
+	}
 
 	public Long getId() {
 		return id;
@@ -78,5 +90,16 @@ public class SocialCommunity implements Serializable {
 		community.setName(name);
 		// community.setMemberNumber(getMembers().size());
 		return community;
+	}
+
+	public static List<Community> toCommunity(
+			Iterable<SocialCommunity> collection) {
+		List<Community> outputList = new ArrayList<Community>();
+		for (SocialCommunity element : collection) {
+			if (element != null) {
+				outputList.add(element.toCommunity());
+			}
+		}
+		return outputList;
 	}
 }
