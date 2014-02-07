@@ -19,11 +19,11 @@ public interface CommunityOperations {
 
 	// update
 
-	public boolean addMembers(String communityId, Set<String> groupIds);
+	public boolean addMembers(String communityId, Set<String> members);
 
-	public boolean removeMembers(String communityId, Set<String> groupIds);
+	public boolean removeMembers(String communityId, Set<String> members);
 
 	// delete
 
-	public boolean delete(String groupId);
+	public boolean delete(String communityId);
 }
