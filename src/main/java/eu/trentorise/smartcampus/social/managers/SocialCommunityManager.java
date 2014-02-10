@@ -1,5 +1,7 @@
 package eu.trentorise.smartcampus.social.managers;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -102,6 +104,23 @@ public class SocialCommunityManager implements CommunityOperations {
 	public boolean delete(String communityId) {
 		communityRepository.delete(RepositoryUtils.convertId(communityId));
 		return true;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Set<String> readMembers(String communityId, Limit limit) {
+		Community community = readCommunity(communityId);
+		if (community != null) {
+			if (limit != null) {
+				return new HashSet<String>(
+						(Collection<? extends String>) RepositoryUtils
+								.getSublistPagination(new ArrayList<String>(
+										community.getMemberIds()), limit));
+			} else {
+				return community.getMemberIds();
+			}
+		}
+		return null;
 	}
 
 }

@@ -2,6 +2,7 @@ package eu.trentorise.smartcampus.social.managers;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -75,6 +76,21 @@ public class SocialCommunityManagerTest {
 			}
 		};
 
+		new HashSet<String>(Arrays.asList("1"));
+		// get members
+		Assert.assertEquals(3,
+				communityManager.readMembers(community.getId(), null).size());
+		Limit limit = new Limit();
+		limit.setPage(0);
+		limit.setPageSize(2);
+		Assert.assertEquals(2,
+				communityManager.readMembers(community.getId(), limit).size());
+		limit.setPage(0);
+		limit.setPageSize(1);
+		Assert.assertEquals(1,
+				communityManager.readMembers(community.getId(), limit).size());
+
+		// remove members
 		Assert.assertTrue(communityManager.removeMembers(community.getId(),
 				unsubscribed));
 		community = communityManager.readCommunity(community.getId());
