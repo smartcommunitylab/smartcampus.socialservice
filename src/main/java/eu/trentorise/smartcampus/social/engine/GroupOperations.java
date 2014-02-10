@@ -10,9 +10,12 @@ import eu.trentorise.smartcampus.social.engine.model.SocialUser;;
 public interface GroupOperations {
 
 	// creation
+	
 	public Group create(String userId, String name);
 
 	// read
+	
+	public List<Group> readGroups(Limit limit);
 
 	public List<Group> readGroups(String userId, Limit limit);
 
@@ -24,6 +27,8 @@ public interface GroupOperations {
 
 	public Group update(String groupId, String name);
 
+	public Group update(String groupId, Long creationTime);
+	
 	public boolean addMembers(String groupId, Set<String> userIds);
 
 	public boolean removeMembers(String groupId, Set<String> userIds);
@@ -31,4 +36,5 @@ public interface GroupOperations {
 	// delete
 
 	public boolean delete(String groupId);
+
 }
