@@ -1,5 +1,7 @@
 package eu.trentorise.smartcampus.social.engine.utils;
 
+import eu.trentorise.smartcampus.social.engine.model.SocialUser;
+
 public class RepositoryUtils {
 
 	public static String convertId(Long id) {
@@ -13,4 +15,9 @@ public class RepositoryUtils {
 			throw new IllegalArgumentException(id + " not valid");
 		}
 	}
+
+	public static String convertUser(SocialUser user) {
+		return user != null ? user.getId() : null;
+	}
+
 }

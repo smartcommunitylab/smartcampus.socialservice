@@ -63,6 +63,11 @@ public class SocialCommunityManagerTest {
 		Assert.assertTrue(communityManager.addMembers(community.getId(),
 				subscribe));
 
+		community = communityManager.readCommunity(community.getId());
+		Assert.assertEquals(3, community.getTotalMembers());
+		Assert.assertTrue(community.getMemberIds().contains("1"));
+		Assert.assertTrue(community.getMemberIds().contains("2"));
+		Assert.assertTrue(community.getMemberIds().contains("5"));
 		Set<String> unsubscribed = new HashSet<String>() {
 			{
 				add("1");
@@ -72,6 +77,10 @@ public class SocialCommunityManagerTest {
 
 		Assert.assertTrue(communityManager.removeMembers(community.getId(),
 				unsubscribed));
+		community = communityManager.readCommunity(community.getId());
+		Assert.assertEquals(2, community.getTotalMembers());
+		Assert.assertFalse(community.getMemberIds().contains("1"));
+		Assert.assertTrue(community.getMemberIds().contains("5"));
 	}
 
 	/**
@@ -111,8 +120,8 @@ public class SocialCommunityManagerTest {
 					.size());
 
 			Limit limit = new Limit();
-			limit.setPosition(0);
-			limit.setSize(2);
+			limit.setPage(0);
+			limit.setPageSize(2);
 			Assert.assertEquals(2, communityManager.readCommunities(limit)
 					.size());
 
@@ -126,17 +135,17 @@ public class SocialCommunityManagerTest {
 					.size());
 
 			// test result pagination
-			limit.setSize(3);
-			limit.setPosition(0);
+			limit.setPageSize(3);
+			limit.setPage(0);
 			Assert.assertEquals(3, communityManager.readCommunities(limit)
 					.size());
-			limit.setSize(2);
-			limit.setPosition(0);
+			limit.setPageSize(2);
+			limit.setPage(0);
 			Assert.assertEquals(2, communityManager.readCommunities(limit)
 					.size());
 			// page not exist
-			limit.setSize(3);
-			limit.setPosition(15);
+			limit.setPageSize(3);
+			limit.setPage(15);
 			Assert.assertEquals(0, communityManager.readCommunities(limit)
 					.size());
 

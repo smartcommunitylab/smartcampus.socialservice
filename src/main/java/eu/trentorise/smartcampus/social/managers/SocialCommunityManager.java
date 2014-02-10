@@ -37,8 +37,8 @@ public class SocialCommunityManager implements CommunityOperations {
 			List<SocialCommunity> result = null;
 
 			PageRequest page = null;
-			if (limit.getPosition() >= 0 && limit.getSize() > 0) {
-				page = new PageRequest(limit.getPosition(), limit.getSize());
+			if (limit.getPage() >= 0 && limit.getPageSize() > 0) {
+				page = new PageRequest(limit.getPage(), limit.getPageSize());
 			}
 			if (limit.getFromDate() > 0 && limit.getToDate() > 0) {
 				result = communityRepository.findByCreationTimeBetween(

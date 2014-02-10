@@ -10,7 +10,7 @@ public class Community {
 	private Long creationTime;
 	private Long lastModifiedTime;
 
-	private int memberNumber;
+	private int totalMembers;
 	private Set<String> memberIds;
 
 	public String getId() {
@@ -45,12 +45,12 @@ public class Community {
 		this.lastModifiedTime = lastModifiedTime;
 	}
 
-	public int getMemberNumber() {
-		return memberNumber;
+	public int getTotalMembers() {
+		return totalMembers;
 	}
 
-	public void setMemberNumber(int memberNumber) {
-		this.memberNumber = memberNumber;
+	public void setTotalMembers(int memberNumber) {
+		this.totalMembers = memberNumber;
 	}
 
 	public Set<String> getMemberIds() {
