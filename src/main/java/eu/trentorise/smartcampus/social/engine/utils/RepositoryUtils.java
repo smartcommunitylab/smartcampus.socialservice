@@ -1,6 +1,8 @@
 package eu.trentorise.smartcampus.social.engine.utils;
 
-import eu.trentorise.smartcampus.social.engine.model.SocialUser;
+import java.util.List;
+
+import eu.trentorise.smartcampus.social.engine.beans.Limit;
 
 public class RepositoryUtils {
 
@@ -16,8 +18,16 @@ public class RepositoryUtils {
 		}
 	}
 
-	public static String convertUser(SocialUser user) {
-		return user != null ? user.getId() : null;
+	public static List<?> getSublistPagination(List<?> list, Limit limit) {
+		int from = limit.getPage() * limit.getPageSize();
+		int to = from + (limit.getPageSize());
+		if (from >= list.size()) {
+			return null;
+		}
+		if (to > list.size()) {
+			to = list.size();
+		}
+		return list.subList(from, to); // NB: from index is included, to index
+										// is excluded!
 	}
-
 }

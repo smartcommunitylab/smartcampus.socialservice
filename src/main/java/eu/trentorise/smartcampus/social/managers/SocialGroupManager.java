@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +17,8 @@ import eu.trentorise.smartcampus.social.engine.beans.Limit;
 import eu.trentorise.smartcampus.social.engine.model.SocialGroup;
 import eu.trentorise.smartcampus.social.engine.model.SocialUser;
 import eu.trentorise.smartcampus.social.engine.repo.GroupRepository;
+import eu.trentorise.smartcampus.social.engine.repo.UserRepository;
+import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
 @Component
 @Transactional
@@ -32,7 +36,6 @@ public class SocialGroupManager implements GroupOperations {
 		// load user
 		SocialUser user = userManager.readSocialUser(userId);
 		if (user == null) {
-			//user = userManager.createSocial(userId);
 			user = new SocialUser(userId);
 		}
 		SocialGroup group = new SocialGroup(name, user);
@@ -47,7 +50,8 @@ public class SocialGroupManager implements GroupOperations {
 		if (user == null) {
 			throw new IllegalArgumentException(userId + " not exists");
 		}
-		return SocialGroup.toGroup((groupRepository.findByCreatorId(userId)));
+		Pageable pageable = new PageRequest(limit.getPage(), limit.getPageSize());
+		return SocialGroup.toGroup((groupRepository.findByCreatorId(userId, pageable)));
 	}
 
 	@Override
@@ -57,6 +61,7 @@ public class SocialGroupManager implements GroupOperations {
 		return result != null ? result.toGroup() : null;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<SocialUser> readMembers(String groupId, Limit limit) {
 		SocialGroup result = groupRepository.findOne(SocialGroup
@@ -65,7 +70,7 @@ public class SocialGroupManager implements GroupOperations {
 		for (SocialUser su:result.getMembers()){
 			members.add(su);
 		}
-		return members;
+		return (List<SocialUser>) RepositoryUtils.getSublistPagination(members, limit);
 	}
 
 	@Override

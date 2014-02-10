@@ -3,6 +3,7 @@ package eu.trentorise.smartcampus.social.engine.model;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -104,6 +105,13 @@ public class SocialGroup implements Serializable {
 		group.setName(name);
 		group.setCreationTime(creationTime);
 		group.setLastModifiedTime(lastModifiedTime);
+		if(getMembers() != null){
+			Set<String> memberListId = new HashSet<String>();
+			for (SocialUser su:getMembers()){
+				memberListId.add(su.getId());
+			}
+			group.setMembers(memberListId);
+		}
 		group.setMemberNumber(getMembers() != null ? getMembers().size() : 0);
 		return group;
 	}
