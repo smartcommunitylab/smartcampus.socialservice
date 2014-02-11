@@ -1,11 +1,11 @@
 package eu.trentorise.smartcampus.social.managers;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,17 +31,25 @@ public class SocialGroupManager implements GroupOperations {
 	@Autowired
 	SocialUserManager userManager;
 	
+	private static final Logger logger = Logger.getLogger(SocialGroupManager.class);
+	
 	@Override
 	public Group create(String userId, String name) {
-
+		SocialGroup created_group = null;	
 		// load user
 		SocialUser user = userManager.readSocialUser(userId);
 		if (user == null) {
 			user = new SocialUser(userId);
+			logger.info("User with id " + userId + " not present. Added to DB.");
 		}
 		SocialGroup group = new SocialGroup(name, user);
-		
-		return groupRepository.save(group).toGroup();
+		created_group = groupRepository.save(group);
+		if(created_group != null){
+			logger.info("New group with id " + created_group.getId() + " correctly created.");
+		} else {
+			logger.error("Error in creating new group with id " + group.getId() + ".");
+		}
+		return created_group.toGroup();
 	}
 	
 	@Override
@@ -75,9 +83,6 @@ public class SocialGroupManager implements GroupOperations {
 	public List<Group> readGroups(String userId, Limit limit) {
 		// load user
 		SocialUser user = userManager.readSocialUser(userId);
-		//if (user == null) {
-		//	throw new IllegalArgumentException(userId + " not exists");
-		//}
 		if(user != null){
 			if(limit != null){
 				List<SocialGroup> groups = null;
@@ -97,6 +102,8 @@ public class SocialGroupManager implements GroupOperations {
 				return SocialGroup.toGroup(groupRepository.findByCreatorId(userId));
 			}
 		} else {
+			//throw new IllegalArgumentException(userId + " not exists");
+			logger.error("User with id " + userId + " not exists.");
 			return null;
 		}
 	}
@@ -105,10 +112,13 @@ public class SocialGroupManager implements GroupOperations {
 	public Group readGroup(String groupId) {
 		SocialGroup result = groupRepository.findOne(SocialGroup
 				.convertId(groupId));
+		if(result == null){
+			logger.error("Group with id " + groupId + " not exists.");
+		}
 		return result != null ? result.toGroup() : null;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked" })
 	@Override
 	//public List<SocialUser> readMembers(String groupId, Limit limit) {
 	public List<User> readMembers(String groupId, Limit limit) {
@@ -116,57 +126,77 @@ public class SocialGroupManager implements GroupOperations {
 		SocialGroup result = groupRepository.findOne(SocialGroup
 				.convertId(groupId));
 		if(result != null){
+			if(result.getMembers().size() == 0){
+				logger.warn("No members found for the group " + groupId + ".");
+				return null;
+			}
 			List<User> members = new ArrayList<User>();
 			for (SocialUser su:result.getMembers()){
 				members.add(su.toUser());
 			}
 			//To sort the list
-			Collection unsorted = members.subList(0, members.size());	//Get all the list
+			List<User> unsorted = members.subList(0, members.size());	//Get all the list
 			members = RepositoryUtils.asSortedList(unsorted);
 			
 			if(limit != null){
 				return (List<User>) RepositoryUtils.getSublistPagination(members, limit);
 			} else {
+				logger.info("No limit specified for this search.");
 				return members;
 			}
 		} else {
+			logger.error("Group with id " + groupId + " not exists.");
 			return null;
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	//public List<SocialUser> readMembers(String groupId, Limit limit) {
 	public List<String> readMembersAsString(String groupId, Limit limit) {
 		//For the limit I consider only the page and the page size because the from/to date is not applicable
 		SocialGroup result = groupRepository.findOne(SocialGroup
 				.convertId(groupId));
 		if(result != null){
+			if(result.getMembers().size() == 0){
+				logger.warn("No members found for the group " + groupId + ".");
+				return null;
+			}
 			List<String> members = new ArrayList<String>();
 			for (SocialUser su:result.getMembers()){
 				members.add(su.getId());
 			}
 			//To sort the list
-			Collection unsorted = members.subList(0, members.size());	//Get all the list
+			List<String> unsorted = members.subList(0, members.size());	//Get all the list
 			members = RepositoryUtils.asSortedList(unsorted);
 			
 			if(limit != null){
 				return (List<String>) RepositoryUtils.getSublistPagination(members, limit);
 			} else {
+				logger.info("No limit specified for this search.");
 				return members;
 			}
 		} else {
+			logger.error("Group with id " + groupId + " not exists.");
 			return null;
 		}
 	}
 
 	@Override
 	public Group update(String groupId, String name) {
+		SocialGroup saved_group = null;
 		SocialGroup group = retrieveGroup(groupId);
 		if(group != null){
 			group.setName(name);
 			group.setLastModifiedTime(System.currentTimeMillis());
-			return groupRepository.save(group).toGroup();
+			saved_group = groupRepository.save(group);
+			if(saved_group != null){
+				logger.info("Group " + groupId + " correctly updated.");
+				return saved_group.toGroup();
+			} else {
+				logger.error("Error in updating group " + groupId);
+			}
+		} else {
+			logger.warn("No group found with id " + groupId);
 		}
 		return null;
 	}
@@ -174,16 +204,27 @@ public class SocialGroupManager implements GroupOperations {
 	//Used in tests
 	@Override
 	public Group update(String groupId, Long creationTime) {
+		SocialGroup saved_group = null;
 		SocialGroup group = retrieveGroup(groupId);
 		if(group != null){
 			group.setCreationTime(creationTime);
 			group.setLastModifiedTime(System.currentTimeMillis());
+			saved_group = groupRepository.save(group);
+			if(saved_group != null){
+				logger.info("Group " + groupId + " correctly updated.");
+				return saved_group.toGroup();
+			} else {
+				logger.error("Error in updating group " + groupId);
+			}
+		} else {
+			logger.warn("No group found with id " + groupId);
 		}
-		return groupRepository.save(group).toGroup();
+		return null;
 	}
 
 	@Override
 	public boolean addMembers(String groupId, Set<String> userIds) {
+		SocialGroup saved_group = null;
 		SocialGroup group = retrieveGroup(groupId);
 		if(group != null){
 			Set<SocialUser> users = new HashSet<SocialUser>();
@@ -191,7 +232,12 @@ public class SocialGroupManager implements GroupOperations {
 				users.add(new SocialUser(userId));
 			}
 			group.getMembers().addAll(users);
-			groupRepository.save(group);
+			saved_group = groupRepository.save(group);
+			if(saved_group != null){
+				logger.info("Members added correctly to group " + groupId);
+			} else {
+				logger.error("Error in adding members to group " + groupId);
+			}
 		}
 		return true;
 	}
@@ -199,6 +245,7 @@ public class SocialGroupManager implements GroupOperations {
 	@Override
 	public boolean removeMembers(String groupId, Set<String> userIds) {
 		boolean removed = true;
+		SocialGroup saved_group = null;
 		SocialGroup group = retrieveGroup(groupId);
 		if(group != null){
 			Set<SocialUser> users = new HashSet<SocialUser>();
@@ -207,8 +254,17 @@ public class SocialGroupManager implements GroupOperations {
 			}
 			if(users.size() > 0){
 				removed = group.getMembers().removeAll(users);
-				groupRepository.save(group);
+				saved_group = groupRepository.save(group);
+				if(saved_group != null){
+					logger.info("Members correctly removed from group " + groupId);
+				} else {
+					logger.error("Error in removing members from group " + groupId);
+				}
+			} else {
+				logger.warn("No members to remove in group " + groupId);
 			}	
+		} else {
+			logger.warn("No group found with id " + groupId);
 		}
 		return removed;
 	}
@@ -218,6 +274,9 @@ public class SocialGroupManager implements GroupOperations {
 		SocialGroup group = groupRepository.findOne(SocialGroup.convertId(groupId));
 		if(group != null){
 			groupRepository.delete(SocialGroup.convertId(groupId));
+			logger.info("Group " + groupId + " correctly removed.");
+		} else {
+			logger.warn("No group found with id " + groupId);
 		}
 		return true;
 	}

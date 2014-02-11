@@ -290,6 +290,10 @@ public class SocialGroupManagerTest {
 		List<User> members = groupManager.readMembers(GROUP_NEX_ID, limit);
 		Assert.assertTrue(members == null);
 		
+		// Read members from a group that has no members
+		members = groupManager.readMembers(group4.getId(), limit);
+		Assert.assertTrue(members == null);
+		
 		// Update a group that not exists
 		readedGroup = groupManager.update(group_exist.getId(), GROUP_NAME_2);
 		Assert.assertTrue(readedGroup == null);
@@ -304,6 +308,13 @@ public class SocialGroupManagerTest {
 		add_members.add(MEMBER_ID_3);
 		Assert.assertTrue(groupManager.addMembers(group.getId(), add_members));
 		Assert.assertTrue(groupManager.readMembersAsString(group.getId(), limit).size() == 3);
+		
+		// Add the same member to another group
+		Set<String> old_members = new HashSet<String>();
+		old_members.add(MEMBER_ID_1);
+		old_members.add(MEMBER_ID_2);
+		Assert.assertTrue(groupManager.addMembers(group2.getId(), old_members));
+		Assert.assertTrue(groupManager.readMembersAsString(group2.getId(), limit).size() == 2);
 		
 		// Remove a non existing member
 		// delete members

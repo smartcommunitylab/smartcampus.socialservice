@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 
 import eu.trentorise.smartcampus.social.engine.beans.Community;
@@ -28,7 +29,7 @@ public class SocialCommunity implements Serializable {
 	private Long creationTime;
 	private Long lastModifiedTime;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST,
+	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST,
 			CascadeType.MERGE })
 	private Set<SocialUser> members;
 

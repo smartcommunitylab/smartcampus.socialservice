@@ -11,11 +11,15 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
 import eu.trentorise.smartcampus.social.engine.beans.Group;
+import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
 @Entity
 public class SocialGroup implements Serializable {
@@ -34,7 +38,11 @@ public class SocialGroup implements Serializable {
 	private Long creationTime;
 	private Long lastModifiedTime;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+
+	//@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+	//@JoinTable(name = "group_members", joinColumns = {@JoinColumn(name="social_group", referencedColumnName="id" , unique = false)}, 
+	//inverseJoinColumns= {@JoinColumn(name="members", referencedColumnName="id", unique = false)})
+	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	@JoinTable(name = "group_members")
 	private Set<SocialUser> members;
 
@@ -100,13 +108,13 @@ public class SocialGroup implements Serializable {
 
 	public Group toGroup() {
 		Group group = new Group();
-		group.setId(id != null ? id.toString() : null);
+		group.setId(RepositoryUtils.convertId(id));
 		group.setName(name);
 		group.setCreationTime(creationTime);
 		group.setLastModifiedTime(lastModifiedTime);
-		if(getMembers() != null){
+		if (getMembers() != null) {
 			Set<String> memberListId = new HashSet<String>();
-			for (SocialUser su:getMembers()){
+			for (SocialUser su : getMembers()) {
 				memberListId.add(su.getId());
 			}
 			group.setMembers(memberListId);
