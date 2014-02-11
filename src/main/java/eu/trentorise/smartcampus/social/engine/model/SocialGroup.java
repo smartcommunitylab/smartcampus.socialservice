@@ -111,7 +111,7 @@ public class SocialGroup implements Serializable {
 			}
 			group.setMembers(memberListId);
 		}
-		group.setMemberNumber(getMembers() != null ? getMembers().size() : 0);
+		group.setTotalMembers(getMembers() != null ? getMembers().size() : 0);
 		return group;
 	}
 

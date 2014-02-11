@@ -12,7 +12,7 @@ public class Group {
 	private Long lastModifiedTime;
 
 	private Set<String> members;
-	private int memberNumber;
+	private int totalMembers;
 
 	public String getId() {
 		return id;
@@ -54,12 +54,12 @@ public class Group {
 		this.members = members;
 	}
 
-	public int getMemberNumber() {
-		return memberNumber;
+	public int getTotalMembers() {
+		return totalMembers;
 	}
 
-	public void setMemberNumber(int memberNumber) {
-		this.memberNumber = memberNumber;
+	public void setTotalMembers(int memberNumber) {
+		this.totalMembers = memberNumber;
 	}
 
 }
