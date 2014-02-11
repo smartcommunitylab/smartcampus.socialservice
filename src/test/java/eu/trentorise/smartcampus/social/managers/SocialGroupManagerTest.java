@@ -19,6 +19,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import eu.trentorise.smartcampus.social.engine.beans.Group;
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
+import eu.trentorise.smartcampus.social.engine.beans.User;
 import eu.trentorise.smartcampus.social.engine.model.SocialUser;
 import eu.trentorise.smartcampus.social.engine.repo.GroupRepository;
 
@@ -206,19 +207,34 @@ public class SocialGroupManagerTest {
 		members.add(MEMBER_ID_6);
 		Assert.assertTrue(groupManager.addMembers(group.getId(), members));
 
-		// read members
-		List<SocialUser> group_members = new ArrayList<SocialUser>();
-		List<SocialUser> members_inserted = new ArrayList<SocialUser>();
+		// read members as Users
+		List<User> group_members = new ArrayList<User>();
+		List<User> members_inserted = new ArrayList<User>();
 		
 		group_members = groupManager.readMembers(group.getId(), limit);
 		for (String s : members) {
-			members_inserted.add(new SocialUser(s));
+			members_inserted.add(new User(s));
 		}
 		Assert.assertTrue("Size list error: " + group_members.size(), group_members.size() == 5); // && group_members.containsAll(members_inserted)
 		
 		limit.setPage(1);
 		group_members = groupManager.readMembers(group.getId(), limit);
 		Assert.assertTrue(group_members.size() == 1 && group_members.get(0).getId().compareTo(MEMBER_ID_6) == 0); 
+		
+		// read members as String
+		limit.setPage(0);
+		List<String> group_members_string = new ArrayList<String>();
+		List<String> members_inserted_string = new ArrayList<String>();
+		
+		group_members_string = groupManager.readMembersAsString(group.getId(), limit);
+		for (String s : members) {
+			members_inserted_string.add(s);
+		}
+		Assert.assertTrue("Size list error: " + group_members_string.size(), group_members_string.size() == 5); // && group_members.containsAll(members_inserted)
+		
+		limit.setPage(1);
+		group_members_string = groupManager.readMembersAsString(group.getId(), limit);
+		Assert.assertTrue(group_members_string.size() == 1 && group_members_string.get(0).compareTo(MEMBER_ID_6) == 0); 		
 
 		// check members
 		readedGroup = groupManager.readGroup(group.getId());
@@ -231,8 +247,11 @@ public class SocialGroupManagerTest {
 		Assert.assertTrue(groupManager.removeMembers(group.getId(), delete_members));
 		
 		limit.setPage(0);
-		Assert.assertTrue(groupManager.readMembers(group.getId(), limit).size() == 4); // .get(0).getId().compareTo(MEMBER_ID_3) == 0
+		group_members = groupManager.readMembers(group.getId(), limit);
+		Assert.assertTrue(group_members.size() == 4 && group_members.get(0).getId().compareTo(MEMBER_ID_3) == 0);
 		
+		group_members_string = groupManager.readMembersAsString(group.getId(), limit);
+		Assert.assertTrue(group_members_string.size() == 4 && group_members_string.get(0).compareTo(MEMBER_ID_3) == 0);
 	}
 	
 	@Test
@@ -242,6 +261,7 @@ public class SocialGroupManagerTest {
 		Assert.assertTrue(checkGroupCreation(GROUP_RENAME, readedGroup));
 		
 		readedGroup = groupManager.update(group2.getId(), GROUP_RENAME_2);
+		Assert.assertTrue(checkGroupCreation(GROUP_RENAME_2, readedGroup));
 	}
 	
 	@Test
@@ -255,6 +275,8 @@ public class SocialGroupManagerTest {
 		Assert.assertTrue(checkGroupCreation(GROUP_NAME_1, group_exist));
 		//Assert.assertTrue(group.getId().compareTo(group_exist.getId()) == 0);	//Ask to Raman
 		Assert.assertFalse(group.getId().compareTo(group_exist.getId()) == 0);	//Ask to Raman
+		Assert.assertTrue(groupManager.delete(group_exist.getId()));
+		
 		
 		// Read groups from a creator that not exists
 		List<Group> page_readed_group  = groupManager.readGroups(USER_ID_3, limit);
@@ -265,17 +287,34 @@ public class SocialGroupManagerTest {
 		Assert.assertTrue(readedGroup == null);
 		
 		// Read members from a non existing group
-		List<SocialUser> members = groupManager.readMembers(GROUP_NEX_ID, limit);
+		List<User> members = groupManager.readMembers(GROUP_NEX_ID, limit);
 		Assert.assertTrue(members == null);
 		
 		// Update a group that not exists
+		readedGroup = groupManager.update(group_exist.getId(), GROUP_NAME_2);
+		Assert.assertTrue(readedGroup == null);
 		
 		// Add more times the same member
+		Set<String> add_members = new HashSet<String>();
+		add_members.add(MEMBER_ID_1);
+		add_members.add(MEMBER_ID_2);
+		add_members.add(MEMBER_ID_3);
+		add_members.add(MEMBER_ID_1);
+		add_members.add(MEMBER_ID_2);
+		add_members.add(MEMBER_ID_3);
+		Assert.assertTrue(groupManager.addMembers(group.getId(), add_members));
+		Assert.assertTrue(groupManager.readMembersAsString(group.getId(), limit).size() == 3);
 		
 		// Remove a non existing member
-		
+		// delete members
+		Set<String> delete_members = new HashSet<String>();
+		delete_members.add(MEMBER_ID_1);
+		delete_members.add(MEMBER_ID_4);
+		Assert.assertTrue(groupManager.removeMembers(group.getId(), delete_members));
+		Assert.assertTrue(groupManager.readMembersAsString(group.getId(), limit).size() == 2);
+			
 		// Delete a non existing group
-		
+		Assert.assertTrue(groupManager.delete(group_exist.getId()));
 	}
 	
 	@After

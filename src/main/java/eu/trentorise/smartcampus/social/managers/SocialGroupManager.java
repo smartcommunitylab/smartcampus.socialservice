@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import eu.trentorise.smartcampus.social.engine.GroupOperations;
 import eu.trentorise.smartcampus.social.engine.beans.Group;
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
+import eu.trentorise.smartcampus.social.engine.beans.User;
 import eu.trentorise.smartcampus.social.engine.model.SocialGroup;
 import eu.trentorise.smartcampus.social.engine.model.SocialUser;
 import eu.trentorise.smartcampus.social.engine.repo.GroupRepository;
@@ -109,21 +110,48 @@ public class SocialGroupManager implements GroupOperations {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public List<SocialUser> readMembers(String groupId, Limit limit) {
+	//public List<SocialUser> readMembers(String groupId, Limit limit) {
+	public List<User> readMembers(String groupId, Limit limit) {
 		//For the limit I consider only the page and the page size because the from/to date is not applicable
 		SocialGroup result = groupRepository.findOne(SocialGroup
 				.convertId(groupId));
 		if(result != null){
-			List<SocialUser> members = new ArrayList<SocialUser>();
+			List<User> members = new ArrayList<User>();
 			for (SocialUser su:result.getMembers()){
-				members.add(su);
+				members.add(su.toUser());
 			}
 			//To sort the list
 			Collection unsorted = members.subList(0, members.size());	//Get all the list
 			members = RepositoryUtils.asSortedList(unsorted);
 			
 			if(limit != null){
-				return (List<SocialUser>) RepositoryUtils.getSublistPagination(members, limit);
+				return (List<User>) RepositoryUtils.getSublistPagination(members, limit);
+			} else {
+				return members;
+			}
+		} else {
+			return null;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	//public List<SocialUser> readMembers(String groupId, Limit limit) {
+	public List<String> readMembersAsString(String groupId, Limit limit) {
+		//For the limit I consider only the page and the page size because the from/to date is not applicable
+		SocialGroup result = groupRepository.findOne(SocialGroup
+				.convertId(groupId));
+		if(result != null){
+			List<String> members = new ArrayList<String>();
+			for (SocialUser su:result.getMembers()){
+				members.add(su.getId());
+			}
+			//To sort the list
+			Collection unsorted = members.subList(0, members.size());	//Get all the list
+			members = RepositoryUtils.asSortedList(unsorted);
+			
+			if(limit != null){
+				return (List<String>) RepositoryUtils.getSublistPagination(members, limit);
 			} else {
 				return members;
 			}
@@ -138,8 +166,9 @@ public class SocialGroupManager implements GroupOperations {
 		if(group != null){
 			group.setName(name);
 			group.setLastModifiedTime(System.currentTimeMillis());
+			return groupRepository.save(group).toGroup();
 		}
-		return groupRepository.save(group).toGroup();
+		return null;
 	}
 	
 	//Used in tests

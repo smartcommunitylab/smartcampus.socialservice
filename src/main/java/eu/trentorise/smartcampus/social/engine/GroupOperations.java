@@ -5,7 +5,7 @@ import java.util.Set;
 
 import eu.trentorise.smartcampus.social.engine.beans.Group;
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
-import eu.trentorise.smartcampus.social.engine.model.SocialUser;;
+import eu.trentorise.smartcampus.social.engine.beans.User;;
 
 public interface GroupOperations {
 
@@ -21,7 +21,9 @@ public interface GroupOperations {
 
 	public Group readGroup(String groupId);
 
-	public List<SocialUser> readMembers(String groupId, Limit limit);
+	public List<User> readMembers(String groupId, Limit limit);
+	
+	List<String> readMembersAsString(String groupId, Limit limit);
 
 	// update
 
