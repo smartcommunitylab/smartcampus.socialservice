@@ -1,5 +1,7 @@
 package eu.trentorise.smartcampus.social.engine.utils;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
@@ -29,5 +31,11 @@ public class RepositoryUtils {
 		}
 		return list.subList(from, to); // NB: from index is included, to index
 										// is excluded!
+	}
+	
+	public static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
+	  List<T> list = new ArrayList<T>(c);
+	  java.util.Collections.sort(list);
+	  return list;
 	}
 }

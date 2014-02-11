@@ -3,14 +3,30 @@ package eu.trentorise.smartcampus.social.engine.repo;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.PagingAndSortingRepository;
 
 import eu.trentorise.smartcampus.social.engine.model.SocialGroup;
 
-public interface GroupRepository extends CrudRepository<SocialGroup, Long> {
+//CrudRepository<SocialGroup, Long>
+public interface GroupRepository extends PagingAndSortingRepository<SocialGroup, Long> {
 
 	public List<SocialGroup> findByCreatorId(String creatorId);
 	
-	public List<SocialGroup> findByCreatorId(String creatorId, Pageable pageable);
+	public List<SocialGroup> findByCreatorId(String creatorId, Pageable pager);
+	
+	public List<SocialGroup> findByCreatorIdAndCreationTimeBetween(String creatorId, Long beginTime, Long endTime, Pageable pager);
+	
+	public List<SocialGroup> findByCreatorIdAndCreationTimeGreaterThan(String creatorId, Long beginTime, Pageable pager);
+	
+	public List<SocialGroup> findByCreatorIdAndCreationTimeLessThan(String creatorId, Long endTime, Pageable pager);
+	
+	public List<SocialGroup> findByCreationTimeBetween(Long beginTime,
+			Long endTime, Pageable pager);
+	
+	public List<SocialGroup> findByCreationTimeGreaterThan(Long beginTime,
+			Pageable pager);
+	
+	public List<SocialGroup> findByCreationTimeLessThan(Long endTime,
+			Pageable pager);
 
 }

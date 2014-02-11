@@ -1,13 +1,10 @@
 package eu.trentorise.smartcampus.social.managers;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import eu.trentorise.smartcampus.social.engine.UserOperations;
-import eu.trentorise.smartcampus.social.engine.beans.Limit;
 import eu.trentorise.smartcampus.social.engine.beans.User;
 import eu.trentorise.smartcampus.social.engine.model.SocialUser;
 import eu.trentorise.smartcampus.social.engine.repo.UserRepository;
@@ -47,7 +44,5 @@ public class SocialUserManager implements UserOperations{
 		SocialUser result = userRepository.findOne(userId);
 		return result != null ? result : null;
 	}
-	
-	
 
 }

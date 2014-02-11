@@ -1,5 +1,8 @@
 package eu.trentorise.smartcampus.social.engine;
 
+import java.util.List;
+
+import eu.trentorise.smartcampus.social.engine.beans.Limit;
 import eu.trentorise.smartcampus.social.engine.beans.User;
 import eu.trentorise.smartcampus.social.engine.model.SocialUser;
 

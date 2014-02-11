@@ -2,7 +2,6 @@ package eu.trentorise.smartcampus.social.engine.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -116,7 +115,7 @@ public class SocialGroup implements Serializable {
 		return group;
 	}
 
-	public static List<Group> toGroup(Collection<SocialGroup> groups) {
+	public static List<Group> toGroup(Iterable<SocialGroup> groups) {
 		List<Group> outputGroups = new ArrayList<Group>();
 		for (SocialGroup group : groups) {
 			outputGroups.add(group.toGroup());
