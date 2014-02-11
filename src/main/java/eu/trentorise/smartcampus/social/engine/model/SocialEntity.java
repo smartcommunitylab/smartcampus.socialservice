@@ -28,6 +28,9 @@ public class SocialEntity implements Serializable {
 	private SocialUser owner;
 
 	@OneToOne
+	private SocialCommunity communityOwner;
+
+	@OneToOne
 	private SocialType type;
 
 	@OneToMany(fetch = FetchType.LAZY)
@@ -131,6 +134,14 @@ public class SocialEntity implements Serializable {
 
 	public void setExternalUri(String externalUri) {
 		this.externalUri = externalUri;
+	}
+
+	public SocialCommunity getCommunityOwner() {
+		return communityOwner;
+	}
+
+	public void setCommunityOwner(SocialCommunity communityOwner) {
+		this.communityOwner = communityOwner;
 	}
 
 }

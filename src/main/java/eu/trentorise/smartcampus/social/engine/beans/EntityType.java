@@ -1,20 +1,9 @@
-package eu.trentorise.smartcampus.social.engine.model;
+package eu.trentorise.smartcampus.social.engine.beans;
 
-import java.io.Serializable;
+public class EntityType {
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-
-@Entity
-public class SocialType implements Serializable {
-
-	private static final long serialVersionUID = -5778857034813496173L;
-
-	@Id
 	private String id;
-
 	private String name;
-
 	private String mimeType;
 
 	public String getId() {
