@@ -4,21 +4,22 @@ import java.util.List;
 
 import eu.trentorise.smartcampus.social.engine.beans.Entity;
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
-import eu.trentorise.smartcampus.social.engine.beans.ShareInfo;
 
 public interface EntityOperations {
 
-	// share
+	// visibility
 
-	public boolean share(String ownerId, String resourceUri, String typeId,
-			ShareInfo shareInfo);
+	public boolean share(String ownerId, String communityId, Entity entity);
 
-	// unshare
-
-	public boolean unshare(String entityId);
+	public boolean unshare(String uri);
 
 	// read
 
-	public List<Entity> readMyShare(String userId, ShareInfo target,
-			String typeId, Limit limit);
+	public List<Entity> readShared(String actorId, Limit limit);
+
+	public List<Entity> readEntities(String ownerId, String communityId,
+			Limit limit);
+
+	public Entity readEntity(String uri);
+
 }

@@ -88,7 +88,9 @@ public class SocialCommunity implements Serializable {
 		community.setCreationTime(creationTime);
 		community.setLastModifiedTime(lastModifiedTime);
 		community.setName(name);
-		// community.setMemberNumber(getMembers().size());
+		community.setTotalMembers(members != null ? members.size() : 0);
+		community.setMemberIds(members != null ? SocialUser.toUser(members)
+				: null);
 		return community;
 	}
 

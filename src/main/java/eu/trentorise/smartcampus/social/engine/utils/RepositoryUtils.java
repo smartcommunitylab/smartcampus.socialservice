@@ -19,17 +19,18 @@ public class RepositoryUtils {
 			throw new IllegalArgumentException(id + " not valid");
 		}
 	}
-	
-	public static List<?> getSublistPagination(List<?> list, Limit limit){
+
+	public static List<?> getSublistPagination(List<?> list, Limit limit) {
 		int from = limit.getPage() * limit.getPageSize();
 		int to = from + (limit.getPageSize());
-		if(from >= list.size()){
+		if (from >= list.size()) {
 			return null;
 		}
-		if(to > list.size()){
+		if (to > list.size()) {
 			to = list.size();
 		}
-		return list.subList(from, to);	//NB: from index is included, to index is excluded!
+		return list.subList(from, to); // NB: from index is included, to index
+										// is excluded!
 	}
 	
 	public static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {

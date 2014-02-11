@@ -17,6 +17,8 @@ public interface CommunityOperations {
 
 	public Community readCommunity(String communityId);
 
+	public Set<String> readMembers(String communityId, Limit limit);
+
 	// update
 
 	public boolean addMembers(String communityId, Set<String> members);
