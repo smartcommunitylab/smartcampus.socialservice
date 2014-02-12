@@ -99,6 +99,7 @@ public class SocialGroupManager implements GroupOperations {
 				}
 				return SocialGroup.toGroup(groups);
 			} else {
+				logger.warn("No limit specified for this search.");
 				return SocialGroup.toGroup(groupRepository.findByCreatorId(userId));
 			}
 		} else {
@@ -118,9 +119,8 @@ public class SocialGroupManager implements GroupOperations {
 		return result != null ? result.toGroup() : null;
 	}
 
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings("unchecked")
 	@Override
-	//public List<SocialUser> readMembers(String groupId, Limit limit) {
 	public List<User> readMembers(String groupId, Limit limit) {
 		//For the limit I consider only the page and the page size because the from/to date is not applicable
 		SocialGroup result = groupRepository.findOne(SocialGroup
@@ -141,7 +141,7 @@ public class SocialGroupManager implements GroupOperations {
 			if(limit != null){
 				return (List<User>) RepositoryUtils.getSublistPagination(members, limit);
 			} else {
-				logger.info("No limit specified for this search.");
+				logger.warn("No limit specified for this search.");
 				return members;
 			}
 		} else {
@@ -238,6 +238,8 @@ public class SocialGroupManager implements GroupOperations {
 			} else {
 				logger.error("Error in adding members to group " + groupId);
 			}
+		} else {
+			logger.warn("No group found with id " + groupId);
 		}
 		return true;
 	}
