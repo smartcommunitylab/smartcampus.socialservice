@@ -21,6 +21,9 @@ public interface EntityTypeOperations {
 	
 	public List<EntityType> readTypesByMimeType(String mimeType, Limit limit);
 	
+	// update
+	public EntityType updateType(String entityTypeId, String mimeType);
+	
 	// delete
 	public boolean deleteType(String GroupId);
 	

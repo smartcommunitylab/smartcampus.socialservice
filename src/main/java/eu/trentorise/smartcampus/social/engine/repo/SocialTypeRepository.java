@@ -9,10 +9,10 @@ import eu.trentorise.smartcampus.social.engine.model.SocialType;
 
 public interface SocialTypeRepository extends PagingAndSortingRepository<SocialType, Long>{
 	
-	public List<SocialType> findByName(String name, Pageable pager);
+	public List<SocialType> findByNameIgnoreCase(String name, Pageable pager);
 
 	public List<SocialType> findByMimeType(String mimeType, Pageable pager);
 	
-	public List<SocialType> findByNameAndMimeType(String name, String mimeType);
+	public List<SocialType> findByNameIgnoreCaseAndMimeType(String name, String mimeType);
 	
 }

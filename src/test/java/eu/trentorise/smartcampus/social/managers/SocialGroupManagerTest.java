@@ -22,6 +22,7 @@ import eu.trentorise.smartcampus.social.engine.beans.Limit;
 import eu.trentorise.smartcampus.social.engine.beans.User;
 import eu.trentorise.smartcampus.social.engine.model.SocialUser;
 import eu.trentorise.smartcampus.social.engine.repo.GroupRepository;
+import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/spring/applicationContext.xml")
@@ -72,7 +73,7 @@ public class SocialGroupManagerTest {
 		return group != null && group.getId() != null
 				&& group.getCreationTime() > 0
 				&& group.getLastModifiedTime() > 0
-				&& group.getName().equals(name);
+				&& RepositoryUtils.normalizeCompare(group.getName(), name);
 	}
 	
 	public void changeCreationTime(){
@@ -273,8 +274,8 @@ public class SocialGroupManagerTest {
 		// Create a group that already exist - now it allows user to create a group that already exist 
 		group_exist = groupManager.create(USER_ID, GROUP_NAME_1);
 		Assert.assertTrue(checkGroupCreation(GROUP_NAME_1, group_exist));
-		//Assert.assertTrue(group.getId().compareTo(group_exist.getId()) == 0);	//Ask to Raman
-		Assert.assertFalse(group.getId().compareTo(group_exist.getId()) == 0);	//Ask to Raman
+		Assert.assertTrue(group.getId().compareTo(group_exist.getId()) == 0);	//Ask to Raman
+		//Assert.assertFalse(group.getId().compareTo(group_exist.getId()) == 0);	//Ask to Raman
 		Assert.assertTrue(groupManager.delete(group_exist.getId()));
 		
 		
@@ -306,8 +307,8 @@ public class SocialGroupManagerTest {
 		add_members.add(MEMBER_ID_1);
 		add_members.add(MEMBER_ID_2);
 		add_members.add(MEMBER_ID_3);
-		Assert.assertTrue(groupManager.addMembers(group.getId(), add_members));
-		Assert.assertTrue(groupManager.readMembersAsString(group.getId(), limit).size() == 3);
+		Assert.assertTrue(groupManager.addMembers(group5.getId(), add_members));
+		Assert.assertTrue(groupManager.readMembersAsString(group5.getId(), limit).size() == 3);
 		
 		// Add the same member to another group
 		Set<String> old_members = new HashSet<String>();
@@ -321,8 +322,8 @@ public class SocialGroupManagerTest {
 		Set<String> delete_members = new HashSet<String>();
 		delete_members.add(MEMBER_ID_1);
 		delete_members.add(MEMBER_ID_4);
-		Assert.assertTrue(groupManager.removeMembers(group.getId(), delete_members));
-		Assert.assertTrue(groupManager.readMembersAsString(group.getId(), limit).size() == 2);
+		Assert.assertTrue(groupManager.removeMembers(group5.getId(), delete_members));
+		Assert.assertTrue(groupManager.readMembersAsString(group5.getId(), limit).size() == 2);
 			
 		// Delete a non existing group
 		Assert.assertTrue(groupManager.delete(group_exist.getId()));
