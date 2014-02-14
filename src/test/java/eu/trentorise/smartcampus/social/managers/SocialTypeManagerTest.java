@@ -14,39 +14,50 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import eu.trentorise.smartcampus.social.engine.beans.EntityType;
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
+import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/spring/applicationContext.xml")
 public class SocialTypeManagerTest {
 	
 	@Autowired
-	SocialTypeManager entityTypeMamager;
+	SocialTypeManager entityTypeManager;
 	
 	private static final String TYPE_NAME_1 = "SmallImage";
+	private static final String TYPE_NAME_1_NN = "   SmallIMAGE   ";	//Not Normalized
 	private static final String TYPE_NAME_2 = "MediumImage";
 	private static final String TYPE_NAME_3 = "BigImage";
+	private static final String TYPE_NAME_3_NN = "   BIGImage    ";		//Not Normalized
+	private static final String TYPE_NAME_7 = "immage";
+	private static final String TYPE_NAME_7_NN = " IMMaGE   ";			//Not Normalized
 	private static final String TYPE_MIME_1 = "jpg";
 	private static final String TYPE_MIME_2 = "png";
 	private static final String TYPE_MIME_3 = "tiff";
 	
-	private EntityType type1, type2, type3, type4, type5, type6;
+	private EntityType type1, type2, type3, type4, type5, type6, type7, type8;
 	
 	private boolean checkTypeCreation(String name, EntityType type){
 		return type != null && type.getId() != null
 				&& type.getMimeType() != null
-				&& type.getName().equals(name);
+				&& RepositoryUtils.normalizeCompare(type.getName(), name);
+	}
+	
+	private boolean compareType(EntityType type1, EntityType type2){
+		return type1.getId().compareTo(type2.getId()) == 0
+				&& RepositoryUtils.normalizeCompare(type1.getName(), type2.getName())
+				&& type1.getMimeType().compareTo(type2.getMimeType()) == 0;
 	}
 	
 	@Before
 	public void CrateAll(){
-		type1 = entityTypeMamager.create(TYPE_NAME_1, TYPE_MIME_1);
-		type2 = entityTypeMamager.create(TYPE_NAME_2, TYPE_MIME_2);
-		type3 = entityTypeMamager.create(TYPE_NAME_3, TYPE_MIME_3);
+		type1 = entityTypeManager.create(TYPE_NAME_1_NN, TYPE_MIME_1);
+		type2 = entityTypeManager.create(TYPE_NAME_2, TYPE_MIME_2);
+		type3 = entityTypeManager.create(TYPE_NAME_3, TYPE_MIME_3);
 		
 		//Try to recreate the same type
-//		type4 = entityTypeMamager.create(TYPE_NAME_1, TYPE_MIME_1);
-//		type5 = entityTypeMamager.create(TYPE_NAME_2, TYPE_MIME_2);
-//		type6 = entityTypeMamager.create(TYPE_NAME_3, TYPE_MIME_3);
+		type4 = entityTypeManager.create(TYPE_NAME_1, TYPE_MIME_1);
+		type5 = entityTypeManager.create(TYPE_NAME_2, TYPE_MIME_2);
+		type6 = entityTypeManager.create(TYPE_NAME_3_NN, TYPE_MIME_3);
 	}
 	
 	@Test
@@ -54,6 +65,10 @@ public class SocialTypeManagerTest {
 		Assert.assertTrue(checkTypeCreation(TYPE_NAME_1, type1));
 		Assert.assertTrue(checkTypeCreation(TYPE_NAME_2, type2));
 		Assert.assertTrue(checkTypeCreation(TYPE_NAME_3, type3));
+		
+		Assert.assertTrue(compareType(type1, type4));
+		Assert.assertTrue(compareType(type2, type5));
+		Assert.assertTrue(compareType(type3, type6));
 	}
 	
 	@Test
@@ -62,18 +77,38 @@ public class SocialTypeManagerTest {
 		limit.setPage(0);
 		limit.setPageSize(5);
 		
-		EntityType readedType = entityTypeMamager.readTypeByNameAndMimeType(TYPE_NAME_1, TYPE_MIME_1);
-		Assert.assertTrue(readedType.getName().compareTo(TYPE_NAME_1) == 0 && readedType.getMimeType().compareTo(TYPE_MIME_1) == 0);
+		EntityType readedType = entityTypeManager.readTypeByNameAndMimeType(TYPE_NAME_1, TYPE_MIME_1);
+		Assert.assertTrue(RepositoryUtils.normalizeCompare(readedType.getName(), TYPE_NAME_1) && readedType.getMimeType().compareTo(TYPE_MIME_1) == 0);
 		
-		List<EntityType> readedTypes = entityTypeMamager.readTypes(limit);
-		Assert.assertTrue(readedTypes.size() == 3 && readedTypes.get(2).getName().compareTo(TYPE_NAME_3) == 0);
+		readedType = entityTypeManager.readTypeByNameAndMimeType(TYPE_NAME_3_NN, TYPE_MIME_3);
+		Assert.assertTrue(RepositoryUtils.normalizeCompare(readedType.getName(),TYPE_NAME_3) && readedType.getMimeType().compareTo(TYPE_MIME_3) == 0);
+		
+		List<EntityType> readedTypes = entityTypeManager.readTypes(limit);
+		Assert.assertTrue(readedTypes.size() == 3 && RepositoryUtils.normalizeCompare(readedTypes.get(2).getName(),TYPE_NAME_3));
+		
+		type7 = entityTypeManager.create(TYPE_NAME_7_NN, TYPE_MIME_2);
+		Assert.assertTrue(checkTypeCreation(TYPE_NAME_7, type7));
+		
+		type3 = entityTypeManager.updateType(type3.getId(), TYPE_MIME_2);
+		
+		readedTypes = entityTypeManager.readTypesByMimeType(TYPE_MIME_2, limit);
+		Assert.assertTrue(readedTypes.size() == 3 && RepositoryUtils.normalizeCompare(readedTypes.get(1).getName(),TYPE_NAME_3));
+		
+		type8 = entityTypeManager.create(TYPE_NAME_1, TYPE_MIME_3);
+		Assert.assertTrue(checkTypeCreation(TYPE_NAME_1, type8));
+		
+		readedTypes = entityTypeManager.readTypesByName(TYPE_NAME_1, limit);
+		Assert.assertTrue(readedTypes.size() == 2 && RepositoryUtils.normalizeCompare(readedTypes.get(0).getName(),TYPE_NAME_1));
+		
+		Assert.assertTrue(entityTypeManager.deleteType(type7.getId()));
+		Assert.assertTrue(entityTypeManager.deleteType(type8.getId()));
 		
 	}
 	
 	@After
 	public void deleteAll(){
-		Assert.assertTrue(entityTypeMamager.deleteType(type1.getId()));
-		Assert.assertTrue(entityTypeMamager.deleteType(type2.getId()));
-		Assert.assertTrue(entityTypeMamager.deleteType(type3.getId()));
+		Assert.assertTrue(entityTypeManager.deleteType(type1.getId()));
+		Assert.assertTrue(entityTypeManager.deleteType(type2.getId()));
+		Assert.assertTrue(entityTypeManager.deleteType(type3.getId()));
 	}
 }

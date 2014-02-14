@@ -20,13 +20,12 @@ public interface GroupRepository extends PagingAndSortingRepository<SocialGroup,
 	
 	public List<SocialGroup> findByCreatorIdAndCreationTimeLessThan(String creatorId, Long endTime, Pageable pager);
 	
-	public List<SocialGroup> findByCreationTimeBetween(Long beginTime,
-			Long endTime, Pageable pager);
+	public List<SocialGroup> findByCreationTimeBetween(Long beginTime, Long endTime, Pageable pager);
 	
-	public List<SocialGroup> findByCreationTimeGreaterThan(Long beginTime,
-			Pageable pager);
+	public List<SocialGroup> findByCreationTimeGreaterThan(Long beginTime, Pageable pager);
 	
-	public List<SocialGroup> findByCreationTimeLessThan(Long endTime,
-			Pageable pager);
+	public List<SocialGroup> findByCreationTimeLessThan(Long endTime, Pageable pager);
+	
+	public SocialGroup findByNameIgnoreCase(String name);
 
 }

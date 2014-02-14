@@ -35,14 +35,23 @@ public class SocialGroupManager implements GroupOperations {
 	
 	@Override
 	public Group create(String userId, String name) {
-		SocialGroup created_group = null;	
+		String normalizedName = RepositoryUtils.normalizeString(name);
+		SocialGroup created_group = null;
+		SocialGroup search_group = null;
 		// load user
 		SocialUser user = userManager.readSocialUser(userId);
 		if (user == null) {
 			user = new SocialUser(userId);
 			logger.info("User with id " + userId + " not present. Added to DB.");
 		}
-		SocialGroup group = new SocialGroup(name, user);
+		// verify if a group with same name* already exist (* ignoring case)
+		search_group = groupRepository.findByNameIgnoreCase(normalizedName);
+		if(search_group != null){
+			logger.warn("Group with name '" + normalizedName + "' already present in DB.");
+			return search_group.toGroup();
+		}
+		// create new group
+		SocialGroup group = new SocialGroup(normalizedName, user);
 		created_group = groupRepository.save(group);
 		if(created_group != null){
 			logger.info("New group with id " + created_group.getId() + " correctly created.");
@@ -183,10 +192,11 @@ public class SocialGroupManager implements GroupOperations {
 
 	@Override
 	public Group update(String groupId, String name) {
+		String normalizedName = RepositoryUtils.normalizeString(name);
 		SocialGroup saved_group = null;
 		SocialGroup group = retrieveGroup(groupId);
 		if(group != null){
-			group.setName(name);
+			group.setName(normalizedName);
 			group.setLastModifiedTime(System.currentTimeMillis());
 			saved_group = groupRepository.save(group);
 			if(saved_group != null){

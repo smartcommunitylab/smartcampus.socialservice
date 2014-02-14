@@ -39,4 +39,17 @@ public class RepositoryUtils {
 		java.util.Collections.sort(list);
 		return list;
 	}
+	
+	public static String normalizeString(String toNormalize){
+		String normalized = "";
+		normalized = toNormalize.trim();
+		//normalized = normalized.toLowerCase();	//Ask to Raman!
+		return normalized;
+	}
+	
+	public static boolean normalizeCompare(String string1, String string2){
+		string1 = string1.toLowerCase();
+		string2 = string2.toLowerCase();
+		return string1.compareTo(string2) == 0;
+	}
 }
