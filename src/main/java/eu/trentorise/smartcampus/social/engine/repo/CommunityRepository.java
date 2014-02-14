@@ -20,4 +20,16 @@ public interface CommunityRepository extends
 
 	public List<SocialCommunity> findByCreationTimeLessThan(Long endTime,
 			Pageable pager);
+
+	public List<SocialCommunity> findByAppId(String appId);
+
+	public List<SocialCommunity> findByAppIdAndCreationTimeBetween(
+			String appId, Long beginTime, Long endTime, Pageable pager);
+
+	public List<SocialCommunity> findByAppIdAndCreationTimeGreaterThan(
+			String appId, Long beginTime, Pageable pager);
+
+	public List<SocialCommunity> findByAppIdAndCreationTimeLessThan(
+			String appId, Long endTime, Pageable pager);
+
 }

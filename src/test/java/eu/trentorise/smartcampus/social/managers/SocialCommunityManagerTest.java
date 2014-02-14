@@ -31,6 +31,7 @@ public class SocialCommunityManagerTest {
 	private CommunityRepository repository;
 
 	private static final String NAME = "SC community";
+	private static final String APPID = "smartcampus";
 	private static final String NOT_EXISTING_ID = "1000000";
 
 	@After
@@ -41,7 +42,7 @@ public class SocialCommunityManagerTest {
 	@Test
 	public void crud() {
 
-		Community community = communityManager.create(NAME);
+		Community community = communityManager.create(NAME, APPID);
 		Assert.assertTrue(community.getId() != null);
 
 		Assert.assertEquals(NAME,
@@ -51,9 +52,19 @@ public class SocialCommunityManagerTest {
 		Assert.assertTrue(communityManager.delete(community.getId()));
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void fail4Name() {
+		communityManager.create("   ", APPID);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void fail4AppId() {
+		communityManager.create(NAME, null);
+	}
+
 	@Test
 	public void members() {
-		Community community = communityManager.create(NAME);
+		Community community = communityManager.create(NAME, APPID);
 		Set<String> subscribe = new HashSet<String>() {
 			{
 				add("1");
@@ -104,20 +115,21 @@ public class SocialCommunityManagerTest {
 	 */
 	private void initTestEnv() {
 		try {
-			SocialCommunity community = new SocialCommunity("community 1");
+			SocialCommunity community = new SocialCommunity("community 1",
+					APPID);
 			SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
 			community.setCreationTime(formatter.parse("22-10-2012").getTime());
 			repository.save(community);
 
-			community = new SocialCommunity("community 2");
+			community = new SocialCommunity("community 2", APPID);
 			community.setCreationTime(formatter.parse("01-04-2013").getTime());
 			repository.save(community);
 
-			community = new SocialCommunity("community 3");
+			community = new SocialCommunity("community 3", APPID);
 			community.setCreationTime(formatter.parse("01-01-2014").getTime());
 			repository.save(community);
 
-			community = new SocialCommunity("community 4");
+			community = new SocialCommunity("community 4", APPID);
 			community.setCreationTime(formatter.parse("01-02-2014").getTime());
 			repository.save(community);
 		} catch (ParseException e) {
@@ -194,5 +206,25 @@ public class SocialCommunityManagerTest {
 		} catch (ParseException e) {
 			Assert.fail("Exception parsing limit dates");
 		}
+	}
+
+	@Test
+	public void readByAppId() {
+		initTestEnv();
+
+		// no limit setted
+		Assert.assertEquals(4,
+				communityManager.readCommunitiesByAppId(APPID, null).size());
+
+		Limit limit = new Limit();
+		limit.setPage(0);
+		limit.setPageSize(2);
+		Assert.assertEquals(2,
+				communityManager.readCommunitiesByAppId(APPID, limit).size());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void failReadByAppId() {
+		communityManager.readCommunitiesByAppId("   ", null);
 	}
 }

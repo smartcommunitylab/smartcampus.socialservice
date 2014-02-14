@@ -11,7 +11,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 
 import eu.trentorise.smartcampus.social.engine.beans.Community;
 import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
@@ -26,6 +25,7 @@ public class SocialCommunity implements Serializable {
 	private Long id;
 
 	private String name;
+	private String appId;
 	private Long creationTime;
 	private Long lastModifiedTime;
 
@@ -33,9 +33,10 @@ public class SocialCommunity implements Serializable {
 			CascadeType.MERGE })
 	private Set<SocialUser> members;
 
-	public SocialCommunity(String name) {
+	public SocialCommunity(String name, String appId) {
 		super();
 		this.name = name;
+		this.appId = appId;
 	}
 
 	public SocialCommunity() {
@@ -104,5 +105,13 @@ public class SocialCommunity implements Serializable {
 			}
 		}
 		return outputList;
+	}
+
+	public String getAppId() {
+		return appId;
+	}
+
+	public void setAppId(String appId) {
+		this.appId = appId;
 	}
 }

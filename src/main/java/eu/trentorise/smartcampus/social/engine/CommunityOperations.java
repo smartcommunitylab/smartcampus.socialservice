@@ -9,11 +9,14 @@ import eu.trentorise.smartcampus.social.engine.beans.Limit;
 public interface CommunityOperations {
 
 	// creation
-	public Community create(String name);
+	public Community create(String name, String appId)
+			throws IllegalArgumentException;
 
 	// read
 
 	public List<Community> readCommunities(Limit limit);
+
+	public List<Community> readCommunitiesByAppId(String appId, Limit limit) throws IllegalArgumentException;
 
 	public Community readCommunity(String communityId);
 

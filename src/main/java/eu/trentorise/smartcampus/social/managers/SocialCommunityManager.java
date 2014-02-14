@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import eu.trentorise.smartcampus.social.engine.CommunityOperations;
 import eu.trentorise.smartcampus.social.engine.beans.Community;
@@ -27,10 +28,19 @@ public class SocialCommunityManager implements CommunityOperations {
 	CommunityRepository communityRepository;
 
 	@Override
-	public Community create(String name) {
-		SocialCommunity community = new SocialCommunity();
-		community.setName(name);
-		return communityRepository.save(community).toCommunity();
+	public Community create(String name, String appId)
+			throws IllegalArgumentException {
+		name = RepositoryUtils.normalizeString(name);
+		appId = RepositoryUtils.normalizeString(appId);
+		if (!StringUtils.hasLength(name)) {
+			throw new IllegalArgumentException("name should be valid");
+		}
+
+		if (!StringUtils.hasLength(appId)) {
+			throw new IllegalArgumentException("appId should be valid");
+		}
+		return communityRepository.save(new SocialCommunity(name, appId))
+				.toCommunity();
 	}
 
 	@Override
@@ -121,6 +131,41 @@ public class SocialCommunityManager implements CommunityOperations {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public List<Community> readCommunitiesByAppId(String appId, Limit limit) throws IllegalArgumentException {
+
+		appId = RepositoryUtils.normalizeString(appId);
+		if (!StringUtils.hasLength(appId)) {
+			throw new IllegalArgumentException("appId should be valid");
+		}
+		if (limit != null) {
+			List<SocialCommunity> result = null;
+
+			PageRequest page = null;
+			if (limit.getPage() >= 0 && limit.getPageSize() > 0) {
+				page = new PageRequest(limit.getPage(), limit.getPageSize());
+			}
+			if (limit.getFromDate() > 0 && limit.getToDate() > 0) {
+				result = communityRepository.findByAppIdAndCreationTimeBetween(
+						appId, limit.getFromDate(), limit.getToDate(), page);
+			} else if (limit.getFromDate() > 0) {
+				result = communityRepository
+						.findByAppIdAndCreationTimeGreaterThan(appId,
+								limit.getFromDate(), page);
+			} else if (limit.getToDate() > 0) {
+				result = communityRepository
+						.findByAppIdAndCreationTimeLessThan(appId,
+								limit.getToDate(), page);
+			} else {
+				result = communityRepository.findAll(page).getContent();
+			}
+			return SocialCommunity.toCommunity(result);
+		} else {
+			return SocialCommunity.toCommunity(communityRepository
+					.findByAppId(appId));
+		}
 	}
 
 }

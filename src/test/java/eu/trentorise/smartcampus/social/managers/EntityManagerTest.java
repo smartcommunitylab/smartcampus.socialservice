@@ -50,8 +50,8 @@ public class EntityManagerTest {
 
 	private void initEnv() {
 		typeManager.create("photo", "image/jpg");
-		envCommunities.add(communityManager.create("Smartcampus").getId());
-		envCommunities.add(communityManager.create("La Palazzina 2.0").getId());
+		envCommunities.add(communityManager.create("Smartcampus", null).getId());
+		envCommunities.add(communityManager.create("La Palazzina 2.0", null).getId());
 
 		env.put(USERID, Arrays.asList(groupManager.create(USERID, "friends")
 				.getId(), groupManager.create(USERID, "collegues").getId()));
