@@ -3,12 +3,16 @@ package eu.trentorise.smartcampus.social.engine.model;
 import java.io.Serializable;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+
+import eu.trentorise.smartcampus.social.engine.beans.Visibility;
+import eu.trentorise.smartcampus.social.managers.EntityManager;
 
 @Entity
 public class SocialEntity implements Serializable {
@@ -24,7 +28,7 @@ public class SocialEntity implements Serializable {
 	private String localId;
 	private String externalUri;
 
-	@OneToOne
+	@OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	private SocialUser owner;
 
 	@OneToOne
@@ -33,7 +37,8 @@ public class SocialEntity implements Serializable {
 	@OneToOne
 	private SocialType type;
 
-	@OneToMany(fetch = FetchType.LAZY)
+	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST,
+			CascadeType.MERGE })
 	@JoinTable(name = "userSharedWith")
 	private Set<SocialUser> usersSharedWith;
 
@@ -142,6 +147,27 @@ public class SocialEntity implements Serializable {
 
 	public void setCommunityOwner(SocialCommunity communityOwner) {
 		this.communityOwner = communityOwner;
+	}
+
+	public eu.trentorise.smartcampus.social.engine.beans.Entity toEntity() {
+		eu.trentorise.smartcampus.social.engine.beans.Entity entity = new eu.trentorise.smartcampus.social.engine.beans.Entity();
+		entity.setOwner(owner != null ? owner.getId() : null);
+		entity.setCommunityOwner(communityOwner != null ? communityOwner
+				.getId().toString() : null);
+		entity.setLocalId(localId);
+		entity.setType(type.getId().toString());
+		entity.setUri(uri);
+		entity.setName(name);
+		entity.setExternalUri(externalUri);
+		entity.setVisibility(EntityManager.getVisibility(this));
+		return entity;
+	}
+
+	public void setVisibility(Visibility visibility) {
+		if (visibility != null) {
+			publicShared = visibility.isPublicShared();
+
+		}
 	}
 
 }

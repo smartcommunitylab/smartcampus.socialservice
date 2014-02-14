@@ -9,6 +9,21 @@ public class Visibility {
 	private List<String> groups;
 	private boolean publicShared;
 
+	public Visibility() {
+
+	}
+
+	public Visibility(boolean publicShared) {
+		this.publicShared = publicShared;
+	}
+
+	public Visibility(List<String> users, List<String> communities,
+			List<String> groups) {
+		this.users = users;
+		this.communities = communities;
+		this.groups = groups;
+	}
+
 	public List<String> getUsers() {
 		return users;
 	}

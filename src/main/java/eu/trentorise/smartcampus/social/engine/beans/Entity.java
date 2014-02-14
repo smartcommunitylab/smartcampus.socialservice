@@ -1,12 +1,12 @@
 package eu.trentorise.smartcampus.social.engine.beans;
 
-import java.beans.Visibility;
-
 public class Entity {
+	private String name;
 	private String owner;
 	private String communityOwner;
 	private String uri;
 	private String localId;
+	private String externalUri;
 	private String type;
 	private Visibility visibility;
 
@@ -58,4 +58,28 @@ public class Entity {
 		this.visibility = visibility;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getExternalUri() {
+		return externalUri;
+	}
+
+	public void setExternalUri(String externalUri) {
+		this.externalUri = externalUri;
+	}
+
+	// public void validate() {
+	// if (!StringUtils.hasLength(localId)) {
+	// throw new IllegalArgumentException(
+	// "localId cannot be empty or null");
+	// }
+	//
+	//
+	// }
 }

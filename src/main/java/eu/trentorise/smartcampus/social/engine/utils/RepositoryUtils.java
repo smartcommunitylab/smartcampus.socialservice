@@ -32,10 +32,11 @@ public class RepositoryUtils {
 		return list.subList(from, to); // NB: from index is included, to index
 										// is excluded!
 	}
-	
-	public static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
-	  List<T> list = new ArrayList<T>(c);
-	  java.util.Collections.sort(list);
-	  return list;
+
+	public static <T extends Comparable<? super T>> List<T> asSortedList(
+			Collection<T> c) {
+		List<T> list = new ArrayList<T>(c);
+		java.util.Collections.sort(list);
+		return list;
 	}
 }

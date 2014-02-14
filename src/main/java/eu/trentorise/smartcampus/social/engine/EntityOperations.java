@@ -9,9 +9,7 @@ public interface EntityOperations {
 
 	// visibility
 
-	public boolean share(String ownerId, String communityId, Entity entity);
-
-	public boolean unshare(String uri);
+	public Entity saveOrUpdate(String namespace, Entity entity);
 
 	// read
 
