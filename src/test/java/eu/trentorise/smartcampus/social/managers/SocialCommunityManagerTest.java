@@ -39,6 +39,12 @@ public class SocialCommunityManagerTest {
 		repository.deleteAll();
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void failureCreate() {
+		communityManager.create(NAME, APPID);
+		communityManager.create(NAME, APPID);
+	}
+
 	@Test
 	public void crud() {
 

@@ -12,6 +12,10 @@ import eu.trentorise.smartcampus.social.engine.model.SocialCommunity;
 public interface CommunityRepository extends
 		PagingAndSortingRepository<SocialCommunity, Long> {
 
+	public SocialCommunity findByName(String name);
+
+	public SocialCommunity findByNameIgnoreCase(String name);
+
 	public List<SocialCommunity> findByCreationTimeBetween(Long beginTime,
 			Long endTime, Pageable pager);
 

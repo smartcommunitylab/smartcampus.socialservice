@@ -39,6 +39,11 @@ public class SocialCommunityManager implements CommunityOperations {
 		if (!StringUtils.hasLength(appId)) {
 			throw new IllegalArgumentException("appId should be valid");
 		}
+
+		if (communityRepository.findByNameIgnoreCase(name) != null) {
+			throw new IllegalArgumentException(String.format(
+					"community name %s already present", name));
+		}
 		return communityRepository.save(new SocialCommunity(name, appId))
 				.toCommunity();
 	}
@@ -134,7 +139,8 @@ public class SocialCommunityManager implements CommunityOperations {
 	}
 
 	@Override
-	public List<Community> readCommunitiesByAppId(String appId, Limit limit) throws IllegalArgumentException {
+	public List<Community> readCommunitiesByAppId(String appId, Limit limit)
+			throws IllegalArgumentException {
 
 		appId = RepositoryUtils.normalizeString(appId);
 		if (!StringUtils.hasLength(appId)) {
