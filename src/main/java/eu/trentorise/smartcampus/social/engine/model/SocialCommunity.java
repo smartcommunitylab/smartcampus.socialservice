@@ -98,10 +98,11 @@ public class SocialCommunity implements Serializable {
 
 	public static List<Community> toCommunity(
 			Iterable<SocialCommunity> collection) {
-		List<Community> outputList = new ArrayList<Community>();
-		for (SocialCommunity element : collection) {
-			if (element != null) {
-				outputList.add(element.toCommunity());
+		List<Community> outputList = null;
+		if (collection != null) {
+			outputList = new ArrayList<Community>();
+			for (SocialCommunity element : collection) {
+				outputList.add(element != null ? element.toCommunity() : null);
 			}
 		}
 		return outputList;
