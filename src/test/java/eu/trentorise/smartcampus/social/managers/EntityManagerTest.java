@@ -46,12 +46,32 @@ public class EntityManagerTest {
 	public void read() {
 		final String NO_ENTITY = "fakeUri";
 		Assert.assertNull(manager.readEntity(NO_ENTITY));
+
+		Assert.assertEquals(0, manager.readEntities(USERID, null, null).size());
+		create();
+		Assert.assertEquals(1, manager.readEntities(USERID, null, null).size());
+		Assert.assertEquals(0,
+				manager.readEntities(null, envCommunities.get(0), null).size());
+
+		Entity entity = new Entity();
+		entity.setName("welcome all");
+		entity.setLocalId("AAEAC00");
+		entity.setVisibility(new Visibility(true));
+		entity.setCommunityOwner(envCommunities.get(0));
+		entity.setType(typeManager.readTypeByNameAndMimeType("photo",
+				"image/jpg").getId());
+		manager.saveOrUpdate("testSpace", entity);
+		Assert.assertEquals(1,
+				manager.readEntities(null, envCommunities.get(0), null).size());
+
 	}
 
 	private void initEnv() {
 		typeManager.create("photo", "image/jpg");
-		envCommunities.add(communityManager.create("Smartcampus", null).getId());
-		envCommunities.add(communityManager.create("La Palazzina 2.0", null).getId());
+		envCommunities.add(communityManager.create("Smartcampus", "APPID")
+				.getId());
+		envCommunities.add(communityManager.create("La Palazzina 2.0", "APPID")
+				.getId());
 
 		env.put(USERID, Arrays.asList(groupManager.create(USERID, "friends")
 				.getId(), groupManager.create(USERID, "collegues").getId()));

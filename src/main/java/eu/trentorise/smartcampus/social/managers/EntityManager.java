@@ -117,8 +117,20 @@ public class EntityManager implements EntityOperations {
 	@Override
 	public List<Entity> readEntities(String ownerId, String communityId,
 			Limit limit) {
-		// TODO Auto-generated method stub
-		return null;
+		SocialUser owner = null;
+		SocialCommunity communityOwner = null;
+		if (ownerId != null) {
+			owner = userRepository.findOne(ownerId);
+		}
+
+		if (communityId != null) {
+			communityOwner = communityRepository.findOne(RepositoryUtils
+					.convertId(communityId));
+		}
+
+		return SocialEntity.toEntity(entityRepository
+				.findByOwnerOrCommunityOwner(owner, communityOwner));
+
 	}
 
 	@Override

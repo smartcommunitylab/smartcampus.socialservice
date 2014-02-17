@@ -1,6 +1,8 @@
 package eu.trentorise.smartcampus.social.engine.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -161,6 +163,18 @@ public class SocialEntity implements Serializable {
 		entity.setExternalUri(externalUri);
 		entity.setVisibility(EntityManager.getVisibility(this));
 		return entity;
+	}
+
+	public static List<eu.trentorise.smartcampus.social.engine.beans.Entity> toEntity(
+			Iterable<SocialEntity> collection) {
+		List<eu.trentorise.smartcampus.social.engine.beans.Entity> outputList = null;
+		if (collection != null) {
+			outputList = new ArrayList<eu.trentorise.smartcampus.social.engine.beans.Entity>();
+			for (SocialEntity element : collection) {
+				outputList.add(element != null ? element.toEntity() : null);
+			}
+		}
+		return outputList;
 	}
 
 	public void setVisibility(Visibility visibility) {
