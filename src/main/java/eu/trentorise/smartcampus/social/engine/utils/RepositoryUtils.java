@@ -1,12 +1,15 @@
 package eu.trentorise.smartcampus.social.engine.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
 
 public class RepositoryUtils {
+	
+	public static ArrayList<String> allowedMimeType = new CustomStringList(Arrays.asList("image/jpg","image/png","image/bmp", "video/mp4", "video/avi", "application/zip"));
 
 	public static String convertId(Long id) {
 		return id == null ? null : id.toString();
@@ -43,7 +46,6 @@ public class RepositoryUtils {
 	public static String normalizeString(String toNormalize){
 		String normalized = "";
 		normalized = toNormalize.trim();
-		//normalized = normalized.toLowerCase();	//Ask to Raman!
 		return normalized;
 	}
 	

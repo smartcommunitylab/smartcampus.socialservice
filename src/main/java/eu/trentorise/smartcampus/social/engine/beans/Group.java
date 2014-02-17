@@ -14,6 +14,8 @@ public class Group {
 	private Set<String> members;
 	private int totalMembers;
 
+	private String creatorId;
+	
 	public String getId() {
 		return id;
 	}
@@ -60,6 +62,14 @@ public class Group {
 
 	public void setTotalMembers(int memberNumber) {
 		this.totalMembers = memberNumber;
+	}
+
+	public String getCreatorId() {
+		return creatorId;
+	}
+
+	public void setCreatorId(String creatorId) {
+		this.creatorId = creatorId;
 	}
 
 }

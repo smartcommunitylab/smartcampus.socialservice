@@ -196,6 +196,13 @@ public class SocialGroupManager implements GroupOperations {
 		SocialGroup saved_group = null;
 		SocialGroup group = retrieveGroup(groupId);
 		if(group != null){
+			// block of already group name from same user present: ask to Raman
+			String creatorId = group.getCreator().getId();
+			List<SocialGroup> user_group = groupRepository.findByCreatorId(creatorId);
+			if(SocialGroup.toGroupName(user_group).contains(group.getName())){
+				logger.error("A group from this user with the name " + normalizedName + " already exists.");
+				return null;
+			}// end of block
 			group.setName(normalizedName);
 			group.setLastModifiedTime(System.currentTimeMillis());
 			saved_group = groupRepository.save(group);
