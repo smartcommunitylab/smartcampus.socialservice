@@ -20,7 +20,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import eu.trentorise.smartcampus.social.engine.beans.Group;
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
 import eu.trentorise.smartcampus.social.engine.beans.User;
-import eu.trentorise.smartcampus.social.engine.model.SocialUser;
 import eu.trentorise.smartcampus.social.engine.repo.GroupRepository;
 import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
@@ -137,12 +136,12 @@ public class SocialGroupManagerTest {
 		// read : read group 1
 		Group readedGroup = groupManager.readGroup(group.getId());
 		Assert.assertTrue(checkGroupCreation(GROUP_NAME_1, readedGroup) && group.getId().equals(readedGroup.getId()));	
-		// read : read all grups created from user "30" using pagination ( page 0, page_size 5 ) => I obtain the first five groups from 0 to 4
+		// read : read all groups created from user "30" using pagination ( page 0, page_size 5 ) => I obtain the first five groups from 0 to 4
 		Assert.assertTrue(groupManager.readGroups(USER_ID, limit).size() == 5);
 		
 		limit.setPage(2);
 		List<Group> page_readed_group = groupManager.readGroups(USER_ID, limit);
-		// read : read all grups created from user "30" using pagination ( page 2, page_size 5 ) => I obtain the last group from 10 to 10
+		// read : read all groups created from user "30" using pagination ( page 2, page_size 5 ) => I obtain the last group from 10 to 10
 		Assert.assertTrue(page_readed_group.size() == 1 && page_readed_group.get(0).getName().compareTo(GROUP_NAME_11) == 0);
 		
 		// read with time pagination
@@ -159,7 +158,7 @@ public class SocialGroupManagerTest {
 			e.printStackTrace();
 		}
 		page_readed_group = groupManager.readGroups(USER_ID, limit);
-		// read : read all grups created from user "30" using pagination ( page 1, page_size 5 ) created between 01-03-2013 and 15-02-2014 => I obtain only the group "group8"
+		// read : read all groups created from user "30" using pagination ( page 1, page_size 5 ) created between 01-03-2013 and 15-02-2014 => I obtain only the group "group8"
 		Assert.assertTrue(page_readed_group.size() == 1 && page_readed_group.get(0).getName().compareTo(GROUP_NAME_8) == 0);
 		
 		try {
@@ -173,7 +172,7 @@ public class SocialGroupManagerTest {
 		}
 		page_readed_group = groupManager.readGroups(USER_ID, limit);
 		String group_name_1 = page_readed_group.get(0).getName();
-		// read : read all grups created from user "30" using pagination ( page 1, page_size 5 ) created after 01-02-2014 => I obtain three groups from 8 to 10
+		// read : read all groups created from user "30" using pagination ( page 1, page_size 5 ) created after 01-02-2014 => I obtain three groups from 8 to 10
 		Assert.assertTrue(page_readed_group.size() == 3 && group_name_1.compareTo(GROUP_NAME_9) == 0);
 		
 		try {
@@ -187,7 +186,7 @@ public class SocialGroupManagerTest {
 		}
 		page_readed_group = groupManager.readGroups(USER_ID, limit);
 		group_name_1 = page_readed_group.get(2).getName();
-		// read : read all grups created from user "30" using pagination ( page 0, page_size 5 ) created before 10-02-2014 => I obtain three groups from 0 to 2
+		// read : read all groups created from user "30" using pagination ( page 0, page_size 5 ) created before 10-02-2014 => I obtain three groups from 0 to 2
 		Assert.assertTrue(page_readed_group.size() == 3 && group_name_1.compareTo(GROUP_NAME_2) == 0);
 		
 	}

@@ -32,11 +32,15 @@ public class SocialTypeManager implements EntityTypeOperations{
 		List<SocialType> findedTypes = typeRepository.findByNameIgnoreCaseAndMimeType(normalizedName, mimeType);
 		if(findedTypes == null || findedTypes.size() == 0){	//If there is not a type like the "newType" i create it
 			newType = new SocialType(normalizedName, mimeType);
+			if(checkMimeType(mimeType)){
 			createdType = typeRepository.save(newType).toEntityType();
 			if(createdType != null){
 				logger.info("Successfully create new type '" + normalizedName + "'.");
 			} else {
 				logger.error("Error in new type '" + normalizedName + "' creation.");
+			}
+			} else {
+				logger.error("Error in new type '" + normalizedName + "' creation. MimeType '" + mimeType + "' not allowed.");
 			}
 		} else {					//else I use the existing type
 			logger.warn("Type '" + normalizedName + "' already exists.");
@@ -136,6 +140,20 @@ public class SocialTypeManager implements EntityTypeOperations{
 			logger.warn("No entityType found with id " + entityTypeId);
 		}
 		return true;
+	}
+	
+	/**
+	 * Method checkMimeType: used to verify if a new mimeType is contained in the
+	 * available list
+	 * @param mimeType: type to check;
+	 * @return boolean true if type correct, false in all other case 
+	 */
+	private boolean checkMimeType(String mimeType){
+		boolean typeOk = false;
+		if(RepositoryUtils.allowedMimeType.contains(mimeType)){
+			typeOk = true;
+		}
+		return typeOk;
 	}
 
 }

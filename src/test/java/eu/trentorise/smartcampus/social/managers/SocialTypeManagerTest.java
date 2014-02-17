@@ -30,11 +30,12 @@ public class SocialTypeManagerTest {
 	private static final String TYPE_NAME_3_NN = "   BIGImage    ";		//Not Normalized
 	private static final String TYPE_NAME_7 = "immage";
 	private static final String TYPE_NAME_7_NN = " IMMaGE   ";			//Not Normalized
-	private static final String TYPE_MIME_1 = "jpg";
-	private static final String TYPE_MIME_2 = "png";
-	private static final String TYPE_MIME_3 = "tiff";
+	private static final String TYPE_MIME_1 = "IMAGE/jpg";
+	private static final String TYPE_MIME_2 = "image/png";
+	private static final String TYPE_MIME_3 = "ViDeO/mP4";
+	private static final String TYPE_MINE_4 = "audio/mp3";				//Type not present in allowedTypes
 	
-	private EntityType type1, type2, type3, type4, type5, type6, type7, type8;
+	private EntityType type1, type2, type3, type4, type5, type6, type7, type8, type9;
 	
 	private boolean checkTypeCreation(String name, EntityType type){
 		return type != null && type.getId() != null
@@ -99,6 +100,10 @@ public class SocialTypeManagerTest {
 		
 		readedTypes = entityTypeManager.readTypesByName(TYPE_NAME_1, limit);
 		Assert.assertTrue(readedTypes.size() == 2 && RepositoryUtils.normalizeCompare(readedTypes.get(0).getName(),TYPE_NAME_1));
+		
+		//Create a type with a not allowed mimeType
+		type9 = entityTypeManager.create(TYPE_NAME_1, TYPE_MINE_4);
+		Assert.assertTrue(type9 == null);
 		
 		Assert.assertTrue(entityTypeManager.deleteType(type7.getId()));
 		Assert.assertTrue(entityTypeManager.deleteType(type8.getId()));

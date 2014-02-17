@@ -35,7 +35,7 @@ public class SocialGroup implements Serializable {
 	private Long creationTime;
 	private Long lastModifiedTime;
 
-
+	//Example of how to set unique false columns in join tables
 	//@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
 	//@JoinTable(name = "group_members", joinColumns = {@JoinColumn(name="social_group", referencedColumnName="id" , unique = false)}, 
 	//inverseJoinColumns= {@JoinColumn(name="members", referencedColumnName="id", unique = false)})
@@ -117,6 +117,7 @@ public class SocialGroup implements Serializable {
 			group.setMembers(memberListId);
 		}
 		group.setTotalMembers(getMembers() != null ? getMembers().size() : 0);
+		group.setCreatorId(creator != null? creator.getId() : null);
 		return group;
 	}
 
@@ -126,6 +127,14 @@ public class SocialGroup implements Serializable {
 			outputGroups.add(group.toGroup());
 		}
 		return outputGroups;
+	}
+	
+	public static List<String> toGroupName(Iterable<SocialGroup> groups) {
+		List<String> outputGroupsName = new ArrayList<String>();
+		for (SocialGroup group : groups){
+			outputGroupsName.add(group.getName());
+		}
+		return outputGroupsName;
 	}
 
 	public static Long convertId(String id) throws IllegalArgumentException {
