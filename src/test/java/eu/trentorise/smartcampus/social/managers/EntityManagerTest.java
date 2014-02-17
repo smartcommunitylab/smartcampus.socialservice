@@ -60,9 +60,12 @@ public class EntityManagerTest {
 		entity.setCommunityOwner(envCommunities.get(0));
 		entity.setType(typeManager.readTypeByNameAndMimeType("photo",
 				"image/jpg").getId());
-		manager.saveOrUpdate("testSpace", entity);
+		entity = manager.saveOrUpdate("testSpace", entity);
 		Assert.assertEquals(1,
 				manager.readEntities(null, envCommunities.get(0), null).size());
+
+		Assert.assertEquals("AAEAC00", manager.readEntity(entity.getUri())
+				.getLocalId());
 
 	}
 
