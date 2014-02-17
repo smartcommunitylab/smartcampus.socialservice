@@ -17,6 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import eu.trentorise.smartcampus.social.engine.beans.Entity;
 import eu.trentorise.smartcampus.social.engine.beans.Visibility;
+import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.EntityRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -37,6 +38,9 @@ public class EntityManagerTest {
 
 	@Autowired
 	EntityRepository entityRepo;
+
+	@Autowired
+	CommunityRepository communityRepo;
 
 	private Map<String, List<String>> env = new HashMap<String, List<String>>();
 	private List<String> envCommunities = new ArrayList<String>();
@@ -84,6 +88,7 @@ public class EntityManagerTest {
 	@After
 	public void cleanup() {
 		entityRepo.deleteAll();
+		communityRepo.deleteAll();
 	}
 
 	@Test
