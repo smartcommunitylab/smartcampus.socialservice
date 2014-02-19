@@ -71,6 +71,7 @@ public class EntityManagerTest {
 		entity = manager.saveOrUpdate("testSpace", entity);
 		Assert.assertEquals(1,
 				manager.readEntities(null, envCommunities.get(0), null).size());
+		Assert.assertEquals(0, manager.readEntities(null, null, null).size());
 
 		Assert.assertEquals("AAEAC00", manager.readEntity(entity.getUri())
 				.getLocalId());

@@ -125,15 +125,16 @@ public class EntityManager implements EntityOperations {
 		if (ownerId != null) {
 			owner = userManager.defineSocialUser(ownerId);
 		}
-
 		if (communityId != null) {
 			communityOwner = communityRepository.findOne(RepositoryUtils
 					.convertId(communityId));
 		}
-
-		return SocialEntity.toEntity(entityRepository
-				.findByOwnerOrCommunityOwner(owner, communityOwner));
-
+		if (communityOwner == null && owner == null) {
+			return Collections.<Entity> emptyList();
+		} else {
+			return SocialEntity.toEntity(entityRepository
+					.findByOwnerOrCommunityOwner(owner, communityOwner));
+		}
 	}
 
 	@Override
