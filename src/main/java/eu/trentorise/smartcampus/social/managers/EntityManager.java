@@ -23,7 +23,6 @@ import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.EntityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.GroupRepository;
 import eu.trentorise.smartcampus.social.engine.repo.SocialTypeRepository;
-import eu.trentorise.smartcampus.social.engine.repo.UserRepository;
 import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
 @Component
@@ -40,10 +39,10 @@ public class EntityManager implements EntityOperations {
 	SocialTypeRepository typeRepository;
 
 	@Autowired
-	UserRepository userRepository;
+	GroupRepository groupRepository;
 
 	@Autowired
-	GroupRepository groupRepository;
+	SocialUserManager userManager;
 
 	@Override
 	public Entity saveOrUpdate(String namespace, Entity entity) {
@@ -84,9 +83,8 @@ public class EntityManager implements EntityOperations {
 					persistedEntity.setCommunityOwner(community);
 				}
 			} else if (ownerSetted = StringUtils.hasLength(entity.getOwner())) {
-				SocialUser user = userRepository.findOne(entity.getOwner());
-				persistedEntity.setOwner(user == null ? new SocialUser(entity
-						.getOwner()) : user);
+				persistedEntity.setOwner(userManager.defineSocialUser(entity
+						.getOwner()));
 			}
 
 			if (!ownerSetted) {
@@ -125,7 +123,7 @@ public class EntityManager implements EntityOperations {
 		SocialUser owner = null;
 		SocialCommunity communityOwner = null;
 		if (ownerId != null) {
-			owner = userRepository.findOne(ownerId);
+			owner = userManager.defineSocialUser(ownerId);
 		}
 
 		if (communityId != null) {
@@ -206,8 +204,7 @@ public class EntityManager implements EntityOperations {
 			Set<SocialUser> users = new HashSet<SocialUser>();
 			for (String user : visibility.getUsers()) {
 				if (!user.equals(ownerId)) {
-					SocialUser u = userRepository.findOne(user);
-					users.add(u != null ? u : new SocialUser(user));
+					users.add(userManager.defineSocialUser(user));
 				}
 			}
 			entity.setUsersSharedWith(users);
