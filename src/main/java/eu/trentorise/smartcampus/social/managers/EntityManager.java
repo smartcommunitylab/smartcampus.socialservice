@@ -205,8 +205,10 @@ public class EntityManager implements EntityOperations {
 
 			Set<SocialUser> users = new HashSet<SocialUser>();
 			for (String user : visibility.getUsers()) {
-				SocialUser u = userRepository.findOne(user);
-				users.add(u != null ? u : new SocialUser(user));
+				if (!user.equals(ownerId)) {
+					SocialUser u = userRepository.findOne(user);
+					users.add(u != null ? u : new SocialUser(user));
+				}
 			}
 			entity.setUsersSharedWith(users);
 
