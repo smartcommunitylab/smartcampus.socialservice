@@ -1,6 +1,7 @@
 package eu.trentorise.smartcampus.social.managers;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -110,8 +111,12 @@ public class EntityManager implements EntityOperations {
 
 	@Override
 	public List<Entity> readShared(String actorId, Limit limit) {
-		// TODO Auto-generated method stub
-		return null;
+		Set<SocialEntity> result = new HashSet<SocialEntity>();
+		result.addAll(entityRepository.findByUserSharedWith(actorId));
+		result.addAll(entityRepository.findByGroupSharedWith(actorId));
+		result.addAll(entityRepository.findByCommunitySharedWith(actorId));
+		result.addAll(entityRepository.findPublicEntities(actorId));
+		return SocialEntity.toEntity(result);
 	}
 
 	@Override
@@ -186,38 +191,44 @@ public class EntityManager implements EntityOperations {
 		if (entity != null && visibility != null) {
 			entity.setPublicShared(visibility.isPublicShared());
 
-			if (visibility.getUsers() != null) {
-				Set<SocialUser> users = new HashSet<SocialUser>();
-				for (String user : visibility.getUsers()) {
-					SocialUser u = userRepository.findOne(user);
-					users.add(u != null ? u : new SocialUser(user));
-				}
-				entity.setUsersSharedWith(users);
+			if (visibility.getUsers() == null) {
+				visibility.setUsers(Collections.<String> emptyList());
 			}
 
-			if (visibility.getCommunities() != null) {
-				Set<SocialCommunity> communities = new HashSet<SocialCommunity>();
-				for (String community : visibility.getCommunities()) {
-					SocialCommunity c = communityRepository
-							.findOne(RepositoryUtils.convertId(community));
-					if (c != null) {
-						communities.add(c);
-					}
-					entity.setCommunitiesSharedWith(communities);
+			if (visibility.getCommunities() == null) {
+				visibility.setCommunities(Collections.<String> emptyList());
+			}
+
+			if (visibility.getGroups() == null) {
+				visibility.setGroups(Collections.<String> emptyList());
+			}
+
+			Set<SocialUser> users = new HashSet<SocialUser>();
+			for (String user : visibility.getUsers()) {
+				SocialUser u = userRepository.findOne(user);
+				users.add(u != null ? u : new SocialUser(user));
+			}
+			entity.setUsersSharedWith(users);
+
+			Set<SocialCommunity> communities = new HashSet<SocialCommunity>();
+			for (String community : visibility.getCommunities()) {
+				SocialCommunity c = communityRepository.findOne(RepositoryUtils
+						.convertId(community));
+				if (c != null) {
+					communities.add(c);
+				}
+				entity.setCommunitiesSharedWith(communities);
+			}
+			Set<SocialGroup> groups = new HashSet<SocialGroup>();
+			for (String group : visibility.getGroups()) {
+				SocialGroup g = groupRepository.findOne(RepositoryUtils
+						.convertId(group));
+				if (g != null && ownerId != null
+						&& g.getCreator().getId().equals(ownerId)) {
+					groups.add(g);
 				}
 			}
-			if (visibility.getGroups() != null) {
-				Set<SocialGroup> groups = new HashSet<SocialGroup>();
-				for (String group : visibility.getGroups()) {
-					SocialGroup g = groupRepository.findOne(RepositoryUtils
-							.convertId(group));
-					if (g != null && ownerId != null
-							&& g.getCreator().getId().equals(ownerId)) {
-						groups.add(g);
-					}
-				}
-				entity.setGroupsSharedWith(groups);
-			}
+			entity.setGroupsSharedWith(groups);
 		}
 		return entity;
 	}

@@ -3,6 +3,7 @@ package eu.trentorise.smartcampus.social.managers;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -44,16 +45,19 @@ public class EntityManagerTest {
 
 	private Map<String, List<String>> env = new HashMap<String, List<String>>();
 	private List<String> envCommunities = new ArrayList<String>();
-	private static final String USERID = "1";
+	private static final String USERID_1 = "1";
+	private static final String USERID_2 = "2";
 
 	@Test
 	public void read() {
 		final String NO_ENTITY = "fakeUri";
 		Assert.assertNull(manager.readEntity(NO_ENTITY));
 
-		Assert.assertEquals(0, manager.readEntities(USERID, null, null).size());
+		Assert.assertEquals(0, manager.readEntities(USERID_1, null, null)
+				.size());
 		create();
-		Assert.assertEquals(1, manager.readEntities(USERID, null, null).size());
+		Assert.assertEquals(1, manager.readEntities(USERID_1, null, null)
+				.size());
 		Assert.assertEquals(0,
 				manager.readEntities(null, envCommunities.get(0), null).size());
 
@@ -80,8 +84,11 @@ public class EntityManagerTest {
 		envCommunities.add(communityManager.create("La Palazzina 2.0", "APPID")
 				.getId());
 
-		env.put(USERID, Arrays.asList(groupManager.create(USERID, "friends")
-				.getId(), groupManager.create(USERID, "collegues").getId()));
+		env.put(USERID_1, Arrays.asList(groupManager
+				.create(USERID_1, "friends").getId(),
+				groupManager.create(USERID_1, "collegues").getId()));
+		env.put(USERID_2,
+				Arrays.asList(groupManager.create(USERID_2, "lab").getId()));
 
 	}
 
@@ -99,7 +106,7 @@ public class EntityManagerTest {
 		entity.setName("my sunny sunday");
 		entity.setLocalId("1EAC00");
 		entity.setVisibility(new Visibility(true));
-		entity.setOwner(USERID);
+		entity.setOwner(USERID_1);
 		entity.setType(typeManager.readTypeByNameAndMimeType("photo",
 				"image/jpg").getId());
 
@@ -134,11 +141,86 @@ public class EntityManagerTest {
 		Entity entity = new Entity();
 		entity.setName("my sunny sunday");
 		entity.setVisibility(new Visibility(true));
-		entity.setOwner(USERID);
+		entity.setOwner(USERID_1);
 		entity.setType(typeManager.readTypeByNameAndMimeType("photo",
 				"image/jpg").getId());
 
 		entity = manager.saveOrUpdate("testSpace", entity);
+	}
+
+	@Test
+	public void sharing() {
+		Assert.assertEquals(0, manager.readShared(USERID_1, null).size());
+
+		initEnv();
+		Entity entity = new Entity();
+		entity.setName("my sunny sunday");
+		entity.setLocalId("1EAC00");
+		entity.setVisibility(new Visibility(Arrays.asList(USERID_1), null, null));
+		entity.setOwner(USERID_2);
+		entity.setType(typeManager.readTypeByNameAndMimeType("photo",
+				"image/jpg").getId());
+		entity = manager.saveOrUpdate("testSpace", entity);
+
+		Assert.assertEquals(1, manager.readShared(USERID_1, null).size());
+
+		entity.setVisibility(new Visibility());
+		entity = manager.saveOrUpdate("testSpace", entity);
+		Assert.assertEquals(0, manager.readShared(USERID_1, null).size());
+
+		entity.setVisibility(new Visibility(true));
+		entity = manager.saveOrUpdate("testSpace", entity);
+		Assert.assertEquals(1, manager.readShared(USERID_1, null).size());
+
+		Assert.assertEquals(0, manager.readShared(USERID_2, null).size());
+
+		/* ************************ community test ***************************** */
+		// USER_1 subscribes to Smartcampus community
+		communityManager.addMembers(envCommunities.get(0), new HashSet<String>(
+				Arrays.asList(USERID_1)));
+
+		entity.setVisibility(new Visibility());
+		entity = manager.saveOrUpdate("testSpace", entity);
+		Assert.assertEquals(0, manager.readShared(USERID_1, null).size());
+
+		entity.setVisibility(new Visibility(null, Arrays.asList(envCommunities
+				.get(1)), null));
+		entity = manager.saveOrUpdate("testSpace", entity);
+		Assert.assertEquals(0, manager.readShared(USERID_1, null).size());
+
+		entity.setVisibility(new Visibility(null, Arrays.asList(envCommunities
+				.get(0)), null));
+		entity = manager.saveOrUpdate("testSpace", entity);
+		Assert.assertEquals(1, manager.readShared(USERID_1, null).size());
+
+		entity.setVisibility(new Visibility(Arrays.asList(USERID_1), Arrays
+				.asList(envCommunities.get(0)), null));
+		entity = manager.saveOrUpdate("testSpace", entity);
+		Assert.assertEquals(1, manager.readShared(USERID_1, null).size());
+
+		// USER_1 unsubscribes from Smartcampus community
+		communityManager.removeMembers(envCommunities.get(0),
+				new HashSet<String>(Arrays.asList(USERID_1)));
+		Assert.assertEquals(1, manager.readShared(USERID_1, null).size());
+		entity.setVisibility(new Visibility(true));
+		entity = manager.saveOrUpdate("testSpace", entity);
+		Assert.assertEquals(1, manager.readShared(USERID_1, null).size());
+		entity.setVisibility(new Visibility());
+		entity = manager.saveOrUpdate("testSpace", entity);
+		Assert.assertEquals(0, manager.readShared(USERID_1, null).size());
+
+		/* ************************ group test ***************************** */
+
+		groupManager.addMembers(env.get(USERID_2).get(0), new HashSet<String>(
+				Arrays.asList(USERID_1)));
+		Assert.assertEquals(0, manager.readShared(USERID_1, null).size());
+		entity.setVisibility(new Visibility(null, null, Arrays.asList(env.get(
+				USERID_2).get(0))));
+		entity = manager.saveOrUpdate("testSpace", entity);
+		Assert.assertEquals(1, manager.readShared(USERID_1, null).size());
+		groupManager.removeMembers(env.get(USERID_2).get(0),
+				new HashSet<String>(Arrays.asList(USERID_1)));
+		Assert.assertEquals(0, manager.readShared(USERID_1, null).size());
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -148,7 +230,7 @@ public class EntityManagerTest {
 		entity.setName("my sunny sunday");
 		entity.setLocalId("1EAC00");
 		entity.setVisibility(new Visibility(true));
-		entity.setOwner(USERID);
+		entity.setOwner(USERID_1);
 		entity.setType(typeManager.readTypeByNameAndMimeType("photo",
 				"image/jpg").getId());
 
@@ -162,7 +244,7 @@ public class EntityManagerTest {
 		entity.setName("my sunny sunday");
 		entity.setLocalId("1EAC00");
 		entity.setVisibility(new Visibility(true));
-		entity.setOwner(USERID);
+		entity.setOwner(USERID_1);
 
 		entity = manager.saveOrUpdate("testSpace", entity);
 	}
@@ -176,9 +258,10 @@ public class EntityManagerTest {
 		List<String> users = Arrays.asList("10", "11", "22");
 		List<String> communities = Arrays.asList(envCommunities.get(0),
 				"1000000");
-		List<String> groups = Arrays.asList(env.get(USERID).get(0), "1000000");
+		List<String> groups = Arrays
+				.asList(env.get(USERID_1).get(0), "1000000");
 		entity.setVisibility(new Visibility(users, communities, groups));
-		entity.setOwner(USERID);
+		entity.setOwner(USERID_1);
 		entity.setType(typeManager.readTypeByNameAndMimeType("photo",
 				"image/jpg").getId());
 		entity = manager.saveOrUpdate("testSpace", entity);
