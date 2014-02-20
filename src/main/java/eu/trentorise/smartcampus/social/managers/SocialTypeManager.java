@@ -1,5 +1,7 @@
 package eu.trentorise.smartcampus.social.managers;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -13,36 +15,49 @@ import eu.trentorise.smartcampus.social.engine.beans.EntityType;
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
 import eu.trentorise.smartcampus.social.engine.model.SocialType;
 import eu.trentorise.smartcampus.social.engine.repo.SocialTypeRepository;
+import eu.trentorise.smartcampus.social.engine.utils.CustomStringList;
 import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
 @Component
 @Transactional
-public class SocialTypeManager implements EntityTypeOperations{
+public class SocialTypeManager implements EntityTypeOperations {
 
-	@Autowired 
+	private static final ArrayList<String> allowedMimeType = new CustomStringList(
+			Arrays.asList("image/jpg", "image/png", "image/bmp", "video/mp4",
+					"video/avi", "application/zip", "text/plain"));
+	@Autowired
 	SocialTypeRepository typeRepository;
-	
-	private static final Logger logger = Logger.getLogger(SocialGroupManager.class);
-	
+
+	private static final Logger logger = Logger
+			.getLogger(SocialGroupManager.class);
+
 	@Override
 	public EntityType create(String name, String mimeType) {
 		SocialType newType = null;
 		EntityType createdType = null;
 		String normalizedName = RepositoryUtils.normalizeString(name);
-		List<SocialType> findedTypes = typeRepository.findByNameIgnoreCaseAndMimeType(normalizedName, mimeType);
-		if(findedTypes == null || findedTypes.size() == 0){	//If there is not a type like the "newType" i create it
+		List<SocialType> findedTypes = typeRepository
+				.findByNameIgnoreCaseAndMimeType(normalizedName, mimeType);
+		if (findedTypes == null || findedTypes.size() == 0) { // If there is not
+																// a type like
+																// the "newType"
+																// i create it
 			newType = new SocialType(normalizedName, mimeType);
-			if(checkMimeType(mimeType)){
-			createdType = typeRepository.save(newType).toEntityType();
-			if(createdType != null){
-				logger.info("Successfully create new type '" + normalizedName + "'.");
+			if (checkMimeType(mimeType)) {
+				createdType = typeRepository.save(newType).toEntityType();
+				if (createdType != null) {
+					logger.info("Successfully create new type '"
+							+ normalizedName + "'.");
+				} else {
+					logger.error("Error in new type '" + normalizedName
+							+ "' creation.");
+				}
 			} else {
-				logger.error("Error in new type '" + normalizedName + "' creation.");
+				logger.error("Error in new type '" + normalizedName
+						+ "' creation. MimeType '" + mimeType
+						+ "' not allowed.");
 			}
-			} else {
-				logger.error("Error in new type '" + normalizedName + "' creation. MimeType '" + mimeType + "' not allowed.");
-			}
-		} else {					//else I use the existing type
+		} else { // else I use the existing type
 			logger.warn("Type '" + normalizedName + "' already exists.");
 			createdType = findedTypes.get(0).toEntityType();
 		}
@@ -51,19 +66,21 @@ public class SocialTypeManager implements EntityTypeOperations{
 
 	@Override
 	public EntityType readType(String entityTypeId) {
-		SocialType readedType = typeRepository.findOne(RepositoryUtils.convertId(entityTypeId));
-		if(readedType != null){
+		SocialType readedType = typeRepository.findOne(RepositoryUtils
+				.convertId(entityTypeId));
+		if (readedType != null) {
 			return readedType.toEntityType();
 		}
 		logger.error("No type found with id " + entityTypeId + ".");
 		return null;
 	}
-	
+
 	@Override
 	public EntityType updateType(String entityTypeId, String mimeType) {
 		SocialType updatedType = null;
-		SocialType readedType = typeRepository.findOne(RepositoryUtils.convertId(entityTypeId));
-		if(readedType != null){
+		SocialType readedType = typeRepository.findOne(RepositoryUtils
+				.convertId(entityTypeId));
+		if (readedType != null) {
 			readedType.setMimeType(mimeType);
 			updatedType = typeRepository.save(readedType);
 			logger.info("Type " + entityTypeId + " correctly updated.");
@@ -72,17 +89,19 @@ public class SocialTypeManager implements EntityTypeOperations{
 		logger.error("No type found with id " + entityTypeId + ".");
 		return null;
 	}
-	
+
 	@Override
 	public EntityType readTypeByNameAndMimeType(String name, String mimeType) {
 		String normalizedName = RepositoryUtils.normalizeString(name);
-		List<SocialType> findedTypes = typeRepository.findByNameIgnoreCaseAndMimeType(normalizedName, mimeType);
+		List<SocialType> findedTypes = typeRepository
+				.findByNameIgnoreCaseAndMimeType(normalizedName, mimeType);
 		SocialType readedType = null;
-		if(findedTypes != null && findedTypes.size() > 0){
+		if (findedTypes != null && findedTypes.size() > 0) {
 			readedType = findedTypes.get(0);
 			return readedType.toEntityType();
 		}
-		logger.error("No type found with name '" + normalizedName + "' and mimeType '" + mimeType + "'.");
+		logger.error("No type found with name '" + normalizedName
+				+ "' and mimeType '" + mimeType + "'.");
 		return null;
 	}
 
@@ -93,7 +112,7 @@ public class SocialTypeManager implements EntityTypeOperations{
 			page = new PageRequest(limit.getPage(), limit.getPageSize());
 		}
 		List<SocialType> readedType = typeRepository.findAll(page).getContent();
-		if(readedType == null){
+		if (readedType == null) {
 			logger.warn("No entityType found in db");
 			return null;
 		}
@@ -107,8 +126,9 @@ public class SocialTypeManager implements EntityTypeOperations{
 		if (limit.getPage() >= 0 && limit.getPageSize() > 0) {
 			page = new PageRequest(limit.getPage(), limit.getPageSize());
 		}
-		List<SocialType> readedType = typeRepository.findByNameIgnoreCase(normalizedName, page);
-		if(readedType == null){
+		List<SocialType> readedType = typeRepository.findByNameIgnoreCase(
+				normalizedName, page);
+		if (readedType == null) {
 			logger.warn("No entityType found with name " + normalizedName);
 			return null;
 		}
@@ -121,19 +141,21 @@ public class SocialTypeManager implements EntityTypeOperations{
 		if (limit.getPage() >= 0 && limit.getPageSize() > 0) {
 			page = new PageRequest(limit.getPage(), limit.getPageSize());
 		}
-		List<SocialType> readedType = typeRepository.findByMimeType(mimeType, page);
-		if(readedType == null){
+		List<SocialType> readedType = typeRepository.findByMimeType(mimeType,
+				page);
+		if (readedType == null) {
 			logger.warn("No entityType found with mimeType " + mimeType);
 			return null;
 		}
 		return SocialType.toEntityType(readedType);
 	}
 
-	//Only for tests
+	// Only for tests
 	@Override
 	public boolean deleteType(String entityTypeId) {
-		SocialType type = typeRepository.findOne(RepositoryUtils.convertId(entityTypeId));
-		if(type != null){
+		SocialType type = typeRepository.findOne(RepositoryUtils
+				.convertId(entityTypeId));
+		if (type != null) {
 			typeRepository.delete(RepositoryUtils.convertId(entityTypeId));
 			logger.info("EntityType " + entityTypeId + " correctly removed.");
 		} else {
@@ -141,19 +163,18 @@ public class SocialTypeManager implements EntityTypeOperations{
 		}
 		return true;
 	}
-	
+
 	/**
-	 * Method checkMimeType: used to verify if a new mimeType is contained in the
-	 * available list
-	 * @param mimeType: type to check;
-	 * @return boolean true if type correct, false in all other case 
+	 * Method checkMimeType: used to verify if a new mimeType is contained in
+	 * the available list
+	 * 
+	 * @param mimeType
+	 *            : type to check;
+	 * @return boolean true if type correct, false in all other case
 	 */
-	private boolean checkMimeType(String mimeType){
-		boolean typeOk = false;
-		if(RepositoryUtils.allowedMimeType.contains(mimeType)){
-			typeOk = true;
-		}
-		return typeOk;
+	private boolean checkMimeType(String mimeType) {
+		return mimeType != null
+				&& allowedMimeType.contains(mimeType.toLowerCase());
 	}
 
 }
