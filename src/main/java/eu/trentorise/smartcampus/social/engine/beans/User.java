@@ -1,7 +1,10 @@
 package eu.trentorise.smartcampus.social.engine.beans;
 
-public class User implements Comparable<Object>{
+import java.io.Serializable;
+
+public class User implements Serializable, Comparable<Object>{
 	
+	private static final long serialVersionUID = 1L;
 	private String id;
 	
 	public User(){
