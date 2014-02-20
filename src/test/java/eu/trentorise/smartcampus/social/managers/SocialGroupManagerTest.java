@@ -150,7 +150,7 @@ public class SocialGroupManagerTest {
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
 		try {
 			Long fromDate = formatter.parse("01-03-2013").getTime();
-			Long toDate = formatter.parse("15-02-2014").getTime();
+			Long toDate = formatter.parse("21-02-2014").getTime();
 			limit.setPage(1);
 			limit.setFromDate(fromDate);
 			limit.setToDate(toDate);
@@ -262,6 +262,10 @@ public class SocialGroupManagerTest {
 		
 		readedGroup = groupManager.update(group2.getId(), GROUP_RENAME_2);
 		Assert.assertTrue(checkGroupCreation(GROUP_RENAME_2, readedGroup));
+		
+		// update a group with the same name
+		readedGroup = groupManager.update(group.getId(), GROUP_RENAME);
+		Assert.assertFalse(checkGroupCreation(GROUP_RENAME, readedGroup));
 	}
 	
 	@Test
