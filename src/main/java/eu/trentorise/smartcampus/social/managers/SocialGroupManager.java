@@ -45,7 +45,7 @@ public class SocialGroupManager implements GroupOperations {
 			logger.info("User with id " + userId + " not present. Added to DB.");
 		}
 		// verify if a group with same name* already exist (* ignoring case)
-		search_group = groupRepository.findByNameIgnoreCase(normalizedName);
+		search_group = groupRepository.findByCreatorIdAndNameIgnoreCase(userId, normalizedName);
 		if(search_group != null){
 			logger.warn("Group with name '" + normalizedName + "' already present in DB.");
 			return search_group.toGroup();
@@ -199,7 +199,7 @@ public class SocialGroupManager implements GroupOperations {
 			// block of already group name from same user present: ask to Raman
 			String creatorId = group.getCreator().getId();
 			List<SocialGroup> user_group = groupRepository.findByCreatorId(creatorId);
-			if(SocialGroup.toGroupName(user_group).contains(group.getName())){
+			if(SocialGroup.toGroupName(user_group).contains(name)){
 				logger.error("A group from this user with the name " + normalizedName + " already exists.");
 				return null;
 			}// end of block
