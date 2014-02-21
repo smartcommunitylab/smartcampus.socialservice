@@ -285,10 +285,26 @@ public class SocialGroupManagerTest {
 	}
 	
 	@Test(expected = java.lang.IllegalArgumentException.class)
-	public void deleteGroupNotExistexception(){
-		// Delete a non existing group
+	public void deleteGroupNotExistException(){
+		// Delete a not existing group
 		Assert.assertTrue(groupManager.delete(GROUP_NEX_ID));
 	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void addMemberToGroupNotExistException(){
+		Set<String> add_members = new HashSet<String>();
+		add_members.add(MEMBER_ID_1);
+		// Add a member to a not existing group
+		groupManager.addMembers(GROUP_NEX_ID, add_members);
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void removeMemberToGroupNotExistException(){
+		Set<String> rem_members = new HashSet<String>();
+		rem_members.add(MEMBER_ID_1);
+		// Remove a member from a not existing group
+		groupManager.addMembers(GROUP_NEX_ID, rem_members);
+	}	
 	
 	@Test
 	public void extremeCases() {

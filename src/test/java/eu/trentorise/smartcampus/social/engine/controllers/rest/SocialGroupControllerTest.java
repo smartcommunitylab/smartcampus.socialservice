@@ -43,7 +43,7 @@ public class SocialGroupControllerTest {
 	private MockMvc mockMvc;
 	
 	protected static final String RH_AUTH_TOKEN = "Authorization";
-	private static final String token = "a2e0b85a-b54f-43b7-bc16-53679125cee2";
+	private static final String token = "ebc32140-3234-4202-b43d-8680f537d96a";
 	private static final String NEWGROUP_1 = "my_friends";
 	private static final String NEWGROUP_2 = "my_family";
 	private static final String NEWGROUP_3 = "my_collegue";
@@ -71,6 +71,14 @@ public class SocialGroupControllerTest {
 	}
 	
 	@Test
+	public void test0_getGroups() throws Exception {  
+		RequestBuilder request = setDefaultRequest(get("/user/group"));
+		ResultActions response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string("[]"));	// void list
+	}	
+	
+	@Test
 	public void test1_setGroup() throws Exception {
 		Group newGroup = new Group();
 		// Create and Post first group
@@ -93,6 +101,27 @@ public class SocialGroupControllerTest {
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(jsonPath("$.name").value(NEWGROUP_3));	
+	}
+	
+	@Test
+	public void test11_setGroupAlreadyExists() throws Exception {
+		ResultActions response = null;
+		Group newGroup = new Group();
+		// Create and Post an already existing group (first group)
+		newGroup.setName(NEWGROUP_1);
+		RequestBuilder request = setDefaultRequest(post("/user/group")).content(convertObjectToJsonString(newGroup));	
+		response = mockMvc.perform(request);
+		setIllegalArgumentExceptionResult(response);	
+	}
+	
+	@Test
+	public void test12_setGroupVoidParam() throws Exception {
+		ResultActions response = null;
+		Group newGroup = new Group();
+		// Create and Post a group with no name
+		RequestBuilder request = setDefaultRequest(post("/user/group")).content(convertObjectToJsonString(newGroup));	
+		response = mockMvc.perform(request);
+		setIllegalArgumentExceptionResult(response);	
 	}	
 	
 	@Test
@@ -178,6 +207,10 @@ public class SocialGroupControllerTest {
 	
 	private ResultActions setDefaultResult(ResultActions result) throws Exception{
 		return result.andDo(print()).andExpect(status().isOk()).andExpect(content().contentType(CONTENT_TYPE));
+	}
+	
+	private ResultActions setIllegalArgumentExceptionResult(ResultActions result) throws Exception{
+		return result.andDo(print()).andExpect(status().isBadRequest()).andExpect(content().string(""));
 	}
 	
 
