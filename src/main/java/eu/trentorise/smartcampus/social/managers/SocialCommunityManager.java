@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,8 @@ import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 @Transactional
 public class SocialCommunityManager implements CommunityOperations {
 
+	private static final Logger logger = Logger
+			.getLogger(SocialCommunityManager.class);
 	@Autowired
 	CommunityRepository communityRepository;
 
@@ -45,6 +48,8 @@ public class SocialCommunityManager implements CommunityOperations {
 			throw new IllegalArgumentException(String.format(
 					"community name %s already present", name));
 		}
+		logger.info(String.format("Created community %s from app %s", name,
+				appId));
 		return communityRepository.save(new SocialCommunity(name, appId))
 				.toCommunity();
 	}
@@ -90,10 +95,11 @@ public class SocialCommunityManager implements CommunityOperations {
 		boolean result = true;
 		if (community != null) {
 			Set<SocialUser> users = new HashSet<SocialUser>();
-			for (String member : members) {
-				users.add(new SocialUser(member));
+			if (members != null) {
+				for (String member : members) {
+					users.add(new SocialUser(member));
+				}
 			}
-
 			result = community.getMembers().addAll(users);
 			communityRepository.save(community);
 		}
@@ -107,8 +113,10 @@ public class SocialCommunityManager implements CommunityOperations {
 		boolean result = true;
 		if (community != null) {
 			Set<SocialUser> users = new HashSet<SocialUser>();
-			for (String member : members) {
-				users.add(new SocialUser(member));
+			if (members != null) {
+				for (String member : members) {
+					users.add(new SocialUser(member));
+				}
 			}
 			result = community.getMembers().removeAll(users);
 			communityRepository.save(community);
@@ -119,6 +127,7 @@ public class SocialCommunityManager implements CommunityOperations {
 	@Override
 	public boolean delete(String communityId) {
 		communityRepository.delete(RepositoryUtils.convertId(communityId));
+		logger.info(String.format("Deleted community %s", communityId));
 		return true;
 	}
 
@@ -135,6 +144,8 @@ public class SocialCommunityManager implements CommunityOperations {
 			} else {
 				return community.getMemberIds();
 			}
+		} else {
+			logger.warn(String.format("Community %s not exist", communityId));
 		}
 		return Collections.<String> emptySet();
 	}
