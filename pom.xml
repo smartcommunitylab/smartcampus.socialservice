@@ -8,26 +8,48 @@
 	<parent>
 		<groupId>eu.trentorise.smartcampus</groupId>
 		<artifactId>vas-web-conf</artifactId>
-		<version>1.5</version>
+		<version>1.6</version>
 	</parent>
 
 	<properties>
 		<spring.version>3.1.3.RELEASE</spring.version>
+		<spring.test.version>3.2.1.RELEASE</spring.test.version>
+		<org.spring.version>4.0.1.RELEASE</org.spring.version>
 	</properties>
-
+	
 	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.10</version>
-			<scope>test</scope>
-		</dependency>
-
+		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
+			<artifactId>spring-context</artifactId>
 			<version>${spring.version}</version>
-			<scope>test</scope>
+		</dependency>
+		<dependency>
+   			<groupId>org.springframework</groupId>
+   			<artifactId>spring-orm</artifactId>
+   			<version>${spring.version}</version>
+		</dependency>	
+		<dependency>
+   			<groupId>org.springframework</groupId>
+   			<artifactId>spring-webmvc</artifactId>
+   			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+   			<groupId>org.springframework</groupId>
+   			<artifactId>spring-web</artifactId>
+   			<version>${spring.test.version}</version>
+		</dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+        </dependency>	
+		
+		<!-- Security -->	
+		<dependency>
+			<groupId>org.springframework.security.oauth</groupId>
+			<artifactId>spring-security-oauth2</artifactId>
+			<version>1.0.5.RELEASE</version>
 		</dependency>
 
 <!-- 		<dependency> -->
@@ -36,67 +58,98 @@
 <!-- 			<version>1.3</version> -->
 <!-- 		</dependency> -->
 
+		<!-- Spring data -->
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-jpa</artifactId>
+			<version>1.3.0.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-commons</artifactId>
+			<version>1.5.0.RELEASE</version>		
+		</dependency>		
+
 		<!-- Utilities -->
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils-core</artifactId>
 			<version>1.8.3</version>
 		</dependency>
-
-		<dependency>
-			<groupId>org.springframework.security.oauth</groupId>
-			<artifactId>spring-security-oauth2</artifactId>
-			<version>1.0.5.RELEASE</version>
-		</dependency>
-
 		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.24</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-jpa</artifactId>
-			<version>1.3.0.RELEASE</version>
-		</dependency>
-
+		<!-- Hibernate -->
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-entitymanager</artifactId>
 			<version>4.1.4.Final</version>
-
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-commons</artifactId>
-			<version>1.5.0.RELEASE</version>
-		</dependency>
-
 		<dependency>
 			<groupId>org.hibernate.javax.persistence</groupId>
 			<artifactId>hibernate-jpa-2.0-api</artifactId>
 			<version>1.0.1.Final</version>
 		</dependency>
 		
+		<!-- Logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>1.7.5</version>
 		</dependency>
-		
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.5</version>
 		</dependency>  
 		
+		<!-- Test -->
 		<dependency>
-   			<groupId>org.springframework</groupId>
-   			<artifactId>spring-orm</artifactId>
-   			<version>${spring.version}</version>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${spring.test.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+    		<groupId>org.hamcrest</groupId>
+    		<artifactId>hamcrest-all</artifactId>
+    		<version>1.3</version>
+    		<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.10</version>
+			<scope>test</scope>
+			<exclusions>
+        		<exclusion>
+            		<artifactId>hamcrest-core</artifactId>
+            		<groupId>org.hamcrest</groupId>
+        		</exclusion>
+    		</exclusions>
+		</dependency>
+		<dependency>
+		    <groupId>org.mockito</groupId>
+		    <artifactId>mockito-all</artifactId>
+		    <version>1.9.5</version>
+		    <scope>test</scope>
 		</dependency>		
-            
+		<dependency>
+		    <groupId>com.jayway.jsonpath</groupId>
+		    <artifactId>json-path</artifactId>
+		    <version>0.8.1</version>
+		    <scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>com.jayway.jsonpath</groupId>
+		    <artifactId>json-path-assert</artifactId>
+		    <version>0.8.1</version>
+		    <scope>test</scope>
+		</dependency>
+			   
 	</dependencies>
 
 	<build>
@@ -109,6 +162,21 @@
 					<skipTests>true</skipTests>
 				</configuration>
 			</plugin>
+    		<plugin>
+      			<groupId>org.apache.maven.plugins</groupId>
+      			<artifactId>maven-compiler-plugin</artifactId>
+      			<version>2.0.2</version>
+      			<configuration>
+        			<excludes>
+          				<exclude>eu/trentorise/smartcampus/social/controllers/rest/*</exclude>
+          				<exclude>eu/trentorise/smartcampus/social/converters/*</exclude>
+          				<exclude>eu/trentorise/smartcampus/social/managers/CommunityManager.java</exclude>
+          				<exclude>eu/trentorise/smartcampus/social/managers/GroupManager.java</exclude>
+          				<exclude>eu/trentorise/smartcampus/social/managers/SharingManager.java</exclude>
+          				<exclude>eu/trentorise/smartcampus/social/managers/UserManager.java</exclude>
+        			</excludes>
+      			</configuration>
+    		</plugin>
 		</plugins>
 		<finalName>core.social</finalName>
 	</build>
