@@ -104,7 +104,7 @@ public class EntityManager implements EntityOperations {
 				entity.getVisibility());
 		// save
 		persistedEntity = entityRepository.save(persistedEntity);
-		return persistedEntity.toEntity();
+		return persistedEntity.toEntity(true);
 	}
 
 	@Override
@@ -140,7 +140,7 @@ public class EntityManager implements EntityOperations {
 	@Override
 	public Entity readEntity(String uri) {
 		SocialEntity entity = entityRepository.findOne(uri);
-		return entity != null ? entity.toEntity() : null;
+		return entity != null ? entity.toEntity(true) : null;
 	}
 
 	private String defineUri(String namespace, Entity entity)
