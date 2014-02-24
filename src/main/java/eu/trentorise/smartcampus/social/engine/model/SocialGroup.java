@@ -121,10 +121,12 @@ public class SocialGroup implements Serializable {
 		return group;
 	}
 
-	public static List<Group> toGroup(Iterable<SocialGroup> groups) {
+	public static List<Group> toGroup(Iterable<SocialGroup> groups) {	
 		List<Group> outputGroups = new ArrayList<Group>();
-		for (SocialGroup group : groups) {
-			outputGroups.add(group.toGroup());
+		if(groups != null){
+			for (SocialGroup group : groups) {
+				outputGroups.add(group.toGroup());
+			}
 		}
 		return outputGroups;
 	}

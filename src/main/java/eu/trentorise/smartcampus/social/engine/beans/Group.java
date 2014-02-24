@@ -1,8 +1,11 @@
 package eu.trentorise.smartcampus.social.engine.beans;
 
+import java.io.Serializable;
 import java.util.Set;
 
-public class Group {
+public class Group implements Serializable{
+
+	private static final long serialVersionUID = 1L;
 
 	private String id;
 

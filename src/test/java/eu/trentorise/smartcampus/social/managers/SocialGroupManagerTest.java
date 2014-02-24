@@ -63,7 +63,7 @@ public class SocialGroupManagerTest {
 	
 	private static final String GROUP_NEX_ID = "123456";
 	
-	private Group group, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group21, group22, group_exist;
+	private Group group, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group21, group22;
 	private Limit limit = null;
 	private Group readedGroup = null;
 
@@ -150,7 +150,7 @@ public class SocialGroupManagerTest {
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
 		try {
 			Long fromDate = formatter.parse("01-03-2013").getTime();
-			Long toDate = formatter.parse("15-02-2014").getTime();
+			Long toDate = formatter.parse("25-02-2014").getTime();
 			limit.setPage(1);
 			limit.setFromDate(fromDate);
 			limit.setToDate(toDate);
@@ -262,7 +262,49 @@ public class SocialGroupManagerTest {
 		
 		readedGroup = groupManager.update(group2.getId(), GROUP_RENAME_2);
 		Assert.assertTrue(checkGroupCreation(GROUP_RENAME_2, readedGroup));
+		
+		
 	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void updateGroupsSameNameException(){
+		// update a group with the same name of another group of the same user
+		readedGroup = groupManager.update(group2.getId(), GROUP_NAME_1);
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void createGroupAlreadyExistException(){
+		// Create a group that already exist
+		readedGroup = groupManager.create(USER_ID, GROUP_NAME_1);
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void updateGroupNotExistException(){
+		// Update a group that not exists
+		readedGroup = groupManager.update(GROUP_NEX_ID, GROUP_NAME_2);
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void deleteGroupNotExistException(){
+		// Delete a not existing group
+		Assert.assertTrue(groupManager.delete(GROUP_NEX_ID));
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void addMemberToGroupNotExistException(){
+		Set<String> add_members = new HashSet<String>();
+		add_members.add(MEMBER_ID_1);
+		// Add a member to a not existing group
+		groupManager.addMembers(GROUP_NEX_ID, add_members);
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void removeMemberToGroupNotExistException(){
+		Set<String> rem_members = new HashSet<String>();
+		rem_members.add(MEMBER_ID_1);
+		// Remove a member from a not existing group
+		groupManager.addMembers(GROUP_NEX_ID, rem_members);
+	}	
 	
 	@Test
 	public void extremeCases() {
@@ -270,17 +312,13 @@ public class SocialGroupManagerTest {
 		limit.setPage(0);
 		limit.setPageSize(5);
 		
-		// Create a group that already exist - now it allows user to create a group that already exist 
-		group_exist = groupManager.create(USER_ID, GROUP_NAME_1);
-		Assert.assertTrue(checkGroupCreation(GROUP_NAME_1, group_exist));
-		Assert.assertTrue(group.getId().compareTo(group_exist.getId()) == 0);	//Ask to Raman
-		//Assert.assertFalse(group.getId().compareTo(group_exist.getId()) == 0);	//Ask to Raman
-		Assert.assertTrue(groupManager.delete(group_exist.getId()));
-		
-		
+		// Update the same group with the same name
+		readedGroup = groupManager.update(group.getId(), GROUP_NAME_1);
+		Assert.assertTrue(checkGroupCreation(GROUP_NAME_1, readedGroup));
+				
 		// Read groups from a creator that not exists
 		List<Group> page_readed_group  = groupManager.readGroups(USER_ID_3, limit);
-		Assert.assertTrue(page_readed_group == null);
+		Assert.assertTrue(page_readed_group.size() == 0);
 		
 		// Read a group that not exists
 		readedGroup = groupManager.readGroup(GROUP_NEX_ID);
@@ -288,15 +326,11 @@ public class SocialGroupManagerTest {
 		
 		// Read members from a non existing group
 		List<User> members = groupManager.readMembers(GROUP_NEX_ID, limit);
-		Assert.assertTrue(members == null);
+		Assert.assertTrue(members.isEmpty());
 		
 		// Read members from a group that has no members
 		members = groupManager.readMembers(group4.getId(), limit);
-		Assert.assertTrue(members == null);
-		
-		// Update a group that not exists
-		readedGroup = groupManager.update(group_exist.getId(), GROUP_NAME_2);
-		Assert.assertTrue(readedGroup == null);
+		Assert.assertTrue(members.isEmpty());
 		
 		// Add more times the same member
 		Set<String> add_members = new HashSet<String>();
@@ -324,9 +358,53 @@ public class SocialGroupManagerTest {
 		Assert.assertTrue(groupManager.removeMembers(group5.getId(), delete_members));
 		Assert.assertTrue(groupManager.readMembersAsString(group5.getId(), limit).size() == 2);
 			
-		// Delete a non existing group
-		Assert.assertTrue(groupManager.delete(group_exist.getId()));
 	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void createGroupErrParamsException(){
+		readedGroup = groupManager.create(null, "");
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void readGroupErrParamsException(){
+		readedGroup = groupManager.readGroup(null);
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void readGroupsErrParamsException(){
+		groupManager.readGroups("", limit);
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void readGroupMembersErrParamsException(){
+		groupManager.readMembers(null, limit);
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void readGroupMembersAsStringErrParamsException(){
+		groupManager.readMembersAsString("", limit);
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void updateGroupErrParamsException(){
+		groupManager.update(null, "");
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void addGroupMembersErrParamsException(){
+		Set<String> addMembers = new HashSet<String>();
+		groupManager.addMembers(null, addMembers);
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void removeGroupMembersErrParamsException(){
+		groupManager.removeMembers("", null);
+	}	
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void deleteGroupErrParamsException(){
+		groupManager.delete(null);
+	}	
 	
 	@After
 	public void deleteGroups() {

@@ -124,6 +124,5 @@ public class SocialGroupController extends RestController {
 		return groupManager.removeMembers(groupId, userIds);
 	}
 	
-	
 
 }

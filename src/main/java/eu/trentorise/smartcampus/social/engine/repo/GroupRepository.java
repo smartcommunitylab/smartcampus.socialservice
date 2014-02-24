@@ -27,5 +27,7 @@ public interface GroupRepository extends PagingAndSortingRepository<SocialGroup,
 	public List<SocialGroup> findByCreationTimeLessThan(Long endTime, Pageable pager);
 	
 	public SocialGroup findByNameIgnoreCase(String name);
+	
+	public SocialGroup findByCreatorIdAndNameIgnoreCase(String creatorId, String name);
 
 }

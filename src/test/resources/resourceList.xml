@@ -1,0 +1,92 @@
+<?xml version="1.0" standalone="yes"?>
+<!-- Copyright 2012-2013 Trento RISE Licensed under the Apache License, Version 
+	2.0 (the "License"); you may not use this file except in compliance with 
+	the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+	Unless required by applicable law or agreed to in writing, software distributed 
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
+	the specific language governing permissions and limitations under the License. -->
+<service xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../resource.api/src/main/resources/jaxb/binding/resourceTemplateSchema.xsd"> <!-- classpath:../../../../resource.api/src/main/resources/jaxb/binding/ -->
+
+    <resource id="cid"/>
+
+    <!-- user groups -->
+	<resourceMapping uri="socialservice.user.group.read" 
+    	pathPattern="/user/group/{groupId}" method="GET"/>
+    <resourceMapping uri="socialservice.user.group.read" 
+        pathPattern="/user/group" method="GET"/>
+    <resourceMapping uri="socialservice.user.group.write" 
+        pathPattern="/user/group/{groupId}" method="PUT,DELETE"/>
+    <resourceMapping uri="socialservice.user.group.write" 
+        pathPattern="/user/group" method="POST"/>
+    <resourceMapping uri="socialservice.user.group.write" 
+        pathPattern="/user/group/{groupId}/members" method="PUT,DELETE"/>
+
+    <!-- user communities -->
+    <resourceMapping uri="socialservice.user.community.read" 
+        pathPattern="/user/community" method="GET"/>
+    <resourceMapping uri="socialservice.user.community.write" 
+        pathPattern="/user/community/{cid}" method="PUT,DELETE"/>
+
+    <!-- community -->
+    <resourceMapping uri="socialservice.community.all" 
+        pathPattern="/community" method="GET"/>
+    <resourceMapping uri="socialservice.community.all" 
+        pathPattern="/community/{cid}" method="GET"/>
+    <resourceMapping uri="socialservice.community.all" 
+        pathPattern="/community/social/{socialId}" method="GET"/>
+    <resourceMapping uri="socialservice.community.{cid}.write" 
+        pathPattern="/community/{cid}" method="PUT,DELETE"/>
+
+    <!-- user entities -->
+    <resourceMapping uri="socialservice.user.entities.read" 
+        pathPattern="/user/entities" method="GET"/>
+    <resourceMapping uri="socialservice.user.entities.read" 
+        pathPattern="/user/entities/{eid}" method="GET"/>
+    <resourceMapping uri="socialservice.user.entities.write" 
+        pathPattern="/user/entities" method="POST"/>
+    <resourceMapping uri="socialservice.user.entities.write" 
+        pathPattern="/user/entities/{eid}" method="PUT,DELETE"/>
+        
+    <!-- community entities -->
+    <resourceMapping uri="socialservice.community.{cid}.entities.read" 
+        pathPattern="/community/{cid}/entities" method="GET"/>
+    <resourceMapping uri="socialservice.community.{cid}.entities.read" 
+        pathPattern="/community/{cid}/entities/{eid}" method="GET"/>
+    <resourceMapping uri="socialservice.community.{cid}.entities.write" 
+        pathPattern="/community/{cid}/entities" method="POST"/>
+    <resourceMapping uri="socialservice.community.{cid}.entities.write" 
+        pathPattern="/community/{cid}/entities/{eid}" method="PUT,DELETE"/>
+        
+   <!-- user sharing -->
+    <resourceMapping uri="socialservice.user.shared.read" 
+        pathPattern="/user/shared" method="POST"/>
+    <resourceMapping uri="socialservice.user.shared.read" 
+        pathPattern="/user/shared/{eid}" method="GET"/>
+    <resourceMapping uri="socialservice.user.shared.write" 
+        pathPattern="/user/shared/{eid}" method="PUT,DELETE"/>
+
+   <!-- community sharing -->
+    <resourceMapping uri="socialservice.community.{cid}.shared.read" 
+        pathPattern="/community/{cid}/shared" method="POST"/>
+    <resourceMapping uri="socialservice.community.{cid}.shared.read" 
+        pathPattern="/community/{cid}/shared/{eid}" method="GET"/>
+    <resourceMapping uri="socialservice.community.{cid}.shared.write" 
+        pathPattern="/community/{cid}/shared/{eid}" method="PUT,DELETE"/>
+        
+   <!-- resource types -->
+    <resourceMapping uri="socialservice.type.all" 
+        pathPattern="/type" method="GET"/>
+    <resourceMapping uri="socialservice.type.all" 
+        pathPattern="/type/concept/{conceptid}" method="GET"/>
+    <resourceMapping uri="socialservice.type.all" 
+        pathPattern="/type/{tid}" method="GET"/>
+    <resourceMapping uri="socialservice.type.all" 
+        pathPattern="/type" method="POST"/>
+    <resourceMapping uri="socialservice.type.all" 
+        pathPattern="/concept" method="GET"/>
+</service>
+
+
+

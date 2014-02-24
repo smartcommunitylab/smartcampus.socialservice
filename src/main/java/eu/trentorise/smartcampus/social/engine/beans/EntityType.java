@@ -1,7 +1,10 @@
 package eu.trentorise.smartcampus.social.engine.beans;
 
-public class EntityType {
+import java.io.Serializable;
 
+public class EntityType implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 	private String id;
 	private String name;
 	private String mimeType;

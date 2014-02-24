@@ -16,9 +16,12 @@
 
 package eu.trentorise.smartcampus.social.managers;
 
+import java.util.List;
+
 import org.springframework.security.oauth2.provider.ClientDetails;
 
 import eu.trentorise.smartcampus.resourceprovider.model.AuthServices;
+import eu.trentorise.smartcampus.resourceprovider.model.ResourceParameter;
 import eu.trentorise.smartcampus.social.model.User;
 
 /**
@@ -47,6 +50,12 @@ public class MockAuthServices implements AuthServices {
 
 	@Override
 	public User loadUserBySocialId(String socialId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<ResourceParameter> loadResourceParameterByUserId(String userId) {
 		// TODO Auto-generated method stub
 		return null;
 	}
