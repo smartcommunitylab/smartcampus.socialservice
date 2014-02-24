@@ -66,6 +66,7 @@ public class SocialGroupManagerTest {
 	private Group group, group2, group3, group4, group5, group6, group7, group8, group9, group10, group11, group21, group22;
 	private Limit limit = null;
 	private Group readedGroup = null;
+	List<Group> readedGroups = null;
 
 	private boolean checkGroupCreation(String name, Group group) {
 
@@ -140,9 +141,9 @@ public class SocialGroupManagerTest {
 		Assert.assertTrue(groupManager.readGroups(USER_ID, limit).size() == 5);
 		
 		limit.setPage(2);
-		List<Group> page_readed_group = groupManager.readGroups(USER_ID, limit);
+		readedGroups = groupManager.readGroups(USER_ID, limit);
 		// read : read all groups created from user "30" using pagination ( page 2, page_size 5 ) => I obtain the last group from 10 to 10
-		Assert.assertTrue(page_readed_group.size() == 1 && page_readed_group.get(0).getName().compareTo(GROUP_NAME_11) == 0);
+		Assert.assertTrue(readedGroups.size() == 1 && readedGroups.get(0).getName().compareTo(GROUP_NAME_11) == 0);
 		
 		// read with time pagination
 		changeCreationTime();
@@ -157,9 +158,9 @@ public class SocialGroupManagerTest {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		page_readed_group = groupManager.readGroups(USER_ID, limit);
+		readedGroups = groupManager.readGroups(USER_ID, limit);
 		// read : read all groups created from user "30" using pagination ( page 1, page_size 5 ) created between 01-03-2013 and 15-02-2014 => I obtain only the group "group8"
-		Assert.assertTrue(page_readed_group.size() == 1 && page_readed_group.get(0).getName().compareTo(GROUP_NAME_8) == 0);
+		Assert.assertTrue(readedGroups.size() == 1 && readedGroups.get(0).getName().compareTo(GROUP_NAME_8) == 0);
 		
 		try {
 			Long fromDate = formatter.parse("01-02-2014").getTime();
@@ -170,10 +171,10 @@ public class SocialGroupManagerTest {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		page_readed_group = groupManager.readGroups(USER_ID, limit);
-		String group_name_1 = page_readed_group.get(0).getName();
+		readedGroups = groupManager.readGroups(USER_ID, limit);
+		String group_name_1 = readedGroups.get(0).getName();
 		// read : read all groups created from user "30" using pagination ( page 1, page_size 5 ) created after 01-02-2014 => I obtain three groups from 8 to 10
-		Assert.assertTrue(page_readed_group.size() == 3 && group_name_1.compareTo(GROUP_NAME_9) == 0);
+		Assert.assertTrue(readedGroups.size() == 3 && group_name_1.compareTo(GROUP_NAME_9) == 0);
 		
 		try {
 			Long fromDate = 0L;
@@ -184,10 +185,10 @@ public class SocialGroupManagerTest {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		page_readed_group = groupManager.readGroups(USER_ID, limit);
-		group_name_1 = page_readed_group.get(2).getName();
+		readedGroups = groupManager.readGroups(USER_ID, limit);
+		group_name_1 = readedGroups.get(2).getName();
 		// read : read all groups created from user "30" using pagination ( page 0, page_size 5 ) created before 10-02-2014 => I obtain three groups from 0 to 2
-		Assert.assertTrue(page_readed_group.size() == 3 && group_name_1.compareTo(GROUP_NAME_2) == 0);
+		Assert.assertTrue(readedGroups.size() == 3 && group_name_1.compareTo(GROUP_NAME_2) == 0);
 		
 	}
 	
@@ -278,32 +279,34 @@ public class SocialGroupManagerTest {
 		readedGroup = groupManager.create(USER_ID, GROUP_NAME_1);
 	}
 	
-	@Test(expected = java.lang.IllegalArgumentException.class)
-	public void updateGroupNotExistException(){
+	@Test
+	public void updateGroupNotExist(){
 		// Update a group that not exists
 		readedGroup = groupManager.update(GROUP_NEX_ID, GROUP_NAME_2);
+		Assert.assertTrue(readedGroup == null);
 	}
 	
-	@Test(expected = java.lang.IllegalArgumentException.class)
-	public void deleteGroupNotExistException(){
+	@Test
+	public void deleteGroupNotExist(){
 		// Delete a not existing group
 		Assert.assertTrue(groupManager.delete(GROUP_NEX_ID));
 	}
 	
-	@Test(expected = java.lang.IllegalArgumentException.class)
-	public void addMemberToGroupNotExistException(){
+	@Test
+	public void addMemberToGroupNotExist(){
 		Set<String> add_members = new HashSet<String>();
 		add_members.add(MEMBER_ID_1);
 		// Add a member to a not existing group
-		groupManager.addMembers(GROUP_NEX_ID, add_members);
+		Assert.assertTrue(groupManager.addMembers(GROUP_NEX_ID, add_members));
+		
 	}
 	
-	@Test(expected = java.lang.IllegalArgumentException.class)
-	public void removeMemberToGroupNotExistException(){
+	@Test
+	public void removeMemberToGroupNotExist(){
 		Set<String> rem_members = new HashSet<String>();
 		rem_members.add(MEMBER_ID_1);
 		// Remove a member from a not existing group
-		groupManager.addMembers(GROUP_NEX_ID, rem_members);
+		Assert.assertTrue(groupManager.addMembers(GROUP_NEX_ID, rem_members));
 	}	
 	
 	@Test
@@ -317,8 +320,8 @@ public class SocialGroupManagerTest {
 		Assert.assertTrue(checkGroupCreation(GROUP_NAME_1, readedGroup));
 				
 		// Read groups from a creator that not exists
-		List<Group> page_readed_group  = groupManager.readGroups(USER_ID_3, limit);
-		Assert.assertTrue(page_readed_group.size() == 0);
+		readedGroups  = groupManager.readGroups(USER_ID_3, limit);
+		Assert.assertTrue(readedGroups.size() == 0);
 		
 		// Read a group that not exists
 		readedGroup = groupManager.readGroup(GROUP_NEX_ID);
@@ -351,7 +354,6 @@ public class SocialGroupManagerTest {
 		Assert.assertTrue(groupManager.readMembersAsString(group2.getId(), limit).size() == 2);
 		
 		// Remove a non existing member
-		// delete members
 		Set<String> delete_members = new HashSet<String>();
 		delete_members.add(MEMBER_ID_1);
 		delete_members.add(MEMBER_ID_4);
@@ -365,24 +367,30 @@ public class SocialGroupManagerTest {
 		readedGroup = groupManager.create(null, "");
 	}
 	
-	@Test(expected = java.lang.IllegalArgumentException.class)
-	public void readGroupErrParamsException(){
+	@Test
+	public void readGroupErrParams(){
 		readedGroup = groupManager.readGroup(null);
+		Assert.assertTrue(readedGroup == null);
 	}
 	
-	@Test(expected = java.lang.IllegalArgumentException.class)
-	public void readGroupsErrParamsException(){
-		groupManager.readGroups("", limit);
+	@Test
+	public void readGroupsErrParams(){
+		readedGroups = groupManager.readGroups("", limit);
+		Assert.assertTrue(readedGroups.isEmpty());
 	}
 	
-	@Test(expected = java.lang.IllegalArgumentException.class)
-	public void readGroupMembersErrParamsException(){
-		groupManager.readMembers(null, limit);
+	@Test
+	public void readGroupMembersErrParams(){
+		List<User> members = null;
+		members = groupManager.readMembers(null, limit);
+		Assert.assertTrue(members.isEmpty());
 	}
 	
-	@Test(expected = java.lang.IllegalArgumentException.class)
-	public void readGroupMembersAsStringErrParamsException(){
-		groupManager.readMembersAsString("", limit);
+	@Test
+	public void readGroupMembersAsStringErrParams(){
+		List<String> members = null;
+		members = groupManager.readMembersAsString("", limit);
+		Assert.assertTrue(members.isEmpty());
 	}
 	
 	@Test(expected = java.lang.IllegalArgumentException.class)
@@ -390,20 +398,20 @@ public class SocialGroupManagerTest {
 		groupManager.update(null, "");
 	}
 	
-	@Test(expected = java.lang.IllegalArgumentException.class)
-	public void addGroupMembersErrParamsException(){
+	@Test
+	public void addGroupMembersErrParams(){
 		Set<String> addMembers = new HashSet<String>();
-		groupManager.addMembers(null, addMembers);
+		Assert.assertTrue(groupManager.addMembers(null, addMembers));
 	}
 	
-	@Test(expected = java.lang.IllegalArgumentException.class)
+	@Test
 	public void removeGroupMembersErrParamsException(){
-		groupManager.removeMembers("", null);
+		Assert.assertTrue(groupManager.removeMembers("", null));
 	}	
 	
-	@Test(expected = java.lang.IllegalArgumentException.class)
+	@Test
 	public void deleteGroupErrParamsException(){
-		groupManager.delete(null);
+		Assert.assertTrue(groupManager.delete(null));
 	}	
 	
 	@After

@@ -24,6 +24,9 @@ public class PermissionManager {
 		boolean checked = false;
 		Group group = null;
 			group = groupManager.readGroup(groupId);
+			if(group == null){
+				return true;
+			}
 			if(group.getCreatorId().compareTo(creatorId) == 0){
 				checked = true;
 			}
