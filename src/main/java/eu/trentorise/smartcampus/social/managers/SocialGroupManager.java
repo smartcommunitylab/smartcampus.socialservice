@@ -260,6 +260,9 @@ public class SocialGroupManager implements GroupOperations {
 	public boolean addMembers(String groupId, Set<String> userIds) {
 		SocialGroup saved_group = null;
 		SocialGroup group = retrieveGroup(groupId);
+		if(userIds == null || userIds.isEmpty()){
+			return true;
+		}
 		if(group != null){
 			Set<SocialUser> users = new HashSet<SocialUser>();
 			for (String userId : userIds) {
@@ -283,6 +286,9 @@ public class SocialGroupManager implements GroupOperations {
 		boolean removed = true;
 		SocialGroup saved_group = null;
 		SocialGroup group = retrieveGroup(groupId);
+		if(userIds == null || userIds.isEmpty()){
+			return true;
+		}
 		if(group != null){
 			Set<SocialUser> users = new HashSet<SocialUser>();
 			for (String userId : userIds) {

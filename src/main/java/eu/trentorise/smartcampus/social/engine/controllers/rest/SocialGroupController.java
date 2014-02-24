@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -90,6 +91,10 @@ public class SocialGroupController extends RestController {
 	public @ResponseBody
 	Group updateGroup(@PathVariable("groupId") String groupId, @RequestBody Group groupInRequest) throws SocialServiceException {
 		String userId = getUserId();
+		
+		if (!StringUtils.hasLength(groupId)) {
+			throw new IllegalArgumentException("param 'groupId' should be valid");
+		}
 		
 		if(!permissionManager.checkGroupPermission(userId, groupId)){
 			throw new SecurityException();

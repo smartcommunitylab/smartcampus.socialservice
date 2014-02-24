@@ -16,7 +16,7 @@ public class PermissionManager {
 	
 	Limit limit = null;
 	
-	private static final Logger logger = Logger.getLogger(SocialGroupManager.class);
+	private static final Logger logger = Logger.getLogger(PermissionManager.class);
 	
 	/**
 	 * Method checkGroupPermission: used to check if a user is the creator and the owner of a group
