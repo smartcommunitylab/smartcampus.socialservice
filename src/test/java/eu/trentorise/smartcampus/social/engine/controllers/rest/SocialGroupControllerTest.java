@@ -3,15 +3,10 @@ package eu.trentorise.smartcampus.social.engine.controllers.rest;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectWriter;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +28,7 @@ import eu.trentorise.smartcampus.social.engine.beans.Group;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(locations={"classpath:/spring/applicationContext.xml", "classpath:/spring/spring-security.xml"}) //"classpath:/resourceList.xml"
-public class SocialGroupControllerTest {
+public class SocialGroupControllerTest extends SCControllerTest{
 	
 	@Autowired
 	private FilterChainProxy springSecurityFilterChain;
@@ -76,16 +71,7 @@ public class SocialGroupControllerTest {
 	private static final long GROUP_ID_11 = 11L;
 	
 	private static final String CHAR_ENCODING = "UTF-8";
-	private static final String CONTENT_TYPE = "application/json;charset=UTF-8";
 	
-	
-	/**
-	 * @param token
-	 * @return
-	 */
-	protected static String bearer(String token) {
-		return "Bearer " + token;
-	}
 	
 	@Before
 	public void setup() throws Exception {
@@ -509,20 +495,6 @@ public class SocialGroupControllerTest {
 		ResultActions response = mockMvc.perform(request);
 		setForbiddenExceptionResult(response);
 	}
-
-	
-	@SuppressWarnings("unused")
-	private static byte[] convertObjectToJsonBytes(Object object) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.setSerializationInclusion(Inclusion.NON_NULL); //JsonInclude.Include.NON_NULL
-        return mapper.writeValueAsBytes(object);
-    }
-	
-	private static String convertObjectToJsonString(Object object) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectWriter jsonOut = mapper.writer().withDefaultPrettyPrinter();
-        return jsonOut.writeValueAsString(object);
-    }
 	
 	private boolean updateGroupsDate()  throws Exception{
 		boolean updated = true;
@@ -556,24 +528,9 @@ public class SocialGroupControllerTest {
 	}
 	
 	private MockHttpServletRequestBuilder setDefaultRequest(MockHttpServletRequestBuilder request){
-		return request.header(RH_AUTH_TOKEN, bearer(token)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON).characterEncoding(CHAR_ENCODING);
+		return request.header(RH_AUTH_TOKEN, SCControllerTest.bearer(token)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON).characterEncoding(CHAR_ENCODING);
 	}
 	
-	private ResultActions setDefaultResult(ResultActions result) throws Exception{
-		return result.andDo(print()).andExpect(status().isOk()).andExpect(content().contentType(CONTENT_TYPE));
-	}
-	
-	private ResultActions setNullResult(ResultActions result) throws Exception{
-		return result.andDo(print()).andExpect(status().isOk()).andExpect(content().string(""));
-	}
-	
-	private ResultActions setIllegalArgumentExceptionResult(ResultActions result) throws Exception{
-		return result.andDo(print()).andExpect(status().isBadRequest()).andExpect(content().string(""));
-	}
-	
-	private ResultActions setForbiddenExceptionResult(ResultActions result) throws Exception{
-		return result.andDo(print()).andExpect(status().isForbidden()).andExpect(jsonPath("$.error").value("access_denied"));
-	}
 	
 
 }
