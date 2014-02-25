@@ -54,7 +54,7 @@ public class PermissionManager {
 		return checked;
 	}
 
-	public boolean checkCommunityPermssion(String appId, String communityId) {
+	public boolean checkCommunityPermission(String appId, String communityId) {
 		try {
 			SocialCommunity community = communityRepo.findOne(RepositoryUtils
 					.convertId(communityId));

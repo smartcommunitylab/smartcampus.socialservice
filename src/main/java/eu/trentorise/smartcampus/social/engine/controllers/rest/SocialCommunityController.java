@@ -49,7 +49,7 @@ public class SocialCommunityController extends RestController {
 	boolean deleteCommunity(@PathVariable String appId,
 			@PathVariable String communityId) {
 
-		if (!permissionManager.checkCommunityPermssion(appId, communityId)) {
+		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
 			throw new SecurityException();
 		}
 
