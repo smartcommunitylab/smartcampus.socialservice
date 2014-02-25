@@ -6,6 +6,8 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
@@ -28,7 +30,6 @@ import org.springframework.web.context.WebApplicationContext;
 import eu.trentorise.smartcampus.social.engine.beans.Group;
 
 
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(locations={"classpath:/spring/applicationContext.xml", "classpath:/spring/spring-security.xml"}) //"classpath:/resourceList.xml"
@@ -43,17 +44,36 @@ public class SocialGroupControllerTest {
 	private MockMvc mockMvc;
 	
 	protected static final String RH_AUTH_TOKEN = "Authorization";
-	private static final String token = "cab9b9ad-18f5-4f81-ba59-90b33aa8f16b";
+	private static final String token = "41f154b7-27fc-484d-a5c5-20337e890251";
 	private static final String NEWGROUP_1 = "my_friends";
 	private static final String NEWGROUP_2 = "my_family";
 	private static final String NEWGROUP_3 = "my_collegue";
+	private static final String NEWGROUP_4 = "my_group4";
+	private static final String NEWGROUP_5 = "my_group5";
+	private static final String NEWGROUP_6 = "my_group6";
+	private static final String NEWGROUP_7 = "my_group7";
+	private static final String NEWGROUP_8 = "my_group8";
+	private static final String NEWGROUP_9 = "my_group9";
+	private static final String NEWGROUP_10 = "my_group10";
+	private static final String NEWGROUP_11 = "my_group11";
+	
 	private static final String EDITGROUP_1 = "my_city";
 	private static final String EDITGROUP_2 = "my_friends";
 	private static final String GROUP_NEX_ID = "123456";
 	
+	private static final String GROUP_MEMB_1 = "30";
+	private static final String GROUP_MEMB_2 = "31";
+	private static final String GROUP_MEMB_3 = "44";
+	private static final String GROUP_MEMB_4 = "55";
+
+	
 	private static final long GROUP_ID_1 = 1L;
 	private static final long GROUP_ID_2 = 2L;
 	private static final long GROUP_ID_3 = 3L;
+	
+	private static final long GROUP_ID_9 = 9L;
+	private static final long GROUP_ID_10 = 10L;
+	private static final long GROUP_ID_11 = 11L;
 	
 	private static final String CHAR_ENCODING = "UTF-8";
 	private static final String CONTENT_TYPE = "application/json;charset=UTF-8";
@@ -132,7 +152,142 @@ public class SocialGroupControllerTest {
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(jsonPath("$[0].name").value(NEWGROUP_1));
-	}	
+	}
+	
+	@Test
+	public void test21_readGroupsWithLimitPage() throws Exception {
+		Group newGroup = new Group();
+		
+		newGroup.setName(NEWGROUP_4);
+		RequestBuilder request = setDefaultRequest(post("/user/group")).content(convertObjectToJsonString(newGroup));
+		ResultActions response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(jsonPath("$.name").value(NEWGROUP_4));
+		
+		newGroup.setName(NEWGROUP_5);
+		request = setDefaultRequest(post("/user/group")).content(convertObjectToJsonString(newGroup));
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(jsonPath("$.name").value(NEWGROUP_5));
+		
+		newGroup.setName(NEWGROUP_6);
+		request = setDefaultRequest(post("/user/group")).content(convertObjectToJsonString(newGroup));
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(jsonPath("$.name").value(NEWGROUP_6));	
+		
+		newGroup.setName(NEWGROUP_7);
+		request = setDefaultRequest(post("/user/group")).content(convertObjectToJsonString(newGroup));
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(jsonPath("$.name").value(NEWGROUP_7));
+		
+		newGroup.setName(NEWGROUP_8);
+		request = setDefaultRequest(post("/user/group")).content(convertObjectToJsonString(newGroup));
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(jsonPath("$.name").value(NEWGROUP_8));
+		
+		newGroup.setName(NEWGROUP_9);
+		request = setDefaultRequest(post("/user/group")).content(convertObjectToJsonString(newGroup));
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(jsonPath("$.name").value(NEWGROUP_9));
+		
+		newGroup.setName(NEWGROUP_10);
+		request = setDefaultRequest(post("/user/group")).content(convertObjectToJsonString(newGroup));
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(jsonPath("$.name").value(NEWGROUP_10));
+		
+		newGroup.setName(NEWGROUP_11);
+		request = setDefaultRequest(post("/user/group")).content(convertObjectToJsonString(newGroup));
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(jsonPath("$.name").value(NEWGROUP_11));		
+		
+		request = setDefaultRequest(get("/user/group")).param("pageNum", "1").param("pageSize", "5");
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(jsonPath("$[0].name").value(NEWGROUP_6));
+	}
+	
+	@Test
+	public void test22_readGroupsWithLimitPage() throws Exception {  
+		RequestBuilder request = setDefaultRequest(get("/user/group")).param("pageNum", "2").param("pageSize", "5");
+		ResultActions response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(jsonPath("$[0].name").value(NEWGROUP_11));
+	}
+	
+	@Test
+	public void test23_readGroupsWithLimitDate() throws Exception {
+		updateGroupsDate();
+		Long fromDate = 0L;
+		Long toDate = 0L;
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
+		try {
+			fromDate = formatter.parse("01-03-2013").getTime();
+			toDate = formatter.parse("28-02-2014").getTime();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+		RequestBuilder request = setDefaultRequest(get("/user/group")).param("fromDate", String.valueOf(fromDate)).param("toDate", String.valueOf(toDate));
+		ResultActions response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(jsonPath("$[0].name").value(NEWGROUP_3));
+	}
+	
+	@Test
+	public void test24_readGroupsWithLimitDateAndPage() throws Exception {
+		Long fromDate = 0L;
+		Long toDate = 0L;
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
+		try {
+			fromDate = formatter.parse("01-03-2013").getTime();
+			toDate = formatter.parse("28-02-2014").getTime();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+		RequestBuilder request = setDefaultRequest(get("/user/group")).param("fromDate", String.valueOf(fromDate)).param("toDate", String.valueOf(toDate)).param("pageNum", "1").param("pageSize", "5");
+		ResultActions response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(jsonPath("$[0].name").value(NEWGROUP_8));
+	}
+	
+	@Test
+	public void test25_readGroupsWithLimitDateFrom() throws Exception {
+		Long fromDate = 0L;
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
+		try {
+			fromDate = formatter.parse("01-03-2013").getTime();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+		RequestBuilder request = setDefaultRequest(get("/user/group")).param("fromDate", String.valueOf(fromDate));
+		ResultActions response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(jsonPath("$[7].name").value(NEWGROUP_11));
+	}
+	
+	@Test
+	public void test25_readGroupsWithLimitDateTo() throws Exception {
+		Long toDate = 0L;
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
+		try {
+			toDate = formatter.parse("28-02-2014").getTime();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+		RequestBuilder request = setDefaultRequest(get("/user/group")).param("toDate", String.valueOf(toDate)).param("pageSize", "5");
+		ResultActions response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(jsonPath("$[4].name").value(NEWGROUP_5));
+	}
 	
 	@Test
 	public void test3_readGroup() throws Exception {  
@@ -148,7 +303,6 @@ public class SocialGroupControllerTest {
 		RequestBuilder request = setDefaultRequest(get("/user/group/{id}", groupId));
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response);
-		//.andExpect(content().string(""));
 	}
 	
 	@Test
@@ -197,7 +351,7 @@ public class SocialGroupControllerTest {
 	
 	@Test
 	public void test5_addGroupMembers() throws Exception { 
-		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/members", GROUP_ID_2)).param("userIds", "30").param("userIds", "31").param("userIds", "44");
+		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/members", GROUP_ID_2)).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2).param("userIds", GROUP_MEMB_3);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string("true"));
@@ -214,31 +368,65 @@ public class SocialGroupControllerTest {
 	@Test
 	public void test52_addGroupMembersNullGroup() throws Exception {
 		String groupId = null;
-		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/members", groupId)).param("userIds", "30").param("userIds", "31").param("userIds", "44");
+		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/members", groupId)).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2).param("userIds", GROUP_MEMB_3);
 		ResultActions response = mockMvc.perform(request);
 		setIllegalArgumentExceptionResult(response);
 	}
 	
 	@Test
 	public void test53_addGroupMembersNotExistGroup() throws Exception {
-		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/members", GROUP_NEX_ID)).param("userIds", "30").param("userIds", "31").param("userIds", "44");
+		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/members", GROUP_NEX_ID)).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2).param("userIds", GROUP_MEMB_3);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string("true"));
 	}
 	
-	//Ask
-	//@Test
+	@Test
 	public void test6_readGroupMembers() throws Exception { 
 		RequestBuilder request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_2));
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWGROUP_1));
+		.andExpect(jsonPath("$[0]").value(GROUP_MEMB_1));
+	}
+	
+	@Test
+	public void test61_readGroupMembersVoidList() throws Exception { 
+		RequestBuilder request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_3));
+		ResultActions response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string("[]"));
+	}	
+
+	@Test
+	public void test62_readGroupMembersNullParam() throws Exception { 
+		String groupId = null;
+		RequestBuilder request = setDefaultRequest(get("/user/group/{id}/members", groupId));
+		ResultActions response = mockMvc.perform(request);
+		setIllegalArgumentExceptionResult(response);
+	}
+	
+	@Test
+	public void test63_readGroupMembersPageLimit() throws Exception {
+		//Add 3 other members to group2
+		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/members", GROUP_ID_2)).param("userIds", "45").param("userIds", "46").param("userIds", "47");
+		ResultActions response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string("true"));
+		
+		request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_2)).param("pageSize", "5");
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(jsonPath("$[0]").value(GROUP_MEMB_1));
+		
+		request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_2)).param("pageNum", "1").param("pageSize", "5");
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(jsonPath("$[0]").value("47"));
 	}	
 	
 	@Test
 	public void test7_deleteGroupMembers() throws Exception { 
-		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_ID_2)).param("userIds", "30").param("userIds", "31").param("userIds", "55");
+		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_ID_2)).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string("true"));
@@ -255,14 +443,14 @@ public class SocialGroupControllerTest {
 	@Test
 	public void test72_deleteGroupMembersNullGroup() throws Exception { 
 		String groupId = null;
-		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", groupId)).param("userIds", "30").param("userIds", "31");
+		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", groupId)).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2);
 		ResultActions response = mockMvc.perform(request);
 		setIllegalArgumentExceptionResult(response);
 	}
 	
 	@Test
 	public void test73_deleteGroupMembersNotExistGroup() throws Exception { 
-		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_NEX_ID)).param("userIds", "30").param("userIds", "31").param("userIds", "55");
+		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_NEX_ID)).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string("true"));
@@ -270,7 +458,7 @@ public class SocialGroupControllerTest {
 	
 	@Test
 	public void test74_deleteGroupMembersNotExistUser() throws Exception { 
-		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_NEX_ID)).param("userIds", "55");
+		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_NEX_ID)).param("userIds", GROUP_MEMB_4);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string("true"));
@@ -295,7 +483,32 @@ public class SocialGroupControllerTest {
 		response = mockMvc.perform(request);
 		response = setDefaultResult(response)
 		.andExpect(content().string("true"));
+		
+		// Delete all the other groups
+		for (int i = 4; i < 11; i++){
+			request = setDefaultRequest(delete("/user/group/{id}", String.valueOf(i)));
+			response = mockMvc.perform(request);
+			response = setDefaultResult(response)
+				.andExpect(content().string("true"));
+		}
 	}	
+	
+	@Test
+	public void test81_deleteGroupNotExists() throws Exception {
+		// Delete not existing group
+		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}", GROUP_ID_1));
+		ResultActions response = mockMvc.perform(request);
+		response = setDefaultResult(response)
+		.andExpect(content().string("true"));
+	}
+	
+	@Test
+	public void test82_deleteGroupNullParam() throws Exception {
+		String groupId = null;
+		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}", groupId));
+		ResultActions response = mockMvc.perform(request);
+		setForbiddenExceptionResult(response);
+	}
 
 	
 	@SuppressWarnings("unused")
@@ -310,6 +523,37 @@ public class SocialGroupControllerTest {
         ObjectWriter jsonOut = mapper.writer().withDefaultPrettyPrinter();
         return jsonOut.writeValueAsString(object);
     }
+	
+	private boolean updateGroupsDate()  throws Exception{
+		boolean updated = true;
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+		
+		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_1)).param("updateTime", String.valueOf(formatter.parse("01-01-2013").getTime()));
+		ResultActions response = mockMvc.perform(request);
+		setDefaultResult(response);
+		
+		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_2)).param("updateTime", String.valueOf(formatter.parse("01-02-2013").getTime()));
+		response = mockMvc.perform(request);
+		setDefaultResult(response);
+		
+		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_3)).param("updateTime", String.valueOf(formatter.parse("01-03-2013").getTime()));
+		response = mockMvc.perform(request);
+		setDefaultResult(response);
+		
+		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_9)).param("updateTime", String.valueOf(formatter.parse("01-04-2014").getTime()));
+		response = mockMvc.perform(request);
+		setDefaultResult(response);
+		
+		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_10)).param("updateTime", String.valueOf(formatter.parse("01-05-2014").getTime()));
+		response = mockMvc.perform(request);
+		setDefaultResult(response);
+		
+		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_11)).param("updateTime", String.valueOf(formatter.parse("01-06-2014").getTime()));
+		response = mockMvc.perform(request);
+		setDefaultResult(response);
+		
+		return updated;
+	}
 	
 	private MockHttpServletRequestBuilder setDefaultRequest(MockHttpServletRequestBuilder request){
 		return request.header(RH_AUTH_TOKEN, bearer(token)).accept(MediaType.APPLICATION_JSON).contentType(MediaType.APPLICATION_JSON).characterEncoding(CHAR_ENCODING);

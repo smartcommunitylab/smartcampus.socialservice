@@ -45,10 +45,16 @@ public class SocialGroupController extends RestController {
 	
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/user/group")
-	public @ResponseBody List<Group> getUserGroups() throws SocialServiceException{
+	public @ResponseBody
+	List<Group> getUserGroups(
+			@RequestParam(value = "pageNum", required = false) Integer pageNum,
+			@RequestParam(value = "pageSize", required = false) Integer pageSize,
+			@RequestParam(value = "fromDate", required = false) Long fromDate,
+			@RequestParam(value = "toDate", required = false) Long toDate)
+			throws SocialServiceException {
 		String userId = getUserId();
-		
-		return groupManager.readGroups(userId, null);
+
+		return groupManager.readGroups(userId, setLimit(pageNum, pageSize, fromDate, toDate));
 	}
 	
 	
@@ -103,6 +109,37 @@ public class SocialGroupController extends RestController {
 		return groupManager.update(groupId, groupInRequest.getName());
 	}
 	
+	//------------------------------------------------------------------------------------------------------------------
+	//| Used Only in tests. Added a specific line in resourceList.xml (line 26-27) REMOVE IT before final distribution |
+	//------------------------------------------------------------------------------------------------------------------
+	@RequestMapping(method = RequestMethod.PUT, value = "/user/group/{groupId}/test")
+	public @ResponseBody
+	Group updateGroupTest(@PathVariable("groupId") String groupId, @RequestParam Long updateTime) throws SocialServiceException {
+		String userId = getUserId();
+		
+		if(!permissionManager.checkGroupPermission(userId, groupId)){
+			throw new SecurityException();
+		}
+		
+		return groupManager.update(groupId, updateTime);
+	}	
+
+	@RequestMapping(method = RequestMethod.GET, value = "/user/group/{groupId}/members")
+	public @ResponseBody
+	List<String> getMembers(@PathVariable("groupId") String groupId,
+			@RequestParam(value = "pageNum", required = false) Integer pageNum,
+			@RequestParam(value = "pageSize", required = false) Integer pageSize,
+			@RequestParam(value = "fromDate", required = false) Long fromDate,
+			@RequestParam(value = "toDate", required = false) Long toDate)
+			throws SocialServiceException {
+		String userId = getUserId();
+		
+		if(!permissionManager.checkGroupPermission(userId, groupId)){
+			throw new SecurityException();
+		}
+		
+		return groupManager.readMembersAsString(groupId, setLimit(pageNum, pageSize, fromDate, toDate));
+	}
 	
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/group/{groupId}/members")
 	public @ResponseBody

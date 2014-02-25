@@ -10,7 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 
 import eu.trentorise.smartcampus.social.engine.beans.Visibility;
@@ -39,16 +39,16 @@ public class SocialEntity implements Serializable {
 	@OneToOne
 	private SocialType type;
 
-	@OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST,
+	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST,
 			CascadeType.MERGE })
 	@JoinTable(name = "userSharedWith")
 	private Set<SocialUser> usersSharedWith;
 
-	@OneToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "groupSharedWith")
 	private Set<SocialGroup> groupsSharedWith;
 
-	@OneToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "communitySharedWith")
 	private Set<SocialCommunity> communitiesSharedWith;
 
@@ -151,7 +151,8 @@ public class SocialEntity implements Serializable {
 		this.communityOwner = communityOwner;
 	}
 
-	public eu.trentorise.smartcampus.social.engine.beans.Entity toEntity() {
+	public eu.trentorise.smartcampus.social.engine.beans.Entity toEntity(
+			boolean showVisibility) {
 		eu.trentorise.smartcampus.social.engine.beans.Entity entity = new eu.trentorise.smartcampus.social.engine.beans.Entity();
 		entity.setOwner(owner != null ? owner.getId() : null);
 		entity.setCommunityOwner(communityOwner != null ? communityOwner
@@ -161,7 +162,9 @@ public class SocialEntity implements Serializable {
 		entity.setUri(uri);
 		entity.setName(name);
 		entity.setExternalUri(externalUri);
-		entity.setVisibility(EntityManager.getVisibility(this));
+		if (showVisibility) {
+			entity.setVisibility(EntityManager.getVisibility(this));
+		}
 		return entity;
 	}
 
@@ -171,7 +174,8 @@ public class SocialEntity implements Serializable {
 		if (collection != null) {
 			outputList = new ArrayList<eu.trentorise.smartcampus.social.engine.beans.Entity>();
 			for (SocialEntity element : collection) {
-				outputList.add(element != null ? element.toEntity() : null);
+				outputList
+						.add(element != null ? element.toEntity(false) : null);
 			}
 		}
 		return outputList;

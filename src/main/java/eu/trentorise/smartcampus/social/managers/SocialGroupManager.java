@@ -69,33 +69,6 @@ public class SocialGroupManager implements GroupOperations {
 		}
 		return created_group.toGroup();
 	}
-	
-	@Override
-	public List<Group> readGroups(Limit limit) {
-		if (limit != null) {
-			List<SocialGroup> groups = null;
-
-			PageRequest page = null;
-			if (limit.getPage() >= 0 && limit.getPageSize() > 0) {
-				page = new PageRequest(limit.getPage(), limit.getPageSize());
-			}
-			if (limit.getFromDate() > 0 && limit.getToDate() > 0) {
-				groups = groupRepository.findByCreationTimeBetween(
-						limit.getFromDate(), limit.getToDate(), page);
-			} else if (limit.getFromDate() > 0) {
-				groups = groupRepository.findByCreationTimeGreaterThan(
-						limit.getFromDate(), page);
-			} else if (limit.getToDate() > 0) {
-				groups = groupRepository.findByCreationTimeLessThan(
-						limit.getToDate(), page);
-			} else {
-				groups = groupRepository.findAll(page).getContent();
-			}
-			return SocialGroup.toGroup(groups);
-		} else {
-			return SocialGroup.toGroup(groupRepository.findAll());
-		}
-	}
 
 	@Override
 	public List<Group> readGroups(String userId, Limit limit) {
@@ -266,7 +239,9 @@ public class SocialGroupManager implements GroupOperations {
 		if(group != null){
 			Set<SocialUser> users = new HashSet<SocialUser>();
 			for (String userId : userIds) {
-				users.add(new SocialUser(userId));
+				if(StringUtils.hasLength(userId)){
+					users.add(new SocialUser(userId));
+				}
 			}
 			group.getMembers().addAll(users);
 			saved_group = groupRepository.save(group);
@@ -292,7 +267,9 @@ public class SocialGroupManager implements GroupOperations {
 		if(group != null){
 			Set<SocialUser> users = new HashSet<SocialUser>();
 			for (String userId : userIds) {
-				users.add(new SocialUser(userId));
+				if(StringUtils.hasLength(userId)){
+					users.add(new SocialUser(userId));
+				}
 			}
 			if(users.size() > 0){
 				removed = group.getMembers().removeAll(users);

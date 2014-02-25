@@ -95,6 +95,8 @@ public class SocialCommunityManagerTest {
 
 		new HashSet<String>(Arrays.asList("1"));
 		// get members
+		Assert.assertEquals(0, communityManager
+				.readMembers("30000000000", null).size());
 		Assert.assertEquals(3,
 				communityManager.readMembers(community.getId(), null).size());
 		Limit limit = new Limit();

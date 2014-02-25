@@ -7,13 +7,19 @@ import org.springframework.util.StringUtils;
 
 import eu.trentorise.smartcampus.social.engine.beans.Group;
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
+import eu.trentorise.smartcampus.social.engine.model.SocialCommunity;
+import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
+import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
 @Component
 public class PermissionManager {
 
 	@Autowired
 	SocialGroupManager groupManager;
-	
+
+	@Autowired
+	CommunityRepository communityRepo;
+
 	Limit limit = null;
 	
 	private static final Logger logger = Logger.getLogger(PermissionManager.class);
@@ -40,5 +46,15 @@ public class PermissionManager {
 			checked = true;
 		}
 		return checked;
+	}
+
+	public boolean checkCommunityPermission(String appId, String communityId) {
+		try {
+			SocialCommunity community = communityRepo.findOne(RepositoryUtils
+					.convertId(communityId));
+			return community != null && community.getAppId().equals(appId);
+		} catch (Exception e) {
+			return false;
+		}
 	}
 }

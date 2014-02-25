@@ -7,9 +7,10 @@
 	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
 	the specific language governing permissions and limitations under the License. -->
 <service xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="../resource.api/src/main/resources/jaxb/binding/resourceTemplateSchema.xsd"> <!-- classpath:../../../../resource.api/src/main/resources/jaxb/binding/ -->
+	xsi:noNamespaceSchemaLocation="classpath:../../../../resource.api/src/main/resources/jaxb/binding/"> 
 
-    <resource id="cid"/>
+    <resource id="communityId"/>
+    <resource id="appId"/>
 
     <!-- user groups -->
 	<resourceMapping uri="socialservice.user.group.read" 
@@ -33,11 +34,13 @@
     <resourceMapping uri="socialservice.community.all" 
         pathPattern="/community" method="GET"/>
     <resourceMapping uri="socialservice.community.all" 
-        pathPattern="/community/{cid}" method="GET"/>
+        pathPattern="/community/{communityId}" method="GET"/>
     <resourceMapping uri="socialservice.community.all" 
         pathPattern="/community/social/{socialId}" method="GET"/>
-    <resourceMapping uri="socialservice.community.{cid}.write" 
-        pathPattern="/community/{cid}" method="PUT,DELETE"/>
+    <resourceMapping uri="socialservice.community.{appId}.write" 
+        pathPattern="/app/{appId}/community" method="POST"/>
+    <resourceMapping uri="socialservice.community.{appId}.write" 
+        pathPattern="/app/{appId}/community/{communityId}" method="DELETE"/>
 
     <!-- user entities -->
     <resourceMapping uri="socialservice.user.entities.read" 
