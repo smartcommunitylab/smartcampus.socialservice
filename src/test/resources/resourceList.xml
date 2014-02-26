@@ -7,7 +7,7 @@
 	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
 	the specific language governing permissions and limitations under the License. -->
 <service xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="classpath:../../../../resource.api/src/main/resources/jaxb/binding/"> 
+	xsi:noNamespaceSchemaLocation="classpath:../../../../resource.api/src/main/resources/jaxb/binding/resourceTemplateSchema.xsd"> 
 
     <resource id="communityId"/>
     <resource id="appId"/>
@@ -83,13 +83,13 @@
         
    <!-- resource types -->
     <resourceMapping uri="socialservice.type.all" 
-        pathPattern="/type" method="GET"/>
+        pathPattern="/user/type" method="GET"/>
     <resourceMapping uri="socialservice.type.all" 
         pathPattern="/type/concept/{conceptid}" method="GET"/>
     <resourceMapping uri="socialservice.type.all" 
-        pathPattern="/type/{tid}" method="GET"/>
+        pathPattern="/user/type/{tid}" method="GET"/>
     <resourceMapping uri="socialservice.type.all" 
-        pathPattern="/type" method="POST"/>
+        pathPattern="/app/type" method="POST"/>
     <resourceMapping uri="socialservice.type.all" 
         pathPattern="/concept" method="GET"/>
 </service>

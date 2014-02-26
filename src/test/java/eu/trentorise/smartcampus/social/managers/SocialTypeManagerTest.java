@@ -33,9 +33,9 @@ public class SocialTypeManagerTest {
 	private static final String TYPE_MIME_1 = "IMAGE/jpg";
 	private static final String TYPE_MIME_2 = "image/png";
 	private static final String TYPE_MIME_3 = "ViDeO/mP4";
-	private static final String TYPE_MINE_4 = "audio/mp3";				//Type not present in allowedTypes
+	private static final String TYPE_MINE_4 = "audio/mpx";				//Type not present in allowedTypes
 	
-	private EntityType type1, type2, type3, type4, type5, type6, type7, type8, type9;
+	private EntityType type1, type2, type3, type4, type5, type6, type7, type8;
 	
 	private boolean checkTypeCreation(String name, EntityType type){
 		return type != null && type.getId() != null
@@ -72,17 +72,41 @@ public class SocialTypeManagerTest {
 		Assert.assertTrue(compareType(type3, type6));
 	}
 	
+	@Test(expected = java.lang.IllegalArgumentException.class) 
+	public void CreateTypeNotAllowed(){
+		//Create a type with a not allowed mimeType
+		entityTypeManager.create(TYPE_NAME_1, TYPE_MINE_4);	
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class) 
+	public void CreateTypeNullParam(){
+		//Create a type with a not allowed mimeType
+		entityTypeManager.create(null, null);	
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class) 
+	public void CreateTypeVoidParam(){
+		//Create a type with a not allowed mimeType
+		entityTypeManager.create("", "");	
+	}	
+	
 	@Test
-	public void ReadTypes(){
-		Limit limit = new Limit();
-		limit.setPage(0);
-		limit.setPageSize(5);
-		
+	public void ReadType(){
 		EntityType readedType = entityTypeManager.readTypeByNameAndMimeType(TYPE_NAME_1, TYPE_MIME_1);
 		Assert.assertTrue(RepositoryUtils.normalizeCompare(readedType.getName(), TYPE_NAME_1) && readedType.getMimeType().compareTo(TYPE_MIME_1) == 0);
 		
 		readedType = entityTypeManager.readTypeByNameAndMimeType(TYPE_NAME_3_NN, TYPE_MIME_3);
 		Assert.assertTrue(RepositoryUtils.normalizeCompare(readedType.getName(),TYPE_NAME_3) && readedType.getMimeType().compareTo(TYPE_MIME_3) == 0);
+		
+		readedType = entityTypeManager.readType(type1.getId());
+		Assert.assertTrue(readedType.getName().compareToIgnoreCase(type1.getName()) == 0);
+	}	
+	
+	@Test
+	public void ReadTypes(){
+		Limit limit = new Limit();
+		limit.setPage(0);
+		limit.setPageSize(5);
 		
 		List<EntityType> readedTypes = entityTypeManager.readTypes(limit);
 		Assert.assertTrue(readedTypes.size() == 3 && RepositoryUtils.normalizeCompare(readedTypes.get(2).getName(),TYPE_NAME_3));
@@ -100,10 +124,6 @@ public class SocialTypeManagerTest {
 		
 		readedTypes = entityTypeManager.readTypesByName(TYPE_NAME_1, limit);
 		Assert.assertTrue(readedTypes.size() == 2 && RepositoryUtils.normalizeCompare(readedTypes.get(0).getName(),TYPE_NAME_1));
-		
-		//Create a type with a not allowed mimeType
-		type9 = entityTypeManager.create(TYPE_NAME_1, TYPE_MINE_4);
-		Assert.assertTrue(type9 == null);
 		
 		Assert.assertTrue(entityTypeManager.deleteType(type7.getId()));
 		Assert.assertTrue(entityTypeManager.deleteType(type8.getId()));
