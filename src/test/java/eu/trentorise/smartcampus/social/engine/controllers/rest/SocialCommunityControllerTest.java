@@ -111,7 +111,7 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 		request = setDefaultRequest(
 				get("/community/{communityId}", community.getId()), Scope.USER);
 		response = mockMvc.perform(request);
-		setDefaultResult(response)
-				.andExpect(jsonPath("$", Matchers.hasSize(1)));
+		setDefaultResult(response).andExpect(
+				jsonPath("$.id").value(community.getId()));
 	}
 }
