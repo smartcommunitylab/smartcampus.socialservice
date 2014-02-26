@@ -22,7 +22,12 @@
 
 	<!-- Scan controllers in this package -->
 	<context:component-scan base-package="eu.trentorise.smartcampus.social" />
+	
+	<!-- Activates various annotations to be detected in bean classes -->
+	<context:annotation-config />
+		<import resource="datalayer.xml"/>
 
-    <context:property-placeholder location="classpath:socialservice.properties" />
+<!--     <context:property-placeholder location="classpath:socialservice.properties" /> -->
+<!--     <context:property-placeholder  location="classpath:communitymanager.properties" /> -->
 
 </beans>

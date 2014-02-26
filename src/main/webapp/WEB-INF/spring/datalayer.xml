@@ -26,7 +26,7 @@
 		<property name="dataSource" ref="engine.dataSource" />
 		<property name="jpaVendorAdapter"> 
             <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"> 
-                <property name="databasePlatform" value="${engine.jdbc.dialect}"/> 
+                <property name="databasePlatform" value="${jdbc.dialect.sc}"/> 
                 <property name="showSql" value="false" /> 
                 <property name="generateDdl" value="true"/>
             </bean> 
@@ -46,15 +46,15 @@
 	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
 
 	<jpa:repositories
-		base-package="eu.trentorise.smartcampus.social.engine.repository" />
+		base-package="eu.trentorise.smartcampus.social.engine.repo" />
 
 
 	<bean id="engine.dataSource" destroy-method="close"
 		class="org.apache.commons.dbcp.BasicDataSource">
-		<property name="driverClassName" value="${engine.jdbc.driver}" />
-		<property name="url" value="${engine.jdbc.url}" />
-		<property name="username" value="${engine.jdbc.user}" />
-		<property name="password" value="${engine.jdbc.password}" />
+		<property name="driverClassName" value="${jdbc.driver.sc}" />
+		<property name="url" value="${jdbc.url.sc}" />
+		<property name="username" value="${jdbc.user.sc}" />
+		<property name="password" value="${jdbc.password.sc}" />
 	</bean>
 
 </beans>

@@ -2,6 +2,7 @@ package eu.trentorise.smartcampus.social.engine.controllers.rest;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.io.IOException;
@@ -34,11 +35,10 @@ public class SCControllerTest {
 		mapper = new ObjectMapper();
 	}
 
-	private String bearer(String token) {
+	protected static String bearer(String token) {
 		return "Bearer " + token;
 	}
 
-	@SuppressWarnings("unused")
 	protected byte[] convertObjectToJsonBytes(Object object) throws IOException {
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setSerializationInclusion(Inclusion.NON_NULL); // JsonInclude.Include.NON_NULL
@@ -88,4 +88,13 @@ public class SCControllerTest {
 		return result.andDo(print()).andExpect(status().isBadRequest())
 				.andExpect(content().string(""));
 	}
+	
+	protected ResultActions setNullResult(ResultActions result) throws Exception{
+		return result.andDo(print()).andExpect(status().isOk()).andExpect(content().string(""));
+	}
+	
+	protected ResultActions setForbiddenExceptionResult(ResultActions result) throws Exception{
+		return result.andDo(print()).andExpect(status().isForbidden()).andExpect(jsonPath("$.error").value("access_denied"));
+	}
+	
 }

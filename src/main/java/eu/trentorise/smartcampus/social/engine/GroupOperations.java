@@ -14,8 +14,6 @@ public interface GroupOperations {
 	public Group create(String userId, String name);
 
 	// read
-	
-	public List<Group> readGroups(Limit limit);
 
 	public List<Group> readGroups(String userId, Limit limit);
 
