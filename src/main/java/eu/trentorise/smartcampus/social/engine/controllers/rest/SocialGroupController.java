@@ -128,9 +128,7 @@ public class SocialGroupController extends RestController {
 	public @ResponseBody
 	List<String> getMembers(@PathVariable("groupId") String groupId,
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
-			@RequestParam(value = "pageSize", required = false) Integer pageSize,
-			@RequestParam(value = "fromDate", required = false) Long fromDate,
-			@RequestParam(value = "toDate", required = false) Long toDate)
+			@RequestParam(value = "pageSize", required = false) Integer pageSize)
 			throws SocialServiceException {
 		String userId = getUserId();
 		
@@ -138,7 +136,7 @@ public class SocialGroupController extends RestController {
 			throw new SecurityException();
 		}
 		
-		return groupManager.readMembersAsString(groupId, setLimit(pageNum, pageSize, fromDate, toDate));
+		return groupManager.readMembersAsString(groupId, setLimit(pageNum, pageSize, null, null));
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/group/{groupId}/members")
