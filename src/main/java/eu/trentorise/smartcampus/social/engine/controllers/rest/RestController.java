@@ -42,11 +42,12 @@ public class RestController extends SCController {
 	private static final Logger logger = Logger.getLogger(RestController.class);
 	
 	/**
-	 * Issues to manage:
-	 * 1- check the input parameters and use only the not-null/not-void values
-	 * 2- cast the values from Object to the real value (int or long)
-	 * 3- if the pageNum is set and the paseSize not, I use default value
-	 * 4- if the paseSize is set and the pageNum not, I use default value
+	 * Method set Limit: used to initialize the pagination object using the four input parameter's values
+	 * @param pageNum: Integer for set the page number;
+	 * @param pageSize: Integer for set the page size;
+	 * @param fromDate: Long for set the from-date limit
+	 * @param toDate: Long for set the to-date limit
+	 * @return Limit limit created by the input parameters
 	 */
 	protected Limit setLimit(Integer pageNum, Integer pageSize, Long fromDate,
 			Long toDate) {
