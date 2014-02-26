@@ -1,5 +1,6 @@
 package eu.trentorise.smartcampus.social.engine.controllers.rest;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -56,17 +57,45 @@ public class SocialCommunityController extends RestController {
 		return communityManager.delete(communityId);
 	}
 
-	@RequestMapping(method = RequestMethod.PUT, value = "/user/community/{communityId}/members")
+	@RequestMapping(method = RequestMethod.PUT, value = "/user/community/{communityId}/member")
 	public @ResponseBody
-	boolean subscribe(@PathVariable String communityId,
-			@RequestParam Set<String> userIds) {
+	boolean subscribeUser(@PathVariable String communityId) {
+
+		Set<String> members = new HashSet<String>();
+		members.add(getUserId());
+		return communityManager.addMembers(communityId, members);
+	}
+
+	@RequestMapping(method = RequestMethod.DELETE, value = "/user/community/{communityId}/member")
+	public @ResponseBody
+	boolean unsubscribeUser(@PathVariable String communityId) {
+
+		Set<String> members = new HashSet<String>();
+		members.add(getUserId());
+		return communityManager.removeMembers(communityId, members);
+	}
+
+	@RequestMapping(method = RequestMethod.PUT, value = "/app/{appId}/community/{communityId}/members")
+	public @ResponseBody
+	boolean subscribe(@PathVariable String appId,
+			@PathVariable String communityId, @RequestParam Set<String> userIds) {
+
+		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
+			throw new SecurityException();
+		}
+
 		return communityManager.addMembers(communityId, userIds);
 	}
 
-	@RequestMapping(method = RequestMethod.DELETE, value = "/user/community/{communityId}/members")
+	@RequestMapping(method = RequestMethod.DELETE, value = "/app/{appId}/community/{communityId}/members")
 	public @ResponseBody
-	boolean unsubscribe(@PathVariable String communityId,
-			@RequestParam Set<String> userIds) {
+	boolean unsubscribe(@PathVariable String appId,
+			@PathVariable String communityId, @RequestParam Set<String> userIds) {
+
+		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
+			throw new SecurityException();
+		}
+
 		return communityManager.removeMembers(communityId, userIds);
 	}
 }

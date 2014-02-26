@@ -31,7 +31,7 @@
     <resourceMapping uri="socialservice.user.community.read" 
         pathPattern="/user/community" method="GET"/>
     <resourceMapping uri="socialservice.user.community.write" 
-        pathPattern="/user/community/{cid}" method="PUT,DELETE"/>
+        pathPattern="/user/community/{communityId}/member" method="PUT,DELETE"/>
 
     <!-- community -->
     <resourceMapping uri="socialservice.community.all" 
@@ -44,6 +44,8 @@
         pathPattern="/app/{appId}/community" method="POST"/>
     <resourceMapping uri="socialservice.community.{appId}.write" 
         pathPattern="/app/{appId}/community/{communityId}" method="DELETE"/>
+    <resourceMapping uri="socialservice.community.{appId}.write" 
+        pathPattern="/app/{appId}/community/{communityId}/members" method="PUT,DELETE"/>
 
     <!-- user entities -->
     <resourceMapping uri="socialservice.user.entities.read" 
