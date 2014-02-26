@@ -7,8 +7,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+import junit.framework.Assert;
 
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +26,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.context.WebApplicationContext;
 
 import eu.trentorise.smartcampus.social.engine.beans.Community;
+import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -41,6 +44,14 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 
 	private MockMvc mockMvc;
 
+	@Autowired
+	CommunityRepository communityRepo;
+
+	@After
+	public void cleanup() {
+		communityRepo.deleteAll();
+	}
+
 	@Before
 	public void setup() throws Exception {
 		this.mockMvc = webAppContextSetup(this.wac).addFilter(
@@ -49,19 +60,14 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 
 	@Test
 	public void create() throws Exception {
-		Community community = new Community();
-		community.setName("SC Smartcampus");
+		Community community = createCommunity("SC Smartcampus", APPID);
+
+		Assert.assertEquals("SC Smartcampus", community.getName());
 
 		RequestBuilder request = setDefaultRequest(
 				post("/app/{appId}/community", APPID), Scope.CLIENT).content(
-				convertObjectToJsonString(community));
+				"{\"name\": \"Palazzina\"}");
 		ResultActions response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				jsonPath("$.name").value("SC Smartcampus"));
-
-		request = setDefaultRequest(post("/app/{appId}/community", APPID),
-				Scope.CLIENT).content("{\"name\": \"Palazzina\"}");
-		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
 				jsonPath("$.name").value("Palazzina"));
 
@@ -73,21 +79,12 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 
 	@Test
 	public void deleteCommunity() throws Exception {
-		Community community = new Community();
-		community.setName("SC Smartcampus");
+		Community community = createCommunity("SC Smartcampus", APPID);
 
 		RequestBuilder request = setDefaultRequest(
-				post("/app/{appId}/community", APPID), Scope.CLIENT).content(
-				convertObjectToJsonString(community));
-		ResultActions response = mockMvc.perform(request);
-		MvcResult result = setDefaultResult(response).andReturn();
-		community = convertJsonToObject(result.getResponse()
-				.getContentAsString(), Community.class);
-
-		request = setDefaultRequest(
 				delete("/app/{appId}/community/{communityId}", APPID,
 						community.getId()), Scope.CLIENT);
-		response = mockMvc.perform(request);
+		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(content().string("true"));
 	}
 
@@ -98,23 +95,13 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(content().string("[]"));
 
-		Community community = new Community();
-		community.setName("SC Smartcampus");
-		request = setDefaultRequest(post("/app/{appId}/community", APPID),
-				Scope.CLIENT).content(convertObjectToJsonString(community));
-		mockMvc.perform(request);
+		Community community = createCommunity("SC Smartcampus", APPID);
 		request = setDefaultRequest(get("/community"), Scope.USER);
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
 				.andExpect(jsonPath("$", Matchers.hasSize(1)));
 
-		community = new Community();
-		community.setName("Coders");
-		request = setDefaultRequest(post("/app/{appId}/community", APPID),
-				Scope.CLIENT).content(convertObjectToJsonString(community));
-		MvcResult result = mockMvc.perform(request).andReturn();
-		community = convertJsonToObject(result.getResponse()
-				.getContentAsString(), Community.class);
+		community = createCommunity("Coders", APPID);
 		request = setDefaultRequest(get("/community"), Scope.USER);
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
@@ -129,16 +116,8 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 
 	@Test
 	public void userSubscription() throws Exception {
-		Community community = new Community();
-		community.setName("SC Smartcampus");
-
+		Community community = createCommunity("SC Smartcampus", APPID);
 		RequestBuilder request = setDefaultRequest(
-				post("/app/{appId}/community", APPID), Scope.CLIENT).content(
-				convertObjectToJsonString(community));
-		MvcResult result = mockMvc.perform(request).andReturn();
-		community = convertJsonToObject(result.getResponse()
-				.getContentAsString(), Community.class);
-		request = setDefaultRequest(
 				put("/user/community/{communityId}/member", community.getId()),
 				Scope.USER);
 		ResultActions response = mockMvc.perform(request);
@@ -161,17 +140,9 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 
 	@Test
 	public void membersSubscription() throws Exception {
-		Community community = new Community();
-		community.setName("SC Smartcampus");
+		Community community = createCommunity("SC Smartcampus", APPID);
 
 		RequestBuilder request = setDefaultRequest(
-				post("/app/{appId}/community", APPID), Scope.CLIENT).content(
-				convertObjectToJsonString(community));
-		MvcResult result = mockMvc.perform(request).andReturn();
-		community = convertJsonToObject(result.getResponse()
-				.getContentAsString(), Community.class);
-
-		request = setDefaultRequest(
 				put("/app/{appId}/community/{communityId}/members", APPID,
 						community.getId()), Scope.CLIENT).param("userIds",
 				"22", "23", "24");
@@ -192,6 +163,19 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
 				jsonPath("$.memberIds", Matchers.hasSize(2)));
+	}
 
+	private Community createCommunity(String name, String appId)
+			throws Exception {
+		Community community = new Community();
+		community.setName(name);
+
+		RequestBuilder request = setDefaultRequest(
+				post("/app/{appId}/community", appId), Scope.CLIENT).content(
+				convertObjectToJsonString(community));
+		MvcResult result = mockMvc.perform(request).andReturn();
+		community = convertJsonToObject(result.getResponse()
+				.getContentAsString(), Community.class);
+		return community;
 	}
 }
