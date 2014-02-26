@@ -34,9 +34,10 @@ public class SocialCommunity implements Serializable {
 	private Set<SocialUser> members;
 
 	public SocialCommunity(String name, String appId) {
-		super();
 		this.name = name;
 		this.appId = appId;
+		creationTime = System.currentTimeMillis();
+		lastModifiedTime = System.currentTimeMillis();
 	}
 
 	public SocialCommunity() {
