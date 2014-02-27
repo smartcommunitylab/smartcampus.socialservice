@@ -47,6 +47,10 @@ public class RepositoryUtils {
 		}
 		return normalized;
 	}
+	
+	public static String normalizeStringLowerCase(String toNormalize) {
+		return normalizeString(toNormalize).toLowerCase();
+	}
 
 	public static boolean normalizeCompare(String string1, String string2) {
 		string1 = string1.toLowerCase();
