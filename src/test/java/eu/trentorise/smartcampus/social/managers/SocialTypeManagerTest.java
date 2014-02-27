@@ -9,11 +9,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import eu.trentorise.smartcampus.social.engine.beans.Entity;
 import eu.trentorise.smartcampus.social.engine.beans.EntityType;
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
+import eu.trentorise.smartcampus.social.engine.beans.Visibility;
 import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -22,6 +25,9 @@ public class SocialTypeManagerTest {
 	
 	@Autowired
 	SocialTypeManager entityTypeManager;
+	
+	@Autowired
+	EntityManager entityManager;
 	
 	private static final String TYPE_NAME_1 = "SmallImage";
 	private static final String TYPE_NAME_1_NN = "   SmallIMAGE   ";	//Not Normalized
@@ -188,20 +194,39 @@ public class SocialTypeManagerTest {
 	
 	
 	@After
-	public void test5_deleteAll(){
+	public void deleteAll(){
 		Assert.assertTrue(entityTypeManager.deleteType(type1.getId()));
 		Assert.assertTrue(entityTypeManager.deleteType(type2.getId()));
 		Assert.assertTrue(entityTypeManager.deleteType(type3.getId()));
 	}
 	
 	@Test
-	public void test51_deleteNullParam(){
+	public void test5_deleteNullParam(){
 		String typeId = null;
 		Assert.assertTrue(entityTypeManager.deleteType(typeId));
 	}
 	
 	@Test
-	public void test52_deleteNotExists(){
+	public void test51_deleteNotExists(){
 		Assert.assertTrue(entityTypeManager.deleteType(TYPE_NEXT_ID));
 	}
+	
+	//@Test
+	// I have to add a specific function in EntityRepository like this
+	// @Query("SELECT COUNT(*) FROM SocialEntity se WHERE se.type = ?1")
+	// public Long countEntityByType(String type);
+	//
+	public void test52_deleteAUsedType(){
+		Entity e = new Entity();
+		e.setName("MyFirstEntity");
+		e.setLocalId("01");
+		e.setOwner("01");
+		e.setType(type1.getId());
+		e.setVisibility(new Visibility(true));
+		entityManager.saveOrUpdate("Sc", e);
+		
+		Assert.assertFalse(entityTypeManager.deleteType(type1.getId()));
+	}
+	
+	
 }

@@ -151,7 +151,7 @@ public class SocialGroupManagerTest {
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
 		try {
 			Long fromDate = formatter.parse("01-03-2013").getTime();
-			Long toDate = formatter.parse("25-02-2014").getTime();
+			Long toDate = formatter.parse("28-02-2014").getTime();
 			limit.setPage(1);
 			limit.setFromDate(fromDate);
 			limit.setToDate(toDate);

@@ -35,6 +35,9 @@ public class SocialTypeManager implements EntityTypeOperations {
 					"text/txt", "text/xml", "text/rtf", "text/pdf"));
 	@Autowired
 	SocialTypeRepository typeRepository;
+	
+	@Autowired
+	private EntityManager entityManager;
 
 	private static final Logger logger = Logger
 			.getLogger(SocialGroupManager.class);
@@ -219,8 +222,10 @@ public class SocialTypeManager implements EntityTypeOperations {
 			SocialType type = typeRepository.findOne(RepositoryUtils
 					.convertId(entityTypeId));
 			if (type != null) {
-				typeRepository.delete(RepositoryUtils.convertId(entityTypeId));
-				logger.info(String.format("EntityType %s correctly removed.", entityTypeId));
+				// here I have to check if the type is used in a specific entity
+				//Long typeUsedIn = entityManager.entityRepository.countEntityByType(entityTypeId);
+					typeRepository.delete(RepositoryUtils.convertId(entityTypeId));
+					logger.info(String.format("EntityType %s correctly removed.", entityTypeId));
 			} else {
 				logger.warn(String.format("No entityType found with id %s.", entityTypeId));
 			}
