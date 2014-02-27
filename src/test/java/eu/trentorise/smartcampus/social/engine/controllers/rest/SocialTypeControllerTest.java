@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+import static org.hamcrest.Matchers.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +63,7 @@ public class SocialTypeControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(get("/user/type"), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(content().string("[]"));	// void list
+		.andExpect(jsonPath("$.data").value("[ ]"));	// void list
 	}
 	
 	@Test
@@ -70,48 +71,48 @@ public class SocialTypeControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_1).param("mimeType", MIME_TYPE_1);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWTYPE_1));
+		.andExpect(content().string(containsString(NEWTYPE_1)));
 		
 		request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_2).param("mimeType", MIME_TYPE_2);
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWTYPE_2));
+		.andExpect(content().string(containsString(NEWTYPE_2)));
 
 		request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_3).param("mimeType", MIME_TYPE_3);
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWTYPE_3));
+		.andExpect(content().string(containsString(NEWTYPE_3)));
 		
 		request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_4).param("mimeType", MIME_TYPE_4);
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWTYPE_4));
+		.andExpect(content().string(containsString(NEWTYPE_4)));
 
 		request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_5).param("mimeType", MIME_TYPE_5);
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWTYPE_5));
+		.andExpect(content().string(containsString(NEWTYPE_5)));
 		
 		request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_6).param("mimeType", MIME_TYPE_6);
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWTYPE_6));
+		.andExpect(content().string(containsString(NEWTYPE_6)));
 
 		request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_7).param("mimeType", MIME_TYPE_7);
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWTYPE_7));
+		.andExpect(content().string(containsString(NEWTYPE_7)));
 		
 		request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_8).param("mimeType", MIME_TYPE_8);
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWTYPE_8));
+		.andExpect(content().string(containsString(NEWTYPE_8)));
 
 		//Try to create an already exist type
 		request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_1).param("mimeType", MIME_TYPE_1);
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWTYPE_1));
+		.andExpect(content().string(containsString(NEWTYPE_1)));
 		
 	}
 	
@@ -143,7 +144,7 @@ public class SocialTypeControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(get("/user/type"), Scope.USER).param("pageNum", "1").param("pageSize", "5");
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$[0].name").value(NEWTYPE_6));
+		.andExpect(content().string(allOf(containsString(NEWTYPE_6), containsString(NEWTYPE_7), containsString(NEWTYPE_8))));
 	}
 	
 	@Test
@@ -152,12 +153,12 @@ public class SocialTypeControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", my_newType).param("mimeType", MIME_TYPE_1);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(my_newType));
+		.andExpect(content().string(containsString(my_newType)));
 		
 		request = setDefaultRequest(get("/user/type"), Scope.USER).param("mimeType", MIME_TYPE_1);
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$[1].name").value(my_newType));
+		.andExpect(content().string(containsString(my_newType)));
 	}
 	
 	@Test
@@ -169,13 +170,14 @@ public class SocialTypeControllerTest extends SCControllerTest{
 		.andExpect(jsonPath("$.name").value(NEWTYPE_3));
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void test41_getTypeNullParam() throws Exception { 
 		String typeId = null;
 		RequestBuilder request = setDefaultRequest(get("/user/type/{typeId}", typeId), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$[0].name").value(NEWTYPE_1));
+		.andExpect(content().string(allOf(containsString(NEWTYPE_1), containsString(NEWTYPE_2), containsString(NEWTYPE_3), containsString(NEWTYPE_4), containsString(NEWTYPE_5), containsString(NEWTYPE_6), containsString(NEWTYPE_7), containsString(NEWTYPE_8))));
 	}
 	
 	@Test
