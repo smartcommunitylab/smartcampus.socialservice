@@ -75,8 +75,10 @@ public class SocialType implements Serializable {
 	
 	public static List<EntityType> toEntityType(Iterable<SocialType> types){
 		List<EntityType> outputTypes = new ArrayList<EntityType>();
-		for(SocialType socialType : types){
-			outputTypes.add(socialType.toEntityType());
+		if(types!= null){
+			for(SocialType socialType : types){
+				outputTypes.add(socialType.toEntityType());
+			}
 		}
 		return outputTypes;
 	}

@@ -34,6 +34,7 @@ public class SocialTypeManagerTest {
 	private static final String TYPE_MIME_2 = "image/png";
 	private static final String TYPE_MIME_3 = "ViDeO/mP4";
 	private static final String TYPE_MINE_4 = "audio/mpx";				//Type not present in allowedTypes
+	private static final String TYPE_NEXT_ID = "123456";
 	
 	private EntityType type1, type2, type3, type4, type5, type6, type7, type8;
 	
@@ -62,7 +63,7 @@ public class SocialTypeManagerTest {
 	}
 	
 	@Test
-	public void CreateType(){
+	public void test1_CreateType(){
 		Assert.assertTrue(checkTypeCreation(TYPE_NAME_1, type1));
 		Assert.assertTrue(checkTypeCreation(TYPE_NAME_2, type2));
 		Assert.assertTrue(checkTypeCreation(TYPE_NAME_3, type3));
@@ -73,37 +74,69 @@ public class SocialTypeManagerTest {
 	}
 	
 	@Test(expected = java.lang.IllegalArgumentException.class) 
-	public void CreateTypeNotAllowed(){
+	public void test11_CreateTypeNotAllowed(){
 		//Create a type with a not allowed mimeType
 		entityTypeManager.create(TYPE_NAME_1, TYPE_MINE_4);	
 	}
 	
 	@Test(expected = java.lang.IllegalArgumentException.class) 
-	public void CreateTypeNullParam(){
+	public void test12_CreateTypeNullParam(){
 		//Create a type with a not allowed mimeType
 		entityTypeManager.create(null, null);	
 	}
 	
 	@Test(expected = java.lang.IllegalArgumentException.class) 
-	public void CreateTypeVoidParam(){
+	public void test13_CreateTypeVoidParam(){
 		//Create a type with a not allowed mimeType
 		entityTypeManager.create("", "");	
 	}	
 	
 	@Test
-	public void ReadType(){
+	public void test2_ReadType(){
 		EntityType readedType = entityTypeManager.readTypeByNameAndMimeType(TYPE_NAME_1, TYPE_MIME_1);
-		Assert.assertTrue(RepositoryUtils.normalizeCompare(readedType.getName(), TYPE_NAME_1) && readedType.getMimeType().compareTo(TYPE_MIME_1) == 0);
+		Assert.assertTrue(RepositoryUtils.normalizeCompare(readedType.getName(), TYPE_NAME_1) && readedType.getMimeType().compareToIgnoreCase(TYPE_MIME_1) == 0);
 		
 		readedType = entityTypeManager.readTypeByNameAndMimeType(TYPE_NAME_3_NN, TYPE_MIME_3);
-		Assert.assertTrue(RepositoryUtils.normalizeCompare(readedType.getName(),TYPE_NAME_3) && readedType.getMimeType().compareTo(TYPE_MIME_3) == 0);
+		Assert.assertTrue(RepositoryUtils.normalizeCompare(readedType.getName(),TYPE_NAME_3) && readedType.getMimeType().compareToIgnoreCase(TYPE_MIME_3) == 0);
 		
 		readedType = entityTypeManager.readType(type1.getId());
 		Assert.assertTrue(readedType.getName().compareToIgnoreCase(type1.getName()) == 0);
-	}	
+	}
 	
 	@Test
-	public void ReadTypes(){
+	public void test21_ReadTypeNullParams(){
+		String typeId = null;
+		String typeName = null;
+		String mimeType = null;
+		Limit limit = null;
+		
+		EntityType readedType = entityTypeManager.readType(typeId);
+		Assert.assertTrue(readedType == null);
+		
+		readedType = entityTypeManager.readTypeByNameAndMimeType(typeName, mimeType);
+		Assert.assertTrue(readedType == null);
+		
+		List<EntityType> readedTypes = entityTypeManager.readTypesByName(typeName, limit);
+		Assert.assertTrue(readedTypes.isEmpty());
+		
+		readedTypes = entityTypeManager.readTypesByMimeType(mimeType, limit);
+		Assert.assertTrue(readedTypes.isEmpty());
+	}
+	
+	@Test
+	public void test22_ReadTypeIncompleteParams(){
+		String typeName = null;
+		String mimeType = null;
+		
+		EntityType readedType = entityTypeManager.readTypeByNameAndMimeType(TYPE_NAME_1, mimeType);
+		Assert.assertTrue(readedType.getName().compareToIgnoreCase(TYPE_NAME_1) == 0);
+		
+		readedType = entityTypeManager.readTypeByNameAndMimeType(typeName, TYPE_MIME_1);
+		Assert.assertTrue(readedType.getName().compareToIgnoreCase(TYPE_NAME_1) == 0);
+	}
+	
+	@Test
+	public void test3_ReadTypes(){
 		Limit limit = new Limit();
 		limit.setPage(0);
 		limit.setPageSize(5);
@@ -130,10 +163,45 @@ public class SocialTypeManagerTest {
 		
 	}
 	
+	@Test
+	public void test4_UpdateType(){
+		type3 = entityTypeManager.updateType(type3.getId(), TYPE_MIME_1);
+		Assert.assertTrue(type3.getMimeType().compareToIgnoreCase(TYPE_MIME_1) == 0);
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void test41_UpdateTypeNullParam(){
+		String mimeType = null;
+		type3 = entityTypeManager.updateType(type3.getId(), mimeType);
+	}
+	
+	@Test
+	public void test42_UpdateTypeNotExists(){
+		type8 = entityTypeManager.updateType(TYPE_NEXT_ID, TYPE_MIME_1);
+		Assert.assertTrue(type8 == null);
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void test43_UpdateTypeAlreadyExist(){
+		type3 = entityTypeManager.updateType(type3.getId(), TYPE_MIME_3);
+	}
+	
+	
 	@After
-	public void deleteAll(){
+	public void test5_deleteAll(){
 		Assert.assertTrue(entityTypeManager.deleteType(type1.getId()));
 		Assert.assertTrue(entityTypeManager.deleteType(type2.getId()));
 		Assert.assertTrue(entityTypeManager.deleteType(type3.getId()));
+	}
+	
+	@Test
+	public void test51_deleteNullParam(){
+		String typeId = null;
+		Assert.assertTrue(entityTypeManager.deleteType(typeId));
+	}
+	
+	@Test
+	public void test52_deleteNotExists(){
+		Assert.assertTrue(entityTypeManager.deleteType(TYPE_NEXT_ID));
 	}
 }
