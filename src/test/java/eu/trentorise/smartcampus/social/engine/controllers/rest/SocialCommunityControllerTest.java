@@ -107,6 +107,12 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 		setDefaultResult(response)
 				.andExpect(jsonPath("$", Matchers.hasSize(2)));
 
+		request = setDefaultRequest(get("/community"), Scope.USER).param(
+				"pageSize", "1");
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+				.andExpect(jsonPath("$", Matchers.hasSize(1)));
+
 		request = setDefaultRequest(
 				get("/community/{communityId}", community.getId()), Scope.USER);
 		response = mockMvc.perform(request);
@@ -173,7 +179,8 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 		RequestBuilder request = setDefaultRequest(
 				post("/app/{appId}/community", appId), Scope.CLIENT).content(
 				convertObjectToJsonString(community));
-		MvcResult result = mockMvc.perform(request).andReturn();
+		MvcResult result = setDefaultResult(mockMvc.perform(request))
+				.andReturn();
 		community = convertJsonToObject(result.getResponse()
 				.getContentAsString(), Community.class);
 		return community;

@@ -28,8 +28,13 @@ public class SocialCommunityController extends RestController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/community")
 	public @ResponseBody
-	List<Community> readCommunities() {
-		return communityManager.readCommunities(null);
+	List<Community> readCommunities(
+			@RequestParam(value = "pageNum", required = false) Integer pageNum,
+			@RequestParam(value = "pageSize", required = false) Integer pageSize,
+			@RequestParam(value = "fromDate", required = false) Long fromDate,
+			@RequestParam(value = "toDate", required = false) Long toDate) {
+		return communityManager.readCommunities(setLimit(pageNum, pageSize,
+				fromDate, toDate));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/community/{communityId}")
