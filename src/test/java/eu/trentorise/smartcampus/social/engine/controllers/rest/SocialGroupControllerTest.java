@@ -1,5 +1,7 @@
 package eu.trentorise.smartcampus.social.engine.controllers.rest;
 
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
@@ -25,7 +27,7 @@ import eu.trentorise.smartcampus.social.engine.beans.Group;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(locations={"classpath:/spring/applicationContext.xml", "classpath:/spring/spring-security.xml"}) //"classpath:/resourceList.xml"
+@ContextConfiguration(locations={"classpath:/spring/applicationContext.xml", "classpath:/spring/spring-security.xml"})
 public class SocialGroupControllerTest extends SCControllerTest{
 	
 	@Autowired
@@ -79,7 +81,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(get("/user/group"), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(content().string("[]"));	// void list
+		.andExpect(content().string(containsString("[ ]")));	// void list
 	}	
 	
 	@Test
@@ -90,21 +92,21 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(post("/user/group"), Scope.USER).content(convertObjectToJsonString(newGroup));
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWGROUP_1));
+		.andExpect(content().string(containsString(NEWGROUP_1)));
 		
 		// Create and Post second group
 		newGroup.setName(NEWGROUP_2);
 		request = setDefaultRequest(post("/user/group"), Scope.USER).content(convertObjectToJsonString(newGroup));
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWGROUP_2));
+		.andExpect(content().string(containsString(NEWGROUP_2)));
 		
 		// Create and Post second group
 		newGroup.setName(NEWGROUP_3);
 		request = setDefaultRequest(post("/user/group"), Scope.USER).content(convertObjectToJsonString(newGroup));
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWGROUP_3));	
+		.andExpect(content().string(containsString(NEWGROUP_3)));	
 	}
 	
 	@Test
@@ -133,7 +135,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(get("/user/group"), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$[0].name").value(NEWGROUP_1));
+		.andExpect(content().string(allOf(containsString(NEWGROUP_1), containsString(NEWGROUP_2), containsString(NEWGROUP_3))));
 	}
 	
 	@Test
@@ -144,54 +146,54 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(post("/user/group"), Scope.USER).content(convertObjectToJsonString(newGroup));
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWGROUP_4));
+		.andExpect(content().string(containsString(NEWGROUP_4)));
 		
 		newGroup.setName(NEWGROUP_5);
 		request = setDefaultRequest(post("/user/group"), Scope.USER).content(convertObjectToJsonString(newGroup));
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWGROUP_5));
+		.andExpect(content().string(containsString(NEWGROUP_5)));
 		
 		newGroup.setName(NEWGROUP_6);
 		request = setDefaultRequest(post("/user/group"), Scope.USER).content(convertObjectToJsonString(newGroup));
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWGROUP_6));	
+		.andExpect(content().string(containsString(NEWGROUP_6)));	
 		
 		newGroup.setName(NEWGROUP_7);
 		request = setDefaultRequest(post("/user/group"), Scope.USER).content(convertObjectToJsonString(newGroup));
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWGROUP_7));
+		.andExpect(content().string(containsString(NEWGROUP_7)));
 		
 		newGroup.setName(NEWGROUP_8);
 		request = setDefaultRequest(post("/user/group"), Scope.USER).content(convertObjectToJsonString(newGroup));
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWGROUP_8));
+		.andExpect(content().string(containsString(NEWGROUP_8)));
 		
 		newGroup.setName(NEWGROUP_9);
 		request = setDefaultRequest(post("/user/group"), Scope.USER).content(convertObjectToJsonString(newGroup));
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWGROUP_9));
+		.andExpect(content().string(containsString(NEWGROUP_9)));
 		
 		newGroup.setName(NEWGROUP_10);
 		request = setDefaultRequest(post("/user/group"), Scope.USER).content(convertObjectToJsonString(newGroup));
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWGROUP_10));
+		.andExpect(content().string(containsString(NEWGROUP_10)));
 		
 		newGroup.setName(NEWGROUP_11);
 		request = setDefaultRequest(post("/user/group"), Scope.USER).content(convertObjectToJsonString(newGroup));
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWGROUP_11));		
+		.andExpect(content().string(containsString(NEWGROUP_11)));		
 		
 		request = setDefaultRequest(get("/user/group"), Scope.USER).param("pageNum", "1").param("pageSize", "5");
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$[0].name").value(NEWGROUP_6));
+		.andExpect(content().string(allOf(containsString(NEWGROUP_6), containsString(NEWGROUP_7), containsString(NEWGROUP_8), containsString(NEWGROUP_9), containsString(NEWGROUP_10))));
 	}
 	
 	@Test
@@ -199,7 +201,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(get("/user/group"), Scope.USER).param("pageNum", "2").param("pageSize", "5");
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$[0].name").value(NEWGROUP_11));
+		.andExpect(content().string(containsString(NEWGROUP_11)));
 	}
 	
 	@Test
@@ -210,7 +212,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
 		try {
 			fromDate = formatter.parse("01-03-2013").getTime();
-			toDate = formatter.parse("28-02-2014").getTime();
+			toDate = formatter.parse("03-03-2014").getTime();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
@@ -218,7 +220,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(get("/user/group"), Scope.USER).param("fromDate", String.valueOf(fromDate)).param("toDate", String.valueOf(toDate));
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$[0].name").value(NEWGROUP_3));
+		.andExpect(content().string(allOf(containsString(NEWGROUP_3), containsString(NEWGROUP_4), containsString(NEWGROUP_5), containsString(NEWGROUP_6), containsString(NEWGROUP_7), containsString(NEWGROUP_8))));
 	}
 	
 	@Test
@@ -228,7 +230,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
 		try {
 			fromDate = formatter.parse("01-03-2013").getTime();
-			toDate = formatter.parse("28-02-2014").getTime();
+			toDate = formatter.parse("03-03-2014").getTime();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
@@ -236,9 +238,10 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(get("/user/group"), Scope.USER).param("fromDate", String.valueOf(fromDate)).param("toDate", String.valueOf(toDate)).param("pageNum", "1").param("pageSize", "5");
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$[0].name").value(NEWGROUP_8));
+		.andExpect(content().string(containsString(NEWGROUP_8)));
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void test25_readGroupsWithLimitDateFrom() throws Exception {
 		Long fromDate = 0L;
@@ -252,7 +255,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(get("/user/group"), Scope.USER).param("fromDate", String.valueOf(fromDate));
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$[7].name").value(NEWGROUP_11));
+		.andExpect(content().string(allOf(containsString(NEWGROUP_4), containsString(NEWGROUP_5), containsString(NEWGROUP_6), containsString(NEWGROUP_7), containsString(NEWGROUP_8), containsString(NEWGROUP_9), containsString(NEWGROUP_10), containsString(NEWGROUP_11))));
 	}
 	
 	@Test
@@ -260,7 +263,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		Long toDate = 0L;
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
 		try {
-			toDate = formatter.parse("28-02-2014").getTime();
+			toDate = formatter.parse("03-03-2014").getTime();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
@@ -268,7 +271,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(get("/user/group"), Scope.USER).param("toDate", String.valueOf(toDate)).param("pageSize", "5");
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$[4].name").value(NEWGROUP_5));
+		.andExpect(content().string(allOf(containsString(NEWGROUP_1), containsString(NEWGROUP_2), containsString(NEWGROUP_3), containsString(NEWGROUP_4), containsString(NEWGROUP_5))));
 	}
 	
 	@Test
@@ -276,7 +279,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(get("/user/group/{id}", GROUP_ID_1), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWGROUP_1));
+		.andExpect(content().string(containsString(NEWGROUP_1)));
 	}
 	
 	@Test
@@ -301,7 +304,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(put("/user/group/{id}", GROUP_ID_2), Scope.USER).content(convertObjectToJsonString(editGroup));
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(EDITGROUP_1));
+		.andExpect(content().string(containsString(EDITGROUP_1)));
 	}
 	
 	@Test
@@ -336,7 +339,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2).param("userIds", GROUP_MEMB_3);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(content().string("true"));
+		.andExpect(content().string(containsString("true")));
 	}
 	
 	@Test
@@ -344,7 +347,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("userIds", "").param("userIds", "");
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(content().string("true"));
+		.andExpect(content().string(containsString("true")));
 	}
 	
 	@Test
@@ -360,7 +363,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/members", GROUP_NEX_ID), Scope.USER).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2).param("userIds", GROUP_MEMB_3);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(content().string("true"));
+		.andExpect(content().string(containsString("true")));
 	}
 	
 	@Test
@@ -368,7 +371,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_2), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$[0]").value(GROUP_MEMB_1));
+		.andExpect(content().string(allOf(containsString(GROUP_MEMB_1), containsString(GROUP_MEMB_2), containsString(GROUP_MEMB_3))));
 	}
 	
 	@Test
@@ -376,7 +379,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_3), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(content().string("[]"));
+		.andExpect(content().string(containsString("[ ]")));
 	}	
 
 	@Test
@@ -392,7 +395,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(get("/user/group/{id}/members", GROUP_NEX_ID), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(content().string("[]"));
+		.andExpect(content().string(containsString("[ ]")));
 	}
 	
 	@Test
@@ -401,17 +404,17 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("userIds", "45").param("userIds", "46").param("userIds", "47");
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(content().string("true"));
+		.andExpect(content().string(containsString("true")));
 		
 		request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("pageSize", "5");
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$[0]").value(GROUP_MEMB_1));
+		.andExpect(content().string(allOf(containsString(GROUP_MEMB_1), containsString(GROUP_MEMB_2), containsString(GROUP_MEMB_3), containsString("45"), containsString("46"))));
 		
 		request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("pageNum", "1").param("pageSize", "5");
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$[0]").value("47"));
+		.andExpect(content().string(containsString("47")));
 	}	
 	
 	@Test
@@ -419,7 +422,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(content().string("true"));
+		.andExpect(content().string(containsString("true")));
 	}
 	
 	@Test
@@ -427,7 +430,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("userIds", "").param("userIds", "");
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(content().string("true"));
+		.andExpect(content().string(containsString("true")));
 	}	
 	
 	@Test
@@ -443,7 +446,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_NEX_ID), Scope.USER).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(content().string("true"));
+		.andExpect(content().string(containsString("true")));
 	}
 	
 	@Test
@@ -451,7 +454,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_NEX_ID), Scope.USER).param("userIds", GROUP_MEMB_4);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(content().string("true"));
+		.andExpect(content().string(containsString("true")));
 	}		
 	
 	@Test
@@ -460,26 +463,26 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}", GROUP_ID_1), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		response = setDefaultResult(response)
-		.andExpect(content().string("true"));
+		.andExpect(content().string(containsString("true")));
 		
 		// Delete first group
 		request = setDefaultRequest(delete("/user/group/{id}", GROUP_ID_2), Scope.USER);
 		response = mockMvc.perform(request);
 		response = setDefaultResult(response)
-		.andExpect(content().string("true"));
+		.andExpect(content().string(containsString("true")));
 		
 		// Delete first group
 		request = setDefaultRequest(delete("/user/group/{id}", GROUP_ID_3), Scope.USER);
 		response = mockMvc.perform(request);
 		response = setDefaultResult(response)
-		.andExpect(content().string("true"));
+		.andExpect(content().string(containsString("true")));
 		
 		// Delete all the other groups
 		for (int i = 4; i < 11; i++){
 			request = setDefaultRequest(delete("/user/group/{id}", String.valueOf(i)), Scope.USER);
 			response = mockMvc.perform(request);
 			response = setDefaultResult(response)
-				.andExpect(content().string("true"));
+					.andExpect(content().string(containsString("true")));
 		}
 	}	
 	
@@ -489,7 +492,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}", GROUP_ID_1), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		response = setDefaultResult(response)
-		.andExpect(content().string("true"));
+		.andExpect(content().string(containsString("true")));
 	}
 	
 	@Test

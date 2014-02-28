@@ -20,7 +20,7 @@ public class SCControllerTest {
 		USER, CLIENT
 	};
 
-	private static final String USER_AUTH_TOKEN = "106938c7-6225-4a50-b884-be4925f06cf3";
+	private static final String USER_AUTH_TOKEN = "80478305-7d7f-4d78-b3f6-3bf0749da62e";
 	private static final String CLIENT_AUTH_TOKEN = "bba5843c-9582-41a2-922e-a59b4c7db926";
 
 	/** Controller utilities **/
@@ -85,12 +85,10 @@ public class SCControllerTest {
 
 	protected ResultActions setIllegalArgumentExceptionResult(
 			ResultActions result) throws Exception {
-		return result.andDo(print()).andExpect(status().isBadRequest())
-				.andExpect(content().string(""));
+		return result.andDo(print()).andExpect(status().isBadRequest());
 	}
 	
 	protected ResultActions setNullResult(ResultActions result) throws Exception{
-		//return result.andDo(print()).andExpect(status().isOk()).andExpect(content().string(""));
 		return result.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.data").value("null"));
 	}
 	

@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 
 import eu.trentorise.smartcampus.social.engine.EntityTypeOperations;
 import eu.trentorise.smartcampus.social.engine.beans.EntityType;
@@ -43,7 +44,7 @@ public class SocialTypeManager implements EntityTypeOperations {
 			.getLogger(SocialGroupManager.class);
 
 	@Override
-	public EntityType create(String name, String mimeType) {
+	public EntityType create(String name, String mimeType){
 		SocialType newType = null;
 		EntityType createdType = null;
 		if(!StringUtils.hasLength(name)){ 

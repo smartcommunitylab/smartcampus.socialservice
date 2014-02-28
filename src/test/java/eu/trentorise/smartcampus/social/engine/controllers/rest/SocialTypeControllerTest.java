@@ -133,10 +133,11 @@ public class SocialTypeControllerTest extends SCControllerTest{
 	}
 	
 	@Test
-	public void test23_setTypeNotAllowedMimeType() throws Exception {  
+	public void test23_setTypeNotAllowedMimeType() throws Exception {
+		String errCode = "400";
 		RequestBuilder request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_1).param("mimeType", MIME_TYPE_ERR);
 		ResultActions response = mockMvc.perform(request);
-		setIllegalArgumentExceptionResult(response);
+		setIllegalArgumentExceptionResult(response).andExpect(content().string(containsString(errCode)));
 	}
 	
 	@Test
@@ -167,7 +168,7 @@ public class SocialTypeControllerTest extends SCControllerTest{
 		RequestBuilder request = setDefaultRequest(get("/user/type/{typeId}", typeId), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(jsonPath("$.name").value(NEWTYPE_3));
+		.andExpect(content().string(containsString(NEWTYPE_3)));
 	}
 	
 	@SuppressWarnings("unchecked")

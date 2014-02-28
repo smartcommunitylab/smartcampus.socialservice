@@ -17,6 +17,12 @@ public class Result {
 		this.data = data;
 	}
 	
+	public Result(Exception ex, int errCode){
+		super();
+		this.errorMessage = ex.getMessage();
+		this.setErrorCode(String.valueOf(errCode));
+	}
+	
 	public Result(Object toJson) throws JsonGenerationException, JsonMappingException, IOException{
 		super();
 		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
@@ -40,6 +46,11 @@ public class Result {
 	}
 	public void setErrorMessage(String errorMessage) {
 		this.errorMessage = errorMessage;
+	}
+	
+	public static String resultToJsonString(Result result) throws Exception{
+		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+		return ow.writeValueAsString(result);
 	}
 
 	

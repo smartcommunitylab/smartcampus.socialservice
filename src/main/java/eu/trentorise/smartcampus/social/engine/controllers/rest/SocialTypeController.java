@@ -5,7 +5,6 @@ import java.io.IOException;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,7 +32,7 @@ public class SocialTypeController extends RestController {
 	Result createEntityType(
 			@RequestParam(value = "name", required = true) String name,
 			@RequestParam(value = "mimeType", required = true) String mimeType)
-			throws SocialServiceException {
+			throws SocialServiceException  {
 
 		Result result = null;
 		try {
@@ -47,11 +46,8 @@ public class SocialTypeController extends RestController {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IllegalArgumentException e){
-			result = new Result("");
-			result.setErrorCode(HttpStatus.BAD_REQUEST.toString());
-			result.setErrorMessage(e.getMessage());
 		}
+		
 		return result;
 	}
 	
@@ -72,10 +68,6 @@ public class SocialTypeController extends RestController {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IllegalArgumentException e){
-			result = new Result("");
-			result.setErrorCode(HttpStatus.BAD_REQUEST.toString());
-			result.setErrorMessage(e.getMessage());
 		}
 		
 		return result;
@@ -107,10 +99,6 @@ public class SocialTypeController extends RestController {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IllegalArgumentException e){
-			result = new Result("");
-			result.setErrorCode(HttpStatus.BAD_REQUEST.toString());
-			result.setErrorMessage(e.getMessage());
 		}
 		
 		return result;

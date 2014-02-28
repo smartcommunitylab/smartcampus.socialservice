@@ -49,6 +49,6 @@
     <bean id="authServices" class="eu.trentorise.smartcampus.social.managers.MockAuthServices"/>	
     
     <!-- Smartcampus Exception resolver -->
-	<bean id="exceptionResolver" class="eu.trentorise.smartcampus.social.engine.controllers.rest.SCExceptionResolver" />
+<!-- 	<bean id="exceptionResolver" class="eu.trentorise.smartcampus.social.engine.controllers.rest.SCExceptionResolver" /> -->
 
 </beans>

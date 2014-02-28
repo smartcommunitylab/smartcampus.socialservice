@@ -16,9 +16,10 @@
 package eu.trentorise.smartcampus.social.engine.controllers.rest;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Set;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -33,6 +34,7 @@ import eu.trentorise.smartcampus.social.managers.PermissionManager;
 import eu.trentorise.smartcampus.social.managers.SocialGroupManager;
 import eu.trentorise.smartcampus.social.managers.SocialServiceException;
 import eu.trentorise.smartcampus.social.engine.beans.Group;
+import eu.trentorise.smartcampus.social.engine.beans.Result;
 
 @Controller("groupController")
 public class SocialGroupController extends RestController {
@@ -46,56 +48,112 @@ public class SocialGroupController extends RestController {
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/user/group")
 	public @ResponseBody
-	List<Group> getUserGroups(
+	Result getUserGroups(
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
 			@RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
 			@RequestParam(value = "toDate", required = false) Long toDate)
 			throws SocialServiceException {
 		String userId = getUserId();
+		
+		Result result = null;
+		try{
+			result = new Result(groupManager.readGroups(userId, setLimit(pageNum, pageSize, fromDate, toDate)));
+		} catch (JsonGenerationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-		return groupManager.readGroups(userId, setLimit(pageNum, pageSize, fromDate, toDate));
+		return result;
 	}
 	
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/user/group/{groupId}")
 	public @ResponseBody
-	Group getUserGroup(@PathVariable String groupId) throws SocialServiceException{
+	Result getUserGroup(@PathVariable String groupId) throws SocialServiceException{
 		String userId = getUserId();
 		
 		if(!permissionManager.checkGroupPermission(userId, groupId)){
-			throw new SecurityException();
+			throw new SecurityException(String.format("User '%s' has not permission to read group '%s'", userId, groupId));
 		}
 		
-		return groupManager.readGroup(groupId);
+		Result result = null;
+		try{
+			result = new Result(groupManager.readGroup(groupId));
+		} catch (JsonGenerationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 	
 	
 	@RequestMapping(method = RequestMethod.POST, value = "/user/group")
 	public @ResponseBody 
-	Group createUserGroup(@RequestBody Group groupInRequest) throws SocialServiceException, IOException{
+	Result createUserGroup(@RequestBody Group groupInRequest) throws SocialServiceException, IOException{
 		String userId = getUserId();
 		
-		return groupManager.create(userId, groupInRequest.getName());
+		Result result = null;
+		try{
+			result = new Result(groupManager.create(userId, groupInRequest.getName()));
+		}catch (JsonGenerationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 	
 	
 	@RequestMapping(method = RequestMethod.DELETE, value = "/user/group/{groupId}")
 	public @ResponseBody
-	boolean deleteGroup(@PathVariable String groupId) throws SocialServiceException {
+	Result deleteGroup(@PathVariable String groupId) throws SocialServiceException {
 		String userId = getUserId();
 		
 		if(!permissionManager.checkGroupPermission(userId, groupId)){
-			throw new SecurityException();
+			throw new SecurityException(String.format("User '%s' has not permission to delete group '%s'", userId, groupId));
 		}
 		
-		return groupManager.delete(groupId);
+		Result result = null;
+		try{
+			result = new Result(groupManager.delete(groupId));
+		} catch (JsonGenerationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 	
 	
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/group/{groupId}")
 	public @ResponseBody
-	Group updateGroup(@PathVariable("groupId") String groupId, @RequestBody Group groupInRequest) throws SocialServiceException {
+	Result updateGroup(@PathVariable("groupId") String groupId, @RequestBody Group groupInRequest) throws SocialServiceException {
 		String userId = getUserId();
 		
 		if (!StringUtils.hasLength(groupId)) {
@@ -103,10 +161,24 @@ public class SocialGroupController extends RestController {
 		}
 		
 		if(!permissionManager.checkGroupPermission(userId, groupId)){
-			throw new SecurityException();
+			throw new SecurityException(String.format("User '%s' has not permission to update group '%s'", userId, groupId));
 		}
 		
-		return groupManager.update(groupId, groupInRequest.getName());
+		Result result = null;
+		try{
+			result = new Result(groupManager.update(groupId, groupInRequest.getName()));
+		} catch (JsonGenerationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 	
 	//------------------------------------------------------------------------------------------------------------------
@@ -114,54 +186,110 @@ public class SocialGroupController extends RestController {
 	//------------------------------------------------------------------------------------------------------------------
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/group/{groupId}/test")
 	public @ResponseBody
-	Group updateGroupTest(@PathVariable("groupId") String groupId, @RequestParam Long updateTime) throws SocialServiceException {
+	Result updateGroupTest(@PathVariable("groupId") String groupId, @RequestParam Long updateTime) throws SocialServiceException {
 		String userId = getUserId();
 		
 		if(!permissionManager.checkGroupPermission(userId, groupId)){
-			throw new SecurityException();
+			throw new SecurityException(String.format("User '%s' has not permission to update group '%s'", userId, groupId));
 		}
 		
-		return groupManager.update(groupId, updateTime);
+		Result result = null;
+		try{
+			result = new Result(groupManager.update(groupId, updateTime));
+		} catch (JsonGenerationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
 	}	
 
 	@RequestMapping(method = RequestMethod.GET, value = "/user/group/{groupId}/members")
 	public @ResponseBody
-	List<String> getMembers(@PathVariable("groupId") String groupId,
+	Result getMembers(@PathVariable("groupId") String groupId,
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
 			@RequestParam(value = "pageSize", required = false) Integer pageSize)
 			throws SocialServiceException {
 		String userId = getUserId();
 		
 		if(!permissionManager.checkGroupPermission(userId, groupId)){
-			throw new SecurityException();
+			throw new SecurityException(String.format("User '%s' has not permission to getMenbers from group '%s'", userId, groupId));
 		}
 		
-		return groupManager.readMembersAsString(groupId, setLimit(pageNum, pageSize, null, null));
+		Result result = null;
+		try{
+			result = new Result(groupManager.readMembersAsString(groupId, setLimit(pageNum, pageSize, null, null)));
+		} catch (JsonGenerationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 	
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/group/{groupId}/members")
 	public @ResponseBody
-	boolean addMembers(@PathVariable("groupId") String groupId, @RequestParam("userIds") Set<String> userIds) throws SocialServiceException {
+	Result addMembers(@PathVariable("groupId") String groupId, @RequestParam("userIds") Set<String> userIds) throws SocialServiceException {
 		String userId = getUserId();
 		
 		if(!permissionManager.checkGroupPermission(userId, groupId)){
-			throw new SecurityException();
+			throw new SecurityException(String.format("User '%s' has not permission to addMenbers to group '%s'", userId, groupId));
 		}
 		
-		return groupManager.addMembers(groupId, userIds);
+		Result result = null;
+		try{
+			result = new Result(groupManager.addMembers(groupId, userIds));
+		} catch (JsonGenerationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 	
 	
 	@RequestMapping(method = RequestMethod.DELETE, value = "/user/group/{groupId}/members")
 	public @ResponseBody
-	boolean removeMembers(@PathVariable("groupId") String groupId, @RequestParam("userIds") Set<String> userIds) throws SocialServiceException {
+	Result removeMembers(@PathVariable("groupId") String groupId, @RequestParam("userIds") Set<String> userIds) throws SocialServiceException {
 		String userId = getUserId();
 		
 		if(!permissionManager.checkGroupPermission(userId, groupId)){
-			throw new SecurityException();
+			throw new SecurityException(String.format("User '%s' has not permission to removeMenbers from group '%s'", userId, groupId));
 		}
 		
-		return groupManager.removeMembers(groupId, userIds);
+		Result result = null;
+		try{
+			result = new Result(groupManager.removeMembers(groupId, userIds));
+		} catch (JsonGenerationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 	
 
