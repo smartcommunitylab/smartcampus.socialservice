@@ -84,7 +84,7 @@ public class SharingPerformanceTest {
 		long startTime = System.currentTimeMillis();
 		String user = USERS[rand.nextInt(USERS.length)];
 		Limit limit = null;
-		List<Entity> res = entityManager.readShared(user, limit);
+		List<Entity> res = entityManager.readShared(user, false, limit);
 		DecimalFormat formatter = (DecimalFormat) DecimalFormat.getInstance();
 		formatter.setMaximumFractionDigits(2);
 		System.out.println(String.format(
