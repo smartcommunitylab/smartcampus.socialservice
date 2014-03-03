@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,8 @@ import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 @Component
 @Transactional
 public class EntityManager implements EntityOperations {
+
+	private static final Logger logger = Logger.getLogger(EntityManager.class);
 
 	@Autowired
 	EntityRepository entityRepository;
@@ -108,12 +111,24 @@ public class EntityManager implements EntityOperations {
 	}
 
 	@Override
-	public List<Entity> readShared(String actorId, Limit limit) {
+	public List<Entity> readShared(String actorId, boolean isCommunity,
+			Limit limit) {
 		Set<SocialEntity> result = new HashSet<SocialEntity>();
-		result.addAll(entityRepository.findByUserSharedWith(actorId));
-		result.addAll(entityRepository.findByGroupSharedWith(actorId));
-		result.addAll(entityRepository.findByCommunitySharedWith(actorId));
+		if (!isCommunity) {
+			result.addAll(entityRepository.findByUserSharedWith(actorId));
+			result.addAll(entityRepository.findByGroupSharedWith(actorId));
+			result.addAll(entityRepository.findByCommunitySharedWith(actorId));
+		} else {
+			try {
+				result.addAll(entityRepository
+						.findBySharedWithCommunity(new Long(actorId)));
+			} catch (NumberFormatException e) {
+				logger.warn(String.format("%s is not valid community id",
+						actorId));
+			}
+		}
 		result.addAll(entityRepository.findPublicEntities(actorId));
+
 		return SocialEntity.toEntity(result);
 	}
 
@@ -239,16 +254,20 @@ public class EntityManager implements EntityOperations {
 	}
 
 	@Override
-	public Entity readShared(String actorId, String uri) {
-		SocialEntity entity = entityRepository.findByUserSharedWith(actorId,
-				uri);
-		if (entity == null) {
-			entity = entityRepository.findByGroupSharedWith(actorId, uri);
+	public Entity readShared(String actorId, boolean isCommunity, String uri) {
+		SocialEntity entity = null;
+		if (!isCommunity) {
+			entity = entityRepository.findByUserSharedWith(actorId, uri);
+			if (entity == null) {
+				entity = entityRepository.findByGroupSharedWith(actorId, uri);
+			}
+			if (entity == null) {
+				entity = entityRepository.findByCommunitySharedWith(actorId,
+						uri);
+			}
+		} else {
+			entity = entityRepository.findBySharedWithCommunity(actorId, uri);
 		}
-		if (entity == null) {
-			entity = entityRepository.findByCommunitySharedWith(actorId, uri);
-		}
-
 		if (entity == null) {
 			entity = entityRepository.findPublicEntities(actorId, uri);
 		}

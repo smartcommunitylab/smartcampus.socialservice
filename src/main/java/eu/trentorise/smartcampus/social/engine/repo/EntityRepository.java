@@ -17,6 +17,7 @@ public interface EntityRepository extends
 	public List<SocialEntity> findByOwnerOrCommunityOwner(SocialUser owner,
 			SocialCommunity communityOwner);
 
+	/** find all entities shared with user */
 	@Query("SELECT se FROM SocialEntity se WHERE ?1 MEMBER OF se.usersSharedWith AND (?1 <> se.owner.id OR ?1 <> se.communityOwner.id)")
 	public List<SocialEntity> findByUserSharedWith(String userId);
 
@@ -29,6 +30,7 @@ public interface EntityRepository extends
 	@Query("SELECT se FROM SocialEntity se WHERE publicShared=true AND (?1 <> se.owner.id OR ?1 <> se.communityOwner.id)")
 	public List<SocialEntity> findPublicEntities(String userId);
 
+	/** find entity shared with user */
 	@Query("SELECT se FROM SocialEntity se WHERE ?2=se.id AND ?1 MEMBER OF se.usersSharedWith AND (?1 <> se.owner.id OR ?1 <> se.communityOwner.id)")
 	public SocialEntity findByUserSharedWith(String userId, String uri);
 
@@ -40,6 +42,13 @@ public interface EntityRepository extends
 
 	@Query("SELECT se FROM SocialEntity se WHERE publicShared=true AND ?2=se.id AND (?1 <> se.owner.id OR ?1 <> se.communityOwner.id)")
 	public SocialEntity findPublicEntities(String userId, String uri);
+
+	/** find entities shared with community */
+	@Query("SELECT se FROM SocialEntity se, IN (se.communitiesSharedWith) AS comm WHERE ?1=comm.id")
+	public List<SocialEntity> findBySharedWithCommunity(Long communityId);
+
+	@Query("SELECT se FROM SocialEntity se, IN (se.communitiesSharedWith) AS comm WHERE ?2=se.id AND ?1 MEMBER OF comm.id AND (?1 <> se.owner.id OR ?1 <> se.communityOwner.id)")
+	public SocialEntity findBySharedWithCommunity(String communityId, String uri);
 
 	public List<SocialEntity> findByPublicShared(boolean publicShared);
 }

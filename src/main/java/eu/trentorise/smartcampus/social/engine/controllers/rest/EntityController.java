@@ -102,7 +102,7 @@ public class EntityController extends RestController {
 	@RequestMapping(method = RequestMethod.GET, value = "/user/entity/sharing")
 	public @ResponseBody
 	List<Entity> readSharedEntities() {
-		return entityManager.readShared(getUserId(),
+		return entityManager.readShared(getUserId(), false,
 				setLimit(null, null, null, null));
 
 	}
@@ -111,7 +111,7 @@ public class EntityController extends RestController {
 	public @ResponseBody
 	Entity readSharedEntity(@PathVariable String appId,
 			@PathVariable String localId) {
-		return entityManager.readShared(getUserId(),
+		return entityManager.readShared(getUserId(), false,
 				entityManager.defineUri(appId, localId));
 	}
 
