@@ -10,6 +10,7 @@
 	xsi:noNamespaceSchemaLocation="classpath:../../../../resource.api/src/main/resources/jaxb/binding/"> 
 
     <resource id="communityId"/>
+    <resource id="entityId"/>
     <resource id="appId"/>
 
     <!-- user groups -->
@@ -56,7 +57,25 @@
         pathPattern="/user/entities" method="POST"/>
     <resourceMapping uri="socialservice.user.entities.write" 
         pathPattern="/user/entities/{eid}" method="PUT,DELETE"/>
-        
+     
+     <!-- sharing: new mappings -->
+     <resourceMapping uri="socialservice.user.entities.write" 
+        pathPattern="/user/{appId}/entity" method="POST"/>
+     <resourceMapping uri="socialservice.community.{appId}.entities.write" 
+        pathPattern="/app/{appId}/community/{communityId}/entity" method="POST"/>
+     <resourceMapping uri="socialservice.user.entities.read" 
+        pathPattern="/user/entity" method="GET"/>
+     <resourceMapping uri="socialservice.user.entities.read" 
+        pathPattern="/user/{appId}/entity/{entityId}" method="GET"/>
+      <resourceMapping uri="socialservice.community.{appId}.entities.read" 
+        pathPattern="/app/{appId}/community/{communityId}/entity" method="GET"/>
+     <resourceMapping uri="socialservice.community.{appId}.entities.read" 
+        pathPattern="/app/{appId}/community/{communityId}/entity/{entityId}" method="GET"/>
+    <resourceMapping uri="socialservice.user.shared.read" 
+        pathPattern="/user/entity/sharing" method="GET"/>
+     <resourceMapping uri="socialservice.user.shared.read" 
+        pathPattern="/user/entity/sharing/{entityId}" method="GET"/>
+     
     <!-- community entities -->
     <resourceMapping uri="socialservice.community.{cid}.entities.read" 
         pathPattern="/community/{cid}/entities" method="GET"/>
