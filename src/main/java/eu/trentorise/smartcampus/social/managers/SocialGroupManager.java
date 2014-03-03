@@ -9,6 +9,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -32,8 +34,15 @@ public class SocialGroupManager implements GroupOperations {
 	@Autowired
 	SocialUserManager userManager;
 	
+	private static final String memberSort = "userId";
 	private static final Logger logger = Logger.getLogger(SocialGroupManager.class);
 	
+	
+	
+	public static String getMembersort() {
+		return memberSort;
+	}
+
 	@Override
 	public Group create(String userId, String name) {
 		if (!StringUtils.hasLength(userId)) {
@@ -72,13 +81,18 @@ public class SocialGroupManager implements GroupOperations {
 
 	@Override
 	public List<Group> readGroups(String userId, Limit limit) {
-		
+		Pageable pageable = null;
 		List<SocialGroup> groups = null;
 		// load user
 		SocialUser user = userManager.readSocialUser(userId);
 		if(user != null){
 			if(limit != null){
-				Pageable pageable = new PageRequest(limit.getPage(), limit.getPageSize());
+				if(limit.getSortList() != null && !limit.getSortList().isEmpty()){
+					Sort sort = new Sort(limit.getDirection() == 0 ? Direction.ASC : Direction.DESC, limit.getSortList());
+					pageable = new PageRequest(limit.getPage(), limit.getPageSize(), sort);
+				} else {
+					pageable = new PageRequest(limit.getPage(), limit.getPageSize());
+				}
 				if(limit.getFromDate() > 0 && limit.getToDate() > 0){
 					groups = groupRepository.findByCreatorIdAndCreationTimeBetween(userId, limit.getFromDate(), limit.getToDate(), pageable);
 				} else if(limit.getFromDate() > 0){
@@ -127,9 +141,10 @@ public class SocialGroupManager implements GroupOperations {
 				}
 				//To sort the list
 				List<User> unsorted = members.subList(0, members.size());	//Get all the list
-				members = RepositoryUtils.asSortedList(unsorted);
-				
 				if(limit != null){
+					if(limit.getSortList() != null && !limit.getSortList().isEmpty() && limit.getSortList().get(0).compareTo(memberSort) == 0){
+						members = RepositoryUtils.asSortedList(unsorted, limit.getDirection());
+					}
 					return (List<User>) RepositoryUtils.getSublistPagination(members, limit);
 				} else {
 					logger.warn("No limit specified for this search.");
@@ -157,9 +172,10 @@ public class SocialGroupManager implements GroupOperations {
 				}
 				//To sort the list
 				List<String> unsorted = members.subList(0, members.size());	//Get all the list
-				members = RepositoryUtils.asSortedList(unsorted);
-				
 				if(limit != null){
+					if(limit.getSortList() != null && !limit.getSortList().isEmpty() && limit.getSortList().get(0).compareTo("userId") == 0){
+						members = RepositoryUtils.asSortedList(unsorted, limit.getDirection());
+					}
 					return (List<String>) RepositoryUtils.getSublistPagination(members, limit);
 				} else {
 					logger.info("No limit specified for this search.");

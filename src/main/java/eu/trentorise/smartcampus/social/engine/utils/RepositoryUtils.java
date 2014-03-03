@@ -2,6 +2,7 @@ package eu.trentorise.smartcampus.social.engine.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
@@ -34,9 +35,13 @@ public class RepositoryUtils {
 	}
 
 	public static <T extends Comparable<? super T>> List<T> asSortedList(
-			Collection<T> c) {
+			Collection<T> c, int direction) {
 		List<T> list = new ArrayList<T>(c);
-		java.util.Collections.sort(list);
+		if(direction == 0){
+			java.util.Collections.sort(list);
+		} else {
+			java.util.Collections.sort(list, Collections.reverseOrder());
+		}
 		return list;
 	}
 

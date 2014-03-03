@@ -1,8 +1,13 @@
 package eu.trentorise.smartcampus.social.engine.beans;
 
+import java.util.List;
+
 public class Limit {
 	private int page;
 	private int pageSize;
+	
+	private List<String> sortList;
+	private int direction = 0;		//0 -> asc, 1 -> desc;
 
 	private long fromDate;
 	private long toDate;
@@ -21,6 +26,22 @@ public class Limit {
 
 	public void setPageSize(int pageSize) {
 		this.pageSize = pageSize;
+	}
+
+	public List<String> getSortList() {
+		return sortList;
+	}
+
+	public int getDirection() {
+		return direction;
+	}
+
+	public void setSortList(List<String> sortList) {
+		this.sortList = sortList;
+	}
+
+	public void setDirection(int direction) {
+		this.direction = direction;
 	}
 
 	public long getFromDate() {

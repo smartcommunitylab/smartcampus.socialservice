@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 
@@ -62,5 +63,14 @@ public class SocialControllerExceptionHandler {
         return result;
     }
     
+    // PropertyReferenceException
+    @ExceptionHandler(PropertyReferenceException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    Result handlePropertyReferenceException(Exception ex) {
+        Result result = new Result(ex, HttpStatus.BAD_REQUEST.value());
+        result.setErrorCode(HttpStatus.BAD_REQUEST.toString());
+        return result;
+    }
 
 }

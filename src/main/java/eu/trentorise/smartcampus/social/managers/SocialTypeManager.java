@@ -7,10 +7,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.MissingServletRequestParameterException;
 
 import eu.trentorise.smartcampus.social.engine.EntityTypeOperations;
 import eu.trentorise.smartcampus.social.engine.beans.EntityType;
@@ -27,6 +28,7 @@ public class SocialTypeManager implements EntityTypeOperations {
 	private static final ArrayList<String> allowedMimeType = new CustomStringList(
 			Arrays.asList("image/jpg", "image/gif", "image/tif", "image/png", "image/bmp",
 					"image/psd", "image/tbm", "image/drw", "image/ps", "image/jpx",
+					"image/raw", "image/ppm", "image/webp", "image/hdr", "image/pam", 
 					"audio/aif", "audio/iff", "audio/m3u", "audio/m4a", "audio/mid",
 					"audio/mp3", "audio/mpa", "audio/ra", "audio/wav",
 					"audio/wma", "video/avi", "video/3gp", "video/asx",
@@ -158,7 +160,12 @@ public class SocialTypeManager implements EntityTypeOperations {
 		List<SocialType> readedTypes = null;
 		if(limit != null){
 			if (limit.getPage() >= 0 && limit.getPageSize() > 0) {
-				page = new PageRequest(limit.getPage(), limit.getPageSize());
+				if(limit.getSortList() != null && !limit.getSortList().isEmpty()){
+					Sort sort = new Sort(limit.getDirection() == 0 ? Direction.ASC : Direction.DESC, limit.getSortList());
+					page = new PageRequest(limit.getPage(), limit.getPageSize(), sort);
+				} else {
+					page = new PageRequest(limit.getPage(), limit.getPageSize());
+				}
 			}
 		}
 		readedTypes = typeRepository.findAll(page).getContent();
@@ -177,7 +184,12 @@ public class SocialTypeManager implements EntityTypeOperations {
 			String normalizedName = RepositoryUtils.normalizeString(name);
 			if(limit != null){
 				if (limit.getPage() >= 0 && limit.getPageSize() > 0) {
-					page = new PageRequest(limit.getPage(), limit.getPageSize());
+					if(limit.getSortList() != null && !limit.getSortList().isEmpty()){
+						Sort sort = new Sort(limit.getDirection() == 0 ? Direction.ASC : Direction.DESC, limit.getSortList());
+						page = new PageRequest(limit.getPage(), limit.getPageSize(), sort);
+					} else {
+						page = new PageRequest(limit.getPage(), limit.getPageSize());
+					}
 				}
 			}
 			readedTypes = typeRepository.findByNameIgnoreCase(
@@ -200,7 +212,12 @@ public class SocialTypeManager implements EntityTypeOperations {
 		if(StringUtils.hasLength(mimeType)){
 			if(limit != null){
 				if (limit.getPage() >= 0 && limit.getPageSize() > 0) {
-					page = new PageRequest(limit.getPage(), limit.getPageSize());
+					if(limit.getSortList() != null && !limit.getSortList().isEmpty()){
+						Sort sort = new Sort(limit.getDirection() == 0 ? Direction.ASC : Direction.DESC, limit.getSortList());
+						page = new PageRequest(limit.getPage(), limit.getPageSize(), sort);
+					} else {
+						page = new PageRequest(limit.getPage(), limit.getPageSize());
+					}
 				}
 			}
 			readedTypes = typeRepository.findByMimeType(mimeType,

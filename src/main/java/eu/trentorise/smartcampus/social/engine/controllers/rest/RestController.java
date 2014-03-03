@@ -16,6 +16,10 @@
 
 package eu.trentorise.smartcampus.social.engine.controllers.rest;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -50,18 +54,30 @@ public class RestController extends SCController {
 	 * @return Limit limit created by the input parameters
 	 */
 	protected Limit setLimit(Integer pageNum, Integer pageSize, Long fromDate,
-			Long toDate) {
+			Long toDate, Integer sortDirection, Set<String> sortList) {
 		Limit limit = new Limit();
 		int page = INIT_PAGE;
 		int page_size = INIT_PAGE_SIZE;
 		long from_date = 0L;
 		long to_date = 0L;
-		if ((pageNum == null) && (pageSize == null) && (fromDate == null) && (toDate == null)) {
+		if ((pageNum == null) && (pageSize == null) && (fromDate == null) && (toDate == null) && (sortDirection == null) && (sortList == null)) {
 			limit = null;
 		} else {
 			// init the limit pageNumber and pageSize value to the default
 			limit.setPage(page);
 			limit.setPageSize(page_size);
+			
+			// sorting options
+			if(sortDirection != null){
+				limit.setDirection(sortDirection.intValue());
+			}
+			if(sortList != null && !sortList.isEmpty()){
+				List<String> sortParams = new ArrayList<String>();
+				for(String param : sortList){
+					sortParams.add(param);
+				}
+				limit.setSortList(sortParams);
+			}
 
 			if (pageNum != null) {
 				page = pageNum.intValue();

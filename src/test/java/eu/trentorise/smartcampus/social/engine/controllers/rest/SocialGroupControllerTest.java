@@ -212,7 +212,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
 		try {
 			fromDate = formatter.parse("01-03-2013").getTime();
-			toDate = formatter.parse("03-03-2014").getTime();
+			toDate = formatter.parse("10-03-2014").getTime();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
@@ -230,7 +230,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
 		try {
 			fromDate = formatter.parse("01-03-2013").getTime();
-			toDate = formatter.parse("03-03-2014").getTime();
+			toDate = formatter.parse("10-03-2014").getTime();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
@@ -263,7 +263,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		Long toDate = 0L;
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
 		try {
-			toDate = formatter.parse("03-03-2014").getTime();
+			toDate = formatter.parse("10-03-2014").getTime();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
@@ -272,6 +272,54 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString(NEWGROUP_1), containsString(NEWGROUP_2), containsString(NEWGROUP_3), containsString(NEWGROUP_4), containsString(NEWGROUP_5))));
+	}
+	
+	@Test
+	public void test26_readGroupsWithLimitAndSort() throws Exception {
+		// sort by name and creationTime
+		RequestBuilder request = setDefaultRequest(get("/user/group"), Scope.USER).param("pageNum", "1").param("pageSize", "5").param("sortList", "name").param("sortList", "creationTime");
+		ResultActions response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string(allOf(containsString(NEWGROUP_4), containsString(NEWGROUP_5), containsString(NEWGROUP_6), containsString(NEWGROUP_7), containsString(NEWGROUP_8))));
+		
+		// sort by lastModifiedTime desc (+ pagination toDate)
+		Long toDate = 0L;
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
+		try {
+			toDate = formatter.parse("10-03-2014").getTime();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+		request = setDefaultRequest(get("/user/group"), Scope.USER).param("toDate", String.valueOf(toDate)).param("pageSize", "5").param("sortList", "lastModifiedTime").param("sortDirection", "1");
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string(allOf(containsString(NEWGROUP_3), containsString(NEWGROUP_2), containsString(NEWGROUP_1), containsString(NEWGROUP_8), containsString(NEWGROUP_7))));
+	
+		// sort by name desc (+ pagination date in range) 
+		updateGroupsDate();
+		Long fromDate = 0L;
+		toDate = 0L;
+		try {
+			fromDate = formatter.parse("01-03-2013").getTime();
+			toDate = formatter.parse("10-03-2014").getTime();
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+		request = setDefaultRequest(get("/user/group"), Scope.USER).param("fromDate", String.valueOf(fromDate)).param("toDate", String.valueOf(toDate)).param("sortList", "name").param("sortDirection", "1");
+		//request = setDefaultRequest(get("/user/group"), Scope.USER).param("fromDate", String.valueOf(fromDate)).param("toDate", String.valueOf(toDate)).param("sortList", "creatorId").param("sortDirection", "1");
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string(allOf(containsString(NEWGROUP_8), containsString(NEWGROUP_7), containsString(NEWGROUP_6), containsString(NEWGROUP_5), containsString(NEWGROUP_4), containsString(NEWGROUP_3))));
+	}
+	
+	@Test
+	public void test27_readGroupsWithLimitAndSortErrParam() throws Exception {
+		// sort by name and creationTime
+		RequestBuilder request = setDefaultRequest(get("/user/group"), Scope.USER).param("pageNum", "1").param("pageSize", "5").param("sortList", "name").param("sortList", "creation_time");
+		ResultActions response = mockMvc.perform(request);
+		setIllegalArgumentExceptionResult(response);
 	}
 	
 	@Test
@@ -399,7 +447,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 	}
 	
 	@Test
-	public void test64_readGroupMembersPageLimit() throws Exception {
+	public void test64_readGroupMembersPageLimitAndSort() throws Exception {
 		//Add 3 other members to group2
 		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("userIds", "45").param("userIds", "46").param("userIds", "47");
 		ResultActions response = mockMvc.perform(request);
@@ -415,6 +463,23 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString("47")));
+		
+		// sort test - asc members order
+		request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("pageSize", "5").param("sortList", "userId");
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string(allOf(containsString(GROUP_MEMB_1), containsString(GROUP_MEMB_2), containsString(GROUP_MEMB_3), containsString("45"), containsString("46"))));
+		
+		// sort test - desc members order
+		request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("pageSize", "5").param("sortList", "userId").param("sortDirection", "1");
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string(allOf(containsString("47"), containsString("46"), containsString("45"), containsString(GROUP_MEMB_3), containsString(GROUP_MEMB_2))));
+		
+		// sort test - param error
+		request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("pageSize", "5").param("sortList", "memberId");
+		response = mockMvc.perform(request);
+		setIllegalArgumentExceptionResult(response);
 	}	
 	
 	@Test
@@ -519,15 +584,15 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		response = mockMvc.perform(request);
 		setDefaultResult(response);
 		
-		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_9), Scope.USER).param("updateTime", String.valueOf(formatter.parse("01-04-2014").getTime()));
+		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_9), Scope.USER).param("updateTime", String.valueOf(formatter.parse("01-05-2014").getTime()));
 		response = mockMvc.perform(request);
 		setDefaultResult(response);
 		
-		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_10), Scope.USER).param("updateTime", String.valueOf(formatter.parse("01-05-2014").getTime()));
+		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_10), Scope.USER).param("updateTime", String.valueOf(formatter.parse("01-06-2014").getTime()));
 		response = mockMvc.perform(request);
 		setDefaultResult(response);
 		
-		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_11), Scope.USER).param("updateTime", String.valueOf(formatter.parse("01-06-2014").getTime()));
+		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_11), Scope.USER).param("updateTime", String.valueOf(formatter.parse("01-07-2014").getTime()));
 		response = mockMvc.perform(request);
 		setDefaultResult(response);
 		

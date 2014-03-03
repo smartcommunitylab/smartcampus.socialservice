@@ -163,6 +163,27 @@ public class SocialTypeControllerTest extends SCControllerTest{
 	}
 	
 	@Test
+	public void test32_getTypesLimitAndSort() throws Exception {  
+		String my_newType = "My_"+NEWTYPE_1;
+		RequestBuilder request = setDefaultRequest(get("/user/type"), Scope.USER).param("pageNum", "0").param("pageSize", "5").param("sortDirection", "1").param("sortList", "name");
+		ResultActions response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string(allOf(containsString(NEWTYPE_7), containsString(NEWTYPE_3), containsString(NEWTYPE_8), containsString(NEWTYPE_4), containsString(my_newType))));
+		
+		request = setDefaultRequest(get("/user/type"), Scope.USER).param("pageNum", "1").param("pageSize", "5").param("sortDirection", "0").param("sortList", "name").param("sortList", "mimeType");
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string(allOf(containsString(NEWTYPE_4), containsString(NEWTYPE_8), containsString(NEWTYPE_3), containsString(NEWTYPE_7))));
+	}
+	
+	@Test
+	public void test33_getTypesLimitAndSortErrParam() throws Exception {  
+		RequestBuilder request = setDefaultRequest(get("/user/type"), Scope.USER).param("pageNum", "0").param("pageSize", "5").param("sortDirection", "1").param("sortList", "nameMime");
+		ResultActions response = mockMvc.perform(request);
+		setIllegalArgumentExceptionResult(response);
+	}
+	
+	@Test
 	public void test4_getType() throws Exception { 
 		String typeId = "3";
 		RequestBuilder request = setDefaultRequest(get("/user/type/{typeId}", typeId), Scope.USER);

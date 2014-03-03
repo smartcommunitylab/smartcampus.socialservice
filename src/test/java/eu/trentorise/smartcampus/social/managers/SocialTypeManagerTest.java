@@ -1,5 +1,6 @@
 package eu.trentorise.smartcampus.social.managers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Assert;
@@ -141,7 +142,7 @@ public class SocialTypeManagerTest {
 	}
 	
 	@Test
-	public void test3_ReadTypes(){
+	public void test3_ReadTypesPageableAndSort(){
 		Limit limit = new Limit();
 		limit.setPage(0);
 		limit.setPageSize(5);
@@ -163,9 +164,44 @@ public class SocialTypeManagerTest {
 		readedTypes = entityTypeManager.readTypesByName(TYPE_NAME_1, limit);
 		Assert.assertTrue(readedTypes.size() == 2 && RepositoryUtils.normalizeCompare(readedTypes.get(0).getName(),TYPE_NAME_1));
 		
+		// sort by name asc
+		limit.setDirection(0);
+		List<String> sortList = new ArrayList<String>();
+		sortList.add("name");
+		limit.setSortList(sortList);
+		readedTypes = entityTypeManager.readTypes(limit);
+		Assert.assertTrue(readedTypes.size() == 5 && RepositoryUtils.normalizeCompare(readedTypes.get(0).getName(),TYPE_NAME_3));
+		
+		// sort by mimeType desc
+		limit.setDirection(1);
+		sortList = new ArrayList<String>();
+		sortList.add("mimeType");
+		limit.setSortList(sortList);
+		readedTypes = entityTypeManager.readTypes(limit);
+		Assert.assertTrue(readedTypes.size() == 5 && RepositoryUtils.normalizeCompare(readedTypes.get(0).getMimeType(),TYPE_MIME_3));
+		
+		// sort by id desc
+		sortList = new ArrayList<String>();
+		sortList.add("id");
+		limit.setSortList(sortList);
+		readedTypes = entityTypeManager.readTypesByName(TYPE_NAME_1, limit);
+		Assert.assertTrue(readedTypes.size() == 2 && RepositoryUtils.normalizeCompare(readedTypes.get(0).getMimeType(),TYPE_MIME_3));
+		
 		Assert.assertTrue(entityTypeManager.deleteType(type7.getId()));
 		Assert.assertTrue(entityTypeManager.deleteType(type8.getId()));
 		
+	}
+	
+	@Test(expected = org.springframework.data.mapping.PropertyReferenceException.class)
+	public void test31_ReadTypesPageableAndSortErrorParam(){
+		Limit limit = new Limit();
+		limit.setPage(0);
+		limit.setPageSize(5);
+		limit.setDirection(0);
+		List<String> sortList = new ArrayList<String>();
+		sortList.add("name_mime");
+		limit.setSortList(sortList);
+		entityTypeManager.readTypes(limit);
 	}
 	
 	@Test

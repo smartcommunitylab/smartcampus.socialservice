@@ -1,6 +1,7 @@
 package eu.trentorise.smartcampus.social.engine.controllers.rest;
 
 import java.io.IOException;
+import java.util.Set;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -80,15 +81,17 @@ public class SocialTypeController extends RestController {
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
 			@RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
-			@RequestParam(value = "toDate", required = false) Long toDate)
+			@RequestParam(value = "toDate", required = false) Long toDate,
+			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
+			@RequestParam(value = "sortList", required = false) Set<String> sortList)
 			throws SocialServiceException {
 
 		Result result = null;
 		try {
 			if(mimeType != null){
-				result = new Result(typeManager.readTypesByMimeType(mimeType, setLimit(pageNum, pageSize, fromDate, toDate)));
+				result = new Result(typeManager.readTypesByMimeType(mimeType, setLimit(pageNum, pageSize, fromDate, toDate, sortDirection, sortList)));
 			} else {
-				result = new Result(typeManager.readTypes(setLimit(pageNum, pageSize, fromDate, toDate)));
+				result = new Result(typeManager.readTypes(setLimit(pageNum, pageSize, fromDate, toDate, sortDirection, sortList)));
 			}
 		} catch (JsonGenerationException e) {
 			// TODO Auto-generated catch block

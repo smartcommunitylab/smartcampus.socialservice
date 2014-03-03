@@ -16,6 +16,7 @@
 package eu.trentorise.smartcampus.social.engine.controllers.rest;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.codehaus.jackson.JsonGenerationException;
@@ -52,13 +53,15 @@ public class SocialGroupController extends RestController {
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
 			@RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
-			@RequestParam(value = "toDate", required = false) Long toDate)
+			@RequestParam(value = "toDate", required = false) Long toDate,
+			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
+			@RequestParam(value = "sortList", required = false) Set<String> sortList)
 			throws SocialServiceException {
 		String userId = getUserId();
 		
 		Result result = null;
 		try{
-			result = new Result(groupManager.readGroups(userId, setLimit(pageNum, pageSize, fromDate, toDate)));
+			result = new Result(groupManager.readGroups(userId, setLimit(pageNum, pageSize, fromDate, toDate, sortDirection, sortList)));
 		} catch (JsonGenerationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -210,11 +213,14 @@ public class SocialGroupController extends RestController {
 		return result;
 	}	
 
+	@SuppressWarnings("static-access")
 	@RequestMapping(method = RequestMethod.GET, value = "/user/group/{groupId}/members")
 	public @ResponseBody
 	Result getMembers(@PathVariable("groupId") String groupId,
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
-			@RequestParam(value = "pageSize", required = false) Integer pageSize)
+			@RequestParam(value = "pageSize", required = false) Integer pageSize,
+			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
+			@RequestParam(value = "sortList", required = false) Set<String> sortList)
 			throws SocialServiceException {
 		String userId = getUserId();
 		
@@ -223,8 +229,21 @@ public class SocialGroupController extends RestController {
 		}
 		
 		Result result = null;
+		Set<String> mySortList = new HashSet<String>();
+		if(sortList == null || sortList.isEmpty()){
+			mySortList.add(groupManager.getMembersort());
+		} else {
+			if(sortList.size() == 1){
+				for(String param : sortList){
+					if(param.compareTo(groupManager.getMembersort()) != 0){
+						throw new IllegalArgumentException(String.format(" parameter '%s' not exists in object group. Use 'userId' instead.", param));
+					}
+				}
+			}
+			mySortList.addAll(sortList);
+		}
 		try{
-			result = new Result(groupManager.readMembersAsString(groupId, setLimit(pageNum, pageSize, null, null)));
+			result = new Result(groupManager.readMembersAsString(groupId, setLimit(pageNum, pageSize, null, null, sortDirection, mySortList)));
 		} catch (JsonGenerationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
