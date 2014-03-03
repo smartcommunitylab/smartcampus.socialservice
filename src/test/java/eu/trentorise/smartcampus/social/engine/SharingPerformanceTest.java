@@ -14,6 +14,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import eu.trentorise.smartcampus.social.engine.beans.Entity;
 import eu.trentorise.smartcampus.social.engine.beans.EntityType;
+import eu.trentorise.smartcampus.social.engine.beans.Limit;
 import eu.trentorise.smartcampus.social.engine.beans.Visibility;
 import eu.trentorise.smartcampus.social.managers.EntityManager;
 import eu.trentorise.smartcampus.social.managers.SocialCommunityManager;
@@ -82,7 +83,8 @@ public class SharingPerformanceTest {
 		printEnv();
 		long startTime = System.currentTimeMillis();
 		String user = USERS[rand.nextInt(USERS.length)];
-		List<Entity> res = entityManager.readShared(user, null);
+		Limit limit = null;
+		List<Entity> res = entityManager.readShared(user, limit);
 		DecimalFormat formatter = (DecimalFormat) DecimalFormat.getInstance();
 		formatter.setMaximumFractionDigits(2);
 		System.out.println(String.format(

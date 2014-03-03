@@ -143,16 +143,21 @@ public class EntityManager implements EntityOperations {
 		return entity != null ? entity.toEntity(true) : null;
 	}
 
-	private String defineUri(String namespace, Entity entity)
+	public String defineUri(String namespace, Entity entity)
 			throws IllegalArgumentException {
-		if (!StringUtils.hasLength(namespace)) {
+		return defineUri(namespace, entity.getLocalId());
+	}
+
+	public String defineUri(String namespace, String localId)
+			throws IllegalArgumentException {
+		if (!StringUtils.hasText(namespace)) {
 			throw new IllegalArgumentException("namespace should be valid");
 		}
-		if (!StringUtils.hasLength(entity.getLocalId())) {
+		if (!StringUtils.hasText(localId)) {
 			throw new IllegalArgumentException("localId should be valid");
 		}
 
-		return namespace + "." + entity.getLocalId();
+		return namespace + "." + localId;
 	}
 
 	public static Visibility getVisibility(SocialEntity entity) {
@@ -231,5 +236,22 @@ public class EntityManager implements EntityOperations {
 			entity.setGroupsSharedWith(groups);
 		}
 		return entity;
+	}
+
+	@Override
+	public Entity readShared(String actorId, String uri) {
+		SocialEntity entity = entityRepository.findByUserSharedWith(actorId,
+				uri);
+		if (entity == null) {
+			entity = entityRepository.findByGroupSharedWith(actorId, uri);
+		}
+		if (entity == null) {
+			entity = entityRepository.findByCommunitySharedWith(actorId, uri);
+		}
+
+		if (entity == null) {
+			entity = entityRepository.findPublicEntities(actorId, uri);
+		}
+		return entity != null ? entity.toEntity(true) : null;
 	}
 }

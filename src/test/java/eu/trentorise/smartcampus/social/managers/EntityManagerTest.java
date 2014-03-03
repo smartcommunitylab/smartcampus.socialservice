@@ -17,6 +17,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import eu.trentorise.smartcampus.social.engine.beans.Entity;
+import eu.trentorise.smartcampus.social.engine.beans.Limit;
 import eu.trentorise.smartcampus.social.engine.beans.Visibility;
 import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.EntityRepository;
@@ -156,7 +157,8 @@ public class EntityManagerTest {
 
 	@Test
 	public void sharing() {
-		Assert.assertEquals(0, manager.readShared(USERID_1, null).size());
+		Limit limit = null;
+		Assert.assertEquals(0, manager.readShared(USERID_1, limit).size());
 
 		initEnv();
 		Entity entity = new Entity();
@@ -168,17 +170,20 @@ public class EntityManagerTest {
 				"image/jpg").getId());
 		entity = manager.saveOrUpdate("testSpace", entity);
 
-		Assert.assertEquals(1, manager.readShared(USERID_1, null).size());
+		Assert.assertEquals(1, manager.readShared(USERID_1, limit).size());
 
 		entity.setVisibility(new Visibility());
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(0, manager.readShared(USERID_1, null).size());
+		Assert.assertEquals(0, manager.readShared(USERID_1, limit).size());
 
 		entity.setVisibility(new Visibility(true));
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(1, manager.readShared(USERID_1, null).size());
-
-		Assert.assertEquals(0, manager.readShared(USERID_2, null).size());
+		Assert.assertEquals(1, manager.readShared(USERID_1, limit).size());
+		Assert.assertNotNull(manager.readShared(USERID_1,
+				manager.defineUri("testSpace", "1EAC00")));
+		Assert.assertNull(manager.readShared(USERID_1,
+				manager.defineUri("testSpace", "1EAC03")));
+		Assert.assertEquals(0, manager.readShared(USERID_2, limit).size());
 
 		/* ************************ community test ***************************** */
 		// USER_1 subscribes to Smartcampus community
@@ -187,46 +192,46 @@ public class EntityManagerTest {
 
 		entity.setVisibility(new Visibility());
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(0, manager.readShared(USERID_1, null).size());
+		Assert.assertEquals(0, manager.readShared(USERID_1, limit).size());
 
 		entity.setVisibility(new Visibility(null, Arrays.asList(envCommunities
 				.get(1)), null));
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(0, manager.readShared(USERID_1, null).size());
+		Assert.assertEquals(0, manager.readShared(USERID_1, limit).size());
 
 		entity.setVisibility(new Visibility(null, Arrays.asList(envCommunities
 				.get(0)), null));
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(1, manager.readShared(USERID_1, null).size());
+		Assert.assertEquals(1, manager.readShared(USERID_1, limit).size());
 
 		entity.setVisibility(new Visibility(Arrays.asList(USERID_1), Arrays
 				.asList(envCommunities.get(0)), null));
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(1, manager.readShared(USERID_1, null).size());
+		Assert.assertEquals(1, manager.readShared(USERID_1, limit).size());
 
 		// USER_1 unsubscribes from Smartcampus community
 		communityManager.removeMembers(envCommunities.get(0),
 				new HashSet<String>(Arrays.asList(USERID_1)));
-		Assert.assertEquals(1, manager.readShared(USERID_1, null).size());
+		Assert.assertEquals(1, manager.readShared(USERID_1, limit).size());
 		entity.setVisibility(new Visibility(true));
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(1, manager.readShared(USERID_1, null).size());
+		Assert.assertEquals(1, manager.readShared(USERID_1, limit).size());
 		entity.setVisibility(new Visibility());
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(0, manager.readShared(USERID_1, null).size());
+		Assert.assertEquals(0, manager.readShared(USERID_1, limit).size());
 
 		/* ************************ group test ***************************** */
 
 		groupManager.addMembers(env.get(USERID_2).get(0), new HashSet<String>(
 				Arrays.asList(USERID_1)));
-		Assert.assertEquals(0, manager.readShared(USERID_1, null).size());
+		Assert.assertEquals(0, manager.readShared(USERID_1, limit).size());
 		entity.setVisibility(new Visibility(null, null, Arrays.asList(env.get(
 				USERID_2).get(0))));
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(1, manager.readShared(USERID_1, null).size());
+		Assert.assertEquals(1, manager.readShared(USERID_1, limit).size());
 		groupManager.removeMembers(env.get(USERID_2).get(0),
 				new HashSet<String>(Arrays.asList(USERID_1)));
-		Assert.assertEquals(0, manager.readShared(USERID_1, null).size());
+		Assert.assertEquals(0, manager.readShared(USERID_1, limit).size());
 	}
 
 	@Test(expected = IllegalArgumentException.class)

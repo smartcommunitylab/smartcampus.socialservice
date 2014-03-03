@@ -15,6 +15,8 @@ public interface EntityOperations {
 
 	public List<Entity> readShared(String actorId, Limit limit);
 
+	public Entity readShared(String actorId, String uri);
+
 	public List<Entity> readEntities(String ownerId, String communityId,
 			Limit limit);
 

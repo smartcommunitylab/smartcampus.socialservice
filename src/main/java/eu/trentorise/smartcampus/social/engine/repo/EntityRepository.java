@@ -29,5 +29,17 @@ public interface EntityRepository extends
 	@Query("SELECT se FROM SocialEntity se WHERE publicShared=true AND (?1 <> se.owner.id OR ?1 <> se.communityOwner.id)")
 	public List<SocialEntity> findPublicEntities(String userId);
 
+	@Query("SELECT se FROM SocialEntity se WHERE ?2=se.id AND ?1 MEMBER OF se.usersSharedWith AND (?1 <> se.owner.id OR ?1 <> se.communityOwner.id)")
+	public SocialEntity findByUserSharedWith(String userId, String uri);
+
+	@Query("SELECT se FROM SocialEntity se, IN (se.groupsSharedWith) AS g WHERE ?2=se.id AND ?1 MEMBER OF g.members AND (?1 <> se.owner.id OR ?1 <> se.communityOwner.id)")
+	public SocialEntity findByGroupSharedWith(String userId, String uri);
+
+	@Query("SELECT se FROM SocialEntity se, IN (se.communitiesSharedWith) AS comm WHERE ?2=se.id AND ?1 MEMBER OF comm.members AND (?1 <> se.owner.id OR ?1 <> se.communityOwner.id)")
+	public SocialEntity findByCommunitySharedWith(String userId, String uri);
+
+	@Query("SELECT se FROM SocialEntity se WHERE publicShared=true AND ?2=se.id AND (?1 <> se.owner.id OR ?1 <> se.communityOwner.id)")
+	public SocialEntity findPublicEntities(String userId, String uri);
+
 	public List<SocialEntity> findByPublicShared(boolean publicShared);
 }
