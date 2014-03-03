@@ -74,12 +74,4 @@ public class Entity {
 		this.externalUri = externalUri;
 	}
 
-	// public void validate() {
-	// if (!StringUtils.hasLength(localId)) {
-	// throw new IllegalArgumentException(
-	// "localId cannot be empty or null");
-	// }
-	//
-	//
-	// }
 }
