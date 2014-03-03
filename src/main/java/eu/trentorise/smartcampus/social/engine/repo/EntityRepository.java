@@ -47,8 +47,8 @@ public interface EntityRepository extends
 	@Query("SELECT se FROM SocialEntity se, IN (se.communitiesSharedWith) AS comm WHERE ?1=comm.id")
 	public List<SocialEntity> findBySharedWithCommunity(Long communityId);
 
-	@Query("SELECT se FROM SocialEntity se, IN (se.communitiesSharedWith) AS comm WHERE ?2=se.id AND ?1 MEMBER OF comm.id AND (?1 <> se.owner.id OR ?1 <> se.communityOwner.id)")
-	public SocialEntity findBySharedWithCommunity(String communityId, String uri);
+	@Query("SELECT se FROM SocialEntity se, IN (se.communitiesSharedWith) AS comm WHERE ?2=se.id AND ?1=comm.id")
+	public SocialEntity findBySharedWithCommunity(Long communityId, String uri);
 
 	public List<SocialEntity> findByPublicShared(boolean publicShared);
 }

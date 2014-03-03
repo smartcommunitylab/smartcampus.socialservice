@@ -170,6 +170,8 @@ public class EntityManagerTest {
 		entity = manager.saveOrUpdate("testSpace", entity);
 		Assert.assertEquals(1,
 				manager.readShared(envCommunities.get(0), true, limit).size());
+		Assert.assertNotNull(manager.readShared(envCommunities.get(0), true,
+				manager.defineUri("testSpace", entity.getLocalId())));
 		Assert.assertEquals(0,
 				manager.readShared(envCommunities.get(1), true, limit).size());
 
@@ -181,7 +183,8 @@ public class EntityManagerTest {
 				manager.readShared(envCommunities.get(0), true, limit).size());
 		Assert.assertEquals(1,
 				manager.readShared(envCommunities.get(1), true, limit).size());
-
+		Assert.assertNotNull(manager.readShared(envCommunities.get(1), true,
+				manager.defineUri("testSpace", entity.getLocalId())));
 	}
 
 	@Test

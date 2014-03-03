@@ -266,7 +266,13 @@ public class EntityManager implements EntityOperations {
 						uri);
 			}
 		} else {
-			entity = entityRepository.findBySharedWithCommunity(actorId, uri);
+			try {
+				entity = entityRepository.findBySharedWithCommunity(new Long(
+						actorId), uri);
+			} catch (NumberFormatException e) {
+				logger.warn(String.format("%s is not valid community id",
+						actorId));
+			}
 		}
 		if (entity == null) {
 			entity = entityRepository.findPublicEntities(actorId, uri);
