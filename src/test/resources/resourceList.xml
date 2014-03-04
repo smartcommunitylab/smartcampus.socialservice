@@ -22,6 +22,8 @@
     <resourceMapping uri="socialservice.user.group.write" 
         pathPattern="/user/group" method="POST"/>
     <resourceMapping uri="socialservice.user.group.write" 
+        pathPattern="/user/group" method="PUT,DELETE"/>
+    <resourceMapping uri="socialservice.user.group.write" 
         pathPattern="/user/group/{groupId}/members" method="PUT,DELETE"/>
 	<!-- update group test -->
     <resourceMapping uri="socialservice.user.group.write" 

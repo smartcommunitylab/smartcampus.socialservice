@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 
 import eu.trentorise.smartcampus.social.engine.beans.Result;
 
@@ -33,15 +34,6 @@ public class SocialControllerExceptionHandler {
         result.setErrorCode(HttpStatus.BAD_REQUEST.toString());
         return result;
     }
-    
-//    @ExceptionHandler(ForbiddenException.class)
-//    @ResponseStatus(HttpStatus.FORBIDDEN)
-//    @ResponseBody
-//    Result handleForbiddenResourceException(Exception ex) {
-//        Result result = new Result(ex, HttpStatus.FORBIDDEN.value());
-//        result.setErrorCode(HttpStatus.FORBIDDEN.toString());
-//        return result;
-//    }
 
     // SecurityException
     @ExceptionHandler(SecurityException.class)
@@ -70,6 +62,16 @@ public class SocialControllerExceptionHandler {
     Result handlePropertyReferenceException(Exception ex) {
         Result result = new Result(ex, HttpStatus.BAD_REQUEST.value());
         result.setErrorCode(HttpStatus.BAD_REQUEST.toString());
+        return result;
+    }
+    
+    // MethodNotSupportedException
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @ResponseStatus(HttpStatus.METHOD_NOT_ALLOWED)
+    @ResponseBody
+    Result handleMethodNotSupportedException(Exception ex) {
+        Result result = new Result(ex, HttpStatus.METHOD_NOT_ALLOWED.value());
+        result.setErrorCode(HttpStatus.METHOD_NOT_ALLOWED.toString());
         return result;
     }
 

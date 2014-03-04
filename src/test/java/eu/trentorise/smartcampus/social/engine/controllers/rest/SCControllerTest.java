@@ -10,6 +10,7 @@ import java.io.IOException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -20,7 +21,7 @@ public class SCControllerTest {
 		USER, CLIENT
 	};
 
-	private static final String USER_AUTH_TOKEN = "80478305-7d7f-4d78-b3f6-3bf0749da62e";
+	private static final String USER_AUTH_TOKEN = "";
 	private static final String CLIENT_AUTH_TOKEN = "bba5843c-9582-41a2-922e-a59b4c7db926";
 
 	/** Controller utilities **/
@@ -94,6 +95,10 @@ public class SCControllerTest {
 	
 	protected ResultActions setForbiddenExceptionResult(ResultActions result) throws Exception{
 		return result.andDo(print()).andExpect(status().isForbidden()).andExpect(jsonPath("$.error").value("access_denied"));
+	}
+	
+	protected ResultActions setMethodNotSupportedResult(ResultActions result) throws Exception{
+		return result.andDo(print()).andExpect(status().isMethodNotAllowed()).andExpect(jsonPath("$.errorCode").value(HttpStatus.METHOD_NOT_ALLOWED.toString()));
 	}
 	
 }

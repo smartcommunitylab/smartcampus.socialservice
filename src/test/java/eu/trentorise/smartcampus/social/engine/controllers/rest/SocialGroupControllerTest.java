@@ -324,7 +324,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		editGroup = new Group();
 		request = setDefaultRequest(put("/user/group/{id}", groupId), Scope.USER).content(convertObjectToJsonString(editGroup));
 		response = mockMvc.perform(request);
-		setForbiddenExceptionResult(response);
+		setMethodNotSupportedResult(response);
 		
 		// update group not exists
 		editGroup = new Group();
@@ -496,7 +496,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		String groupId = null;
 		request = setDefaultRequest(delete("/user/group/{id}", groupId), Scope.USER);
 		response = mockMvc.perform(request);
-		setForbiddenExceptionResult(response);
+		setMethodNotSupportedResult(response);
 		
 	}	
 	
