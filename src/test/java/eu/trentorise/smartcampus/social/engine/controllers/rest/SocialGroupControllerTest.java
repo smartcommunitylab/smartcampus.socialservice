@@ -85,7 +85,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 	}	
 	
 	@Test
-	public void test11_setGroup() throws Exception {
+	public void test2_setGroups() throws Exception {
 		Group newGroup = new Group();
 		// Create and Post first group
 		newGroup.setName(NEWGROUP_1);
@@ -107,31 +107,22 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString(NEWGROUP_3)));	
-	}
-	
-	@Test
-	public void test12_setGroupAlreadyExists() throws Exception {
-		ResultActions response = null;
-		Group newGroup = new Group();
+		
 		// Create and Post an already existing group (first group)
 		newGroup.setName(NEWGROUP_1);
-		RequestBuilder request = setDefaultRequest(post("/user/group"), Scope.USER).content(convertObjectToJsonString(newGroup));	
+		request = setDefaultRequest(post("/user/group"), Scope.USER).content(convertObjectToJsonString(newGroup));	
 		response = mockMvc.perform(request);
-		setIllegalArgumentExceptionResult(response);	
+		setIllegalArgumentExceptionResult(response);
+		
+		// Create and Post a group with no name
+		request = setDefaultRequest(post("/user/group"), Scope.USER).content(convertObjectToJsonString(newGroup));	
+		response = mockMvc.perform(request);
+		setIllegalArgumentExceptionResult(response);
+		
 	}
 	
 	@Test
-	public void test13_setGroupVoidParam() throws Exception {
-		ResultActions response = null;
-		Group newGroup = new Group();
-		// Create and Post a group with no name
-		RequestBuilder request = setDefaultRequest(post("/user/group"), Scope.USER).content(convertObjectToJsonString(newGroup));	
-		response = mockMvc.perform(request);
-		setIllegalArgumentExceptionResult(response);	
-	}	
-	
-	@Test
-	public void test2_getGroups() throws Exception {  
+	public void test3_getGroups() throws Exception {  
 		RequestBuilder request = setDefaultRequest(get("/user/group"), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
@@ -139,9 +130,10 @@ public class SocialGroupControllerTest extends SCControllerTest{
 	}
 	
 	@Test
-	public void test21_readGroupsWithLimitPage() throws Exception {
+	public void test31_getGroupsWithLimitPage() throws Exception {
 		Group newGroup = new Group();
 		
+		// Add other groups
 		newGroup.setName(NEWGROUP_4);
 		RequestBuilder request = setDefaultRequest(post("/user/group"), Scope.USER).content(convertObjectToJsonString(newGroup));
 		ResultActions response = mockMvc.perform(request);
@@ -190,22 +182,23 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		setDefaultResult(response)
 		.andExpect(content().string(containsString(NEWGROUP_11)));		
 		
+		// get groups with specific limit pagination (page 1)
 		request = setDefaultRequest(get("/user/group"), Scope.USER).param("pageNum", "1").param("pageSize", "5");
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString(NEWGROUP_6), containsString(NEWGROUP_7), containsString(NEWGROUP_8), containsString(NEWGROUP_9), containsString(NEWGROUP_10))));
-	}
 	
-	@Test
-	public void test22_readGroupsWithLimitPage() throws Exception {  
-		RequestBuilder request = setDefaultRequest(get("/user/group"), Scope.USER).param("pageNum", "2").param("pageSize", "5");
-		ResultActions response = mockMvc.perform(request);
+		// get groups with specific limit pagination (page 2)
+		request = setDefaultRequest(get("/user/group"), Scope.USER).param("pageNum", "2").param("pageSize", "5");
+		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString(NEWGROUP_11)));
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	@Test
-	public void test23_readGroupsWithLimitDate() throws Exception {
+	public void test32_readGroupsWithLimitAndPaging() throws Exception {
+		// date between
 		updateGroupsDate();
 		Long fromDate = 0L;
 		Long toDate = 0L;
@@ -221,84 +214,62 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString(NEWGROUP_3), containsString(NEWGROUP_4), containsString(NEWGROUP_5), containsString(NEWGROUP_6), containsString(NEWGROUP_7), containsString(NEWGROUP_8))));
-	}
 	
-	@Test
-	public void test24_readGroupsWithLimitDateAndPage() throws Exception {
-		Long fromDate = 0L;
-		Long toDate = 0L;
-		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
-		try {
-			fromDate = formatter.parse("01-03-2013").getTime();
-			toDate = formatter.parse("10-03-2014").getTime();
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		
-		RequestBuilder request = setDefaultRequest(get("/user/group"), Scope.USER).param("fromDate", String.valueOf(fromDate)).param("toDate", String.valueOf(toDate)).param("pageNum", "1").param("pageSize", "5");
-		ResultActions response = mockMvc.perform(request);
+		// using limit pagination
+		request = setDefaultRequest(get("/user/group"), Scope.USER).param("fromDate", String.valueOf(fromDate)).param("toDate", String.valueOf(toDate)).param("pageNum", "1").param("pageSize", "5");
+		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString(NEWGROUP_8)));
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Test
-	public void test25_readGroupsWithLimitDateFrom() throws Exception {
-		Long fromDate = 0L;
-		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
+		
+		// date from
+		toDate = 0L;
 		try {
 			fromDate = formatter.parse("01-03-2013").getTime();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 		
-		RequestBuilder request = setDefaultRequest(get("/user/group"), Scope.USER).param("fromDate", String.valueOf(fromDate));
-		ResultActions response = mockMvc.perform(request);
+		request = setDefaultRequest(get("/user/group"), Scope.USER).param("fromDate", String.valueOf(fromDate));
+		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString(NEWGROUP_4), containsString(NEWGROUP_5), containsString(NEWGROUP_6), containsString(NEWGROUP_7), containsString(NEWGROUP_8), containsString(NEWGROUP_9), containsString(NEWGROUP_10), containsString(NEWGROUP_11))));
-	}
 	
-	@Test
-	public void test25_readGroupsWithLimitDateTo() throws Exception {
-		Long toDate = 0L;
-		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
+		// date to
+		fromDate = 0L;
 		try {
 			toDate = formatter.parse("10-03-2014").getTime();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 		
-		RequestBuilder request = setDefaultRequest(get("/user/group"), Scope.USER).param("toDate", String.valueOf(toDate)).param("pageSize", "5");
-		ResultActions response = mockMvc.perform(request);
+		request = setDefaultRequest(get("/user/group"), Scope.USER).param("toDate", String.valueOf(toDate)).param("pageSize", "5");
+		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString(NEWGROUP_1), containsString(NEWGROUP_2), containsString(NEWGROUP_3), containsString(NEWGROUP_4), containsString(NEWGROUP_5))));
-	}
-	
-	@Test
-	public void test26_readGroupsWithLimitAndSort() throws Exception {
+		
+		// Using Sorting
 		// sort by name and creationTime
-		RequestBuilder request = setDefaultRequest(get("/user/group"), Scope.USER).param("pageNum", "1").param("pageSize", "5").param("sortList", "name").param("sortList", "creationTime");
-		ResultActions response = mockMvc.perform(request);
+		request = setDefaultRequest(get("/user/group"), Scope.USER).param("pageNum", "1").param("pageSize", "5").param("sortList", "name").param("sortList", "creationTime");
+		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString(NEWGROUP_4), containsString(NEWGROUP_5), containsString(NEWGROUP_6), containsString(NEWGROUP_7), containsString(NEWGROUP_8))));
-		
+				
 		// sort by lastModifiedTime desc (+ pagination toDate)
-		Long toDate = 0L;
-		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
+		fromDate = 0L;
 		try {
 			toDate = formatter.parse("10-03-2014").getTime();
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		
+				
 		request = setDefaultRequest(get("/user/group"), Scope.USER).param("toDate", String.valueOf(toDate)).param("pageSize", "5").param("sortList", "lastModifiedTime").param("sortDirection", "1");
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString(NEWGROUP_3), containsString(NEWGROUP_2), containsString(NEWGROUP_1), containsString(NEWGROUP_8), containsString(NEWGROUP_7))));
-	
+			
 		// sort by name desc (+ pagination date in range) 
 		updateGroupsDate();
-		Long fromDate = 0L;
+		fromDate = 0L;
 		toDate = 0L;
 		try {
 			fromDate = formatter.parse("01-03-2013").getTime();
@@ -306,42 +277,36 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		
+				
 		request = setDefaultRequest(get("/user/group"), Scope.USER).param("fromDate", String.valueOf(fromDate)).param("toDate", String.valueOf(toDate)).param("sortList", "name").param("sortDirection", "1");
 		//request = setDefaultRequest(get("/user/group"), Scope.USER).param("fromDate", String.valueOf(fromDate)).param("toDate", String.valueOf(toDate)).param("sortList", "creatorId").param("sortDirection", "1");
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString(NEWGROUP_8), containsString(NEWGROUP_7), containsString(NEWGROUP_6), containsString(NEWGROUP_5), containsString(NEWGROUP_4), containsString(NEWGROUP_3))));
-	}
-	
-	@Test
-	public void test27_readGroupsWithLimitAndSortErrParam() throws Exception {
-		// sort by name and creationTime
-		RequestBuilder request = setDefaultRequest(get("/user/group"), Scope.USER).param("pageNum", "1").param("pageSize", "5").param("sortList", "name").param("sortList", "creation_time");
-		ResultActions response = mockMvc.perform(request);
+			
+		// sort parameters error (param not exist)
+		request = setDefaultRequest(get("/user/group"), Scope.USER).param("pageNum", "1").param("pageSize", "5").param("sortList", "name").param("sortList", "creation_time");
+		response = mockMvc.perform(request);
 		setIllegalArgumentExceptionResult(response);
 	}
 	
+	
 	@Test
-	public void test3_readGroup() throws Exception {  
+	public void test33_readGroup() throws Exception {  
 		RequestBuilder request = setDefaultRequest(get("/user/group/{id}", GROUP_ID_1), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString(NEWGROUP_1)));
-	}
-	
-	@Test
-	public void test31_readGroupVoidParams() throws Exception {  
+		
+		// read group passing void parameters
 		String groupId = null;
-		RequestBuilder request = setDefaultRequest(get("/user/group/{id}", groupId), Scope.USER);
-		ResultActions response = mockMvc.perform(request);
+		request = setDefaultRequest(get("/user/group/{id}", groupId), Scope.USER);
+		response = mockMvc.perform(request);
 		setDefaultResult(response);
-	}
-	
-	@Test
-	public void test32_readGroupNotExists() throws Exception {  
-		RequestBuilder request = setDefaultRequest(get("/user/group/{id}", GROUP_NEX_ID), Scope.USER);
-		ResultActions response = mockMvc.perform(request);
+		
+		// read group not exists
+		request = setDefaultRequest(get("/user/group/{id}", GROUP_NEX_ID), Scope.USER);
+		response = mockMvc.perform(request);
 		setNullResult(response);
 	}
 	
@@ -353,34 +318,28 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString(EDITGROUP_1)));
-	}
-	
-	@Test
-	public void test41_updateGroupVoidParam() throws Exception {
+		
+		// update group passing void parameters
 		String groupId = null;
-		Group editGroup = new Group();
-		RequestBuilder request = setDefaultRequest(put("/user/group/{id}", groupId), Scope.USER).content(convertObjectToJsonString(editGroup));
-		ResultActions response = mockMvc.perform(request);
+		editGroup = new Group();
+		request = setDefaultRequest(put("/user/group/{id}", groupId), Scope.USER).content(convertObjectToJsonString(editGroup));
+		response = mockMvc.perform(request);
 		setForbiddenExceptionResult(response);
-	}
-	
-	@Test
-	public void test42_updateGroupNotExists() throws Exception {
-		Group editGroup = new Group();
+		
+		// update group not exists
+		editGroup = new Group();
 		editGroup.setName(EDITGROUP_1);
-		RequestBuilder request = setDefaultRequest(put("/user/group/{id}", GROUP_NEX_ID), Scope.USER).content(convertObjectToJsonString(editGroup));
-		ResultActions response = mockMvc.perform(request);
+		request = setDefaultRequest(put("/user/group/{id}", GROUP_NEX_ID), Scope.USER).content(convertObjectToJsonString(editGroup));
+		response = mockMvc.perform(request);
 		setNullResult(response);
-	}
-	
-	@Test
-	public void test43_updateGroupAlreadyExists() throws Exception {
-		Group editGroup = new Group();
+		
+		// update a group with another that already exists
+		editGroup = new Group();
 		editGroup.setName(EDITGROUP_2);
-		RequestBuilder request = setDefaultRequest(put("/user/group/{id}", GROUP_ID_2), Scope.USER).content(convertObjectToJsonString(editGroup));
-		ResultActions response = mockMvc.perform(request);
+		request = setDefaultRequest(put("/user/group/{id}", GROUP_ID_2), Scope.USER).content(convertObjectToJsonString(editGroup));
+		response = mockMvc.perform(request);
 		setIllegalArgumentExceptionResult(response);
-	}	
+	}
 	
 	@Test
 	public void test5_addGroupMembers() throws Exception { 
@@ -388,72 +347,58 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString("true")));
-	}
-	
-	@Test
-	public void test51_addGroupMembersNullList() throws Exception { 
-		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("userIds", "").param("userIds", "");
-		ResultActions response = mockMvc.perform(request);
+		
+		// add members passing a null list
+		request = setDefaultRequest(put("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("userIds", "").param("userIds", "");
+		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString("true")));
-	}
-	
-	@Test
-	public void test52_addGroupMembersNullGroup() throws Exception {
+		
+		// add members to a group passing a null groupId
 		String groupId = null;
-		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/members", groupId), Scope.USER).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2).param("userIds", GROUP_MEMB_3);
-		ResultActions response = mockMvc.perform(request);
+		request = setDefaultRequest(put("/user/group/{id}/members", groupId), Scope.USER).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2).param("userIds", GROUP_MEMB_3);
+		response = mockMvc.perform(request);
 		setIllegalArgumentExceptionResult(response);
-	}
-	
-	@Test
-	public void test53_addGroupMembersNotExistGroup() throws Exception {
-		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/members", GROUP_NEX_ID), Scope.USER).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2).param("userIds", GROUP_MEMB_3);
-		ResultActions response = mockMvc.perform(request);
+		
+		// add members to a group not exists
+		request = setDefaultRequest(put("/user/group/{id}/members", GROUP_NEX_ID), Scope.USER).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2).param("userIds", GROUP_MEMB_3);
+		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString("true")));
 	}
 	
 	@Test
-	public void test6_readGroupMembers() throws Exception { 
+	public void test51_readGroupMembers() throws Exception { 
 		RequestBuilder request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_2), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString(GROUP_MEMB_1), containsString(GROUP_MEMB_2), containsString(GROUP_MEMB_3))));
-	}
-	
-	@Test
-	public void test61_readGroupMembersVoidList() throws Exception { 
-		RequestBuilder request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_3), Scope.USER);
-		ResultActions response = mockMvc.perform(request);
+		
+		// read members from a group with no members
+		request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_3), Scope.USER);
+		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString("[ ]")));
-	}	
-
-	@Test
-	public void test62_readGroupMembersNullParam() throws Exception { 
+	
+		// read members from a group passing null parameters
 		String groupId = null;
-		RequestBuilder request = setDefaultRequest(get("/user/group/{id}/members", groupId), Scope.USER);
-		ResultActions response = mockMvc.perform(request);
+		request = setDefaultRequest(get("/user/group/{id}/members", groupId), Scope.USER);
+		response = mockMvc.perform(request);
 		setIllegalArgumentExceptionResult(response);
-	}
-	
-	@Test
-	public void test63_readGroupMembersNoGroupExist() throws Exception { 
-		RequestBuilder request = setDefaultRequest(get("/user/group/{id}/members", GROUP_NEX_ID), Scope.USER);
-		ResultActions response = mockMvc.perform(request);
+		
+		// read members from a group not exists
+		request = setDefaultRequest(get("/user/group/{id}/members", GROUP_NEX_ID), Scope.USER);
+		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString("[ ]")));
-	}
 	
-	@Test
-	public void test64_readGroupMembersPageLimitAndSort() throws Exception {
+		// read members from a group using limit pagination and sort
 		//Add 3 other members to group2
-		RequestBuilder request = setDefaultRequest(put("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("userIds", "45").param("userIds", "46").param("userIds", "47");
-		ResultActions response = mockMvc.perform(request);
+		request = setDefaultRequest(put("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("userIds", "45").param("userIds", "46").param("userIds", "47");
+		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString("true")));
-		
+				
 		request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("pageSize", "5");
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
@@ -469,104 +414,91 @@ public class SocialGroupControllerTest extends SCControllerTest{
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString(GROUP_MEMB_1), containsString(GROUP_MEMB_2), containsString(GROUP_MEMB_3), containsString("45"), containsString("46"))));
-		
+				
 		// sort test - desc members order
 		request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("pageSize", "5").param("sortList", "userId").param("sortDirection", "1");
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString("47"), containsString("46"), containsString("45"), containsString(GROUP_MEMB_3), containsString(GROUP_MEMB_2))));
-		
+				
 		// sort test - param error
 		request = setDefaultRequest(get("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("pageSize", "5").param("sortList", "memberId");
 		response = mockMvc.perform(request);
 		setIllegalArgumentExceptionResult(response);
+
 	}	
 	
 	@Test
-	public void test7_deleteGroupMembers() throws Exception { 
+	public void test52_deleteGroupMembers() throws Exception { 
 		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString("true")));
-	}
+		
+		// delete members from a group with no members
+		request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("userIds", "").param("userIds", "");
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string(containsString("true")));
 	
-	@Test
-	public void test71_deleteGroupMembersNullList() throws Exception {
-		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_ID_2), Scope.USER).param("userIds", "").param("userIds", "");
-		ResultActions response = mockMvc.perform(request);
+		// delete members from a group passing null parameters
+		String groupId = null;
+		request = setDefaultRequest(delete("/user/group/{id}/members", groupId), Scope.USER).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2);
+		response = mockMvc.perform(request);
+		setIllegalArgumentExceptionResult(response);
+		
+		// delete members from a group not exists
+		request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_NEX_ID), Scope.USER).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2);
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string(containsString("true")));
+		
+		// delete a member that not exists from a group
+		request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_NEX_ID), Scope.USER).param("userIds", GROUP_MEMB_4);
+		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString("true")));
 	}	
 	
 	@Test
-	public void test72_deleteGroupMembersNullGroup() throws Exception { 
-		String groupId = null;
-		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", groupId), Scope.USER).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2);
-		ResultActions response = mockMvc.perform(request);
-		setIllegalArgumentExceptionResult(response);
-	}
-	
-	@Test
-	public void test73_deleteGroupMembersNotExistGroup() throws Exception { 
-		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_NEX_ID), Scope.USER).param("userIds", GROUP_MEMB_1).param("userIds", GROUP_MEMB_2);
-		ResultActions response = mockMvc.perform(request);
-		setDefaultResult(response)
-		.andExpect(content().string(containsString("true")));
-	}
-	
-	@Test
-	public void test74_deleteGroupMembersNotExistUser() throws Exception { 
-		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}/members", GROUP_NEX_ID), Scope.USER).param("userIds", GROUP_MEMB_4);
-		ResultActions response = mockMvc.perform(request);
-		setDefaultResult(response)
-		.andExpect(content().string(containsString("true")));
-	}		
-	
-	@Test
-	public void test8_deleteGroup() throws Exception {
-		// Delete first group
+	public void test6_deleteGroup() throws Exception {
+		// delete groups
 		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}", GROUP_ID_1), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		response = setDefaultResult(response)
 		.andExpect(content().string(containsString("true")));
 		
-		// Delete first group
 		request = setDefaultRequest(delete("/user/group/{id}", GROUP_ID_2), Scope.USER);
 		response = mockMvc.perform(request);
 		response = setDefaultResult(response)
 		.andExpect(content().string(containsString("true")));
 		
-		// Delete first group
 		request = setDefaultRequest(delete("/user/group/{id}", GROUP_ID_3), Scope.USER);
 		response = mockMvc.perform(request);
 		response = setDefaultResult(response)
 		.andExpect(content().string(containsString("true")));
 		
-		// Delete all the other groups
+		// delete all the other groups
 		for (int i = 4; i < 11; i++){
 			request = setDefaultRequest(delete("/user/group/{id}", String.valueOf(i)), Scope.USER);
 			response = mockMvc.perform(request);
 			response = setDefaultResult(response)
 					.andExpect(content().string(containsString("true")));
 		}
-	}	
-	
-	@Test
-	public void test81_deleteGroupNotExists() throws Exception {
-		// Delete not existing group
-		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}", GROUP_ID_1), Scope.USER);
-		ResultActions response = mockMvc.perform(request);
+		
+		// delete a group not exists
+		request = setDefaultRequest(delete("/user/group/{id}", GROUP_ID_1), Scope.USER);
+		response = mockMvc.perform(request);
 		response = setDefaultResult(response)
 		.andExpect(content().string(containsString("true")));
-	}
-	
-	@Test
-	public void test82_deleteGroupNullParam() throws Exception {
+		
+		// delete a group passing null parameters
 		String groupId = null;
-		RequestBuilder request = setDefaultRequest(delete("/user/group/{id}", groupId), Scope.USER);
-		ResultActions response = mockMvc.perform(request);
+		request = setDefaultRequest(delete("/user/group/{id}", groupId), Scope.USER);
+		response = mockMvc.perform(request);
 		setForbiddenExceptionResult(response);
-	}
+		
+	}	
 	
 	private boolean updateGroupsDate()  throws Exception{
 		boolean updated = true;

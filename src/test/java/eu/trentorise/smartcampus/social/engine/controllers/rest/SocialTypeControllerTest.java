@@ -59,7 +59,7 @@ public class SocialTypeControllerTest extends SCControllerTest{
 	}
 	
 	@Test
-	public void test1_getTypes() throws Exception {  
+	public void getTypesVoidDB() throws Exception {  
 		RequestBuilder request = setDefaultRequest(get("/user/type"), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
@@ -67,7 +67,7 @@ public class SocialTypeControllerTest extends SCControllerTest{
 	}
 	
 	@Test
-	public void test2_setType() throws Exception {  
+	public void setTypes() throws Exception {  
 		RequestBuilder request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_1).param("mimeType", MIME_TYPE_1);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
@@ -107,52 +107,48 @@ public class SocialTypeControllerTest extends SCControllerTest{
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString(NEWTYPE_8)));
-
-		//Try to create an already exist type
-		request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_1).param("mimeType", MIME_TYPE_1);
-		response = mockMvc.perform(request);
-		setDefaultResult(response)
-		.andExpect(content().string(containsString(NEWTYPE_1)));
-		
 	}
 	
 	@Test
-	public void test21_setTypeNullName() throws Exception { 
+	public void setTypesSpecialCases() throws Exception {
+		// try to create an already exist type
+		RequestBuilder request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_1).param("mimeType", MIME_TYPE_1);
+		ResultActions response = mockMvc.perform(request);
+				setDefaultResult(response)
+				.andExpect(content().string(containsString(NEWTYPE_1)));
+				
+		// try to set a new type with null name
 		String typeName = null;
-		RequestBuilder request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", typeName).param("mimeType", MIME_TYPE_1);
-		ResultActions response = mockMvc.perform(request);
+		request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", typeName).param("mimeType", MIME_TYPE_1);
+		response = mockMvc.perform(request);
 		setIllegalArgumentExceptionResult(response);
-	}
-	
-	@Test
-	public void test22_setTypeNullMimeType() throws Exception {  
+		
+		// try to set a new type with null mimeType
 		String mimeTypeName = null;
-		RequestBuilder request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_1).param("mimeType", mimeTypeName);
-		ResultActions response = mockMvc.perform(request);
+		request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_1).param("mimeType", mimeTypeName);
+		response = mockMvc.perform(request);
 		setIllegalArgumentExceptionResult(response);
-	}
-	
-	@Test
-	public void test23_setTypeNotAllowedMimeType() throws Exception {
+		
+		// try to set a new type with mimeType not allowed
 		String errCode = "400";
-		RequestBuilder request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_1).param("mimeType", MIME_TYPE_ERR);
-		ResultActions response = mockMvc.perform(request);
+		request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", NEWTYPE_1).param("mimeType", MIME_TYPE_ERR);
+		response = mockMvc.perform(request);
 		setIllegalArgumentExceptionResult(response).andExpect(content().string(containsString(errCode)));
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
-	public void test3_getTypesLimit() throws Exception {  
+	public void getTypes() throws Exception {  
+		// with limit
 		RequestBuilder request = setDefaultRequest(get("/user/type"), Scope.USER).param("pageNum", "1").param("pageSize", "5");
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString(NEWTYPE_6), containsString(NEWTYPE_7), containsString(NEWTYPE_8))));
-	}
 	
-	@Test
-	public void test31_getTypesByMimeType() throws Exception {
+		// by mimeType
 		String my_newType = "My_"+NEWTYPE_1;
-		RequestBuilder request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", my_newType).param("mimeType", MIME_TYPE_1);
-		ResultActions response = mockMvc.perform(request);
+		request = setDefaultRequest(post("/app/type"), Scope.USER).param("name", my_newType).param("mimeType", MIME_TYPE_1);
+		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString(my_newType)));
 		
@@ -160,13 +156,10 @@ public class SocialTypeControllerTest extends SCControllerTest{
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString(my_newType)));
-	}
 	
-	@Test
-	public void test32_getTypesLimitAndSort() throws Exception {  
-		String my_newType = "My_"+NEWTYPE_1;
-		RequestBuilder request = setDefaultRequest(get("/user/type"), Scope.USER).param("pageNum", "0").param("pageSize", "5").param("sortDirection", "1").param("sortList", "name");
-		ResultActions response = mockMvc.perform(request);
+		// with limit and sort
+		request = setDefaultRequest(get("/user/type"), Scope.USER).param("pageNum", "0").param("pageSize", "5").param("sortDirection", "1").param("sortList", "name");
+		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString(NEWTYPE_7), containsString(NEWTYPE_3), containsString(NEWTYPE_8), containsString(NEWTYPE_4), containsString(my_newType))));
 		
@@ -174,43 +167,38 @@ public class SocialTypeControllerTest extends SCControllerTest{
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString(NEWTYPE_4), containsString(NEWTYPE_8), containsString(NEWTYPE_3), containsString(NEWTYPE_7))));
-	}
+		
+		request = setDefaultRequest(get("/user/type"), Scope.USER).param("pageNum", "0").param("pageSize", "10").param("sortDirection", "1").param("sortList", "id");
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string(allOf(containsString(NEWTYPE_8), containsString(NEWTYPE_7), containsString(NEWTYPE_6), containsString(NEWTYPE_5), containsString(NEWTYPE_4), containsString(NEWTYPE_3), containsString(NEWTYPE_2), containsString(NEWTYPE_1))));
 	
-	@Test
-	public void test33_getTypesLimitAndSortErrParam() throws Exception {  
-		RequestBuilder request = setDefaultRequest(get("/user/type"), Scope.USER).param("pageNum", "0").param("pageSize", "5").param("sortDirection", "1").param("sortList", "nameMime");
-		ResultActions response = mockMvc.perform(request);
+		// with limit and sort err parameter
+		request = setDefaultRequest(get("/user/type"), Scope.USER).param("pageNum", "0").param("pageSize", "5").param("sortDirection", "1").param("sortList", "nameMime");
+		response = mockMvc.perform(request);
 		setIllegalArgumentExceptionResult(response);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
-	public void test4_getType() throws Exception { 
+	public void getSingleType() throws Exception { 
 		String typeId = "3";
 		RequestBuilder request = setDefaultRequest(get("/user/type/{typeId}", typeId), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString(NEWTYPE_3)));
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Test
-	public void test41_getTypeNullParam() throws Exception { 
-		String typeId = null;
-		RequestBuilder request = setDefaultRequest(get("/user/type/{typeId}", typeId), Scope.USER);
-		ResultActions response = mockMvc.perform(request);
+		
+		// null parameters
+		typeId = null;
+		request = setDefaultRequest(get("/user/type/{typeId}", typeId), Scope.USER);
+		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString(NEWTYPE_1), containsString(NEWTYPE_2), containsString(NEWTYPE_3), containsString(NEWTYPE_4), containsString(NEWTYPE_5), containsString(NEWTYPE_6), containsString(NEWTYPE_7), containsString(NEWTYPE_8))));
-	}
-	
-	@Test
-	public void test42_getTypeNotExists() throws Exception { 
-		RequestBuilder request = setDefaultRequest(get("/user/type/{typeId}", NEXT_TYPE_ID), Scope.USER);
-		ResultActions response = mockMvc.perform(request);
+		
+		// type not exists
+		request = setDefaultRequest(get("/user/type/{typeId}", NEXT_TYPE_ID), Scope.USER);
+		response = mockMvc.perform(request);
 		setNullResult(response);
 	}
-	
-	
-	
-	
 
 }
