@@ -85,7 +85,7 @@ public class SocialGroupControllerTest extends SCControllerTest{
 	}	
 	
 	@Test
-	public void test2_setGroups() throws Exception {
+	public void test1_setGroups() throws Exception {
 		Group newGroup = new Group();
 		// Create and Post first group
 		newGroup.setName(NEWGROUP_1);

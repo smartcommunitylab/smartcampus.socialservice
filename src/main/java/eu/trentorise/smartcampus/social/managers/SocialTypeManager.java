@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -36,6 +37,7 @@ public class SocialTypeManager implements EntityTypeOperations {
 					"video/mpg", "video/rm", "video/srt", "video/swf",
 					"video/vob", "video/wmv", "application/zip", "text/doc",
 					"text/txt", "text/xml", "text/rtf", "text/pdf"));
+	private static final String[] SORTEABLE_PARAMS = {"id", "name", "mimeType"};
 	@Autowired
 	SocialTypeRepository typeRepository;
 	
@@ -72,8 +74,9 @@ public class SocialTypeManager implements EntityTypeOperations {
 					logger.error(String.format("Error in new type '%s' creation.", normalizedName));
 				}
 			} else {
-				//logger.error(String.format("Error in new type '%s' creation. MimeType '%s' not allowed.", normalizedName, mimeType));
-				throw new IllegalArgumentException(String.format("MimeType '%s'exception. Not allowed.", normalizedMimeType));
+				String exceptionMessage = String.format("MimeType '%s'exception. Not allowed.", normalizedMimeType);
+				logger.error(exceptionMessage);
+				throw new IllegalArgumentException(exceptionMessage);
 			}
 		} else { // else I use the existing type
 			logger.warn(String.format("Type '%s' already exists.", normalizedName));
@@ -117,7 +120,9 @@ public class SocialTypeManager implements EntityTypeOperations {
 		if (readedType != null) {
 			String name = readedType.getName();
 			if(readTypeByNameAndMimeType(name, mimeType) != null){
-				throw new IllegalArgumentException(String.format("A type with name '%s' and mimeType '%s' already present.", name, normalizedMimeType));
+				String exceptionMessage = String.format("A type with name '%s' and mimeType '%s' already present.", name, normalizedMimeType);
+				logger.error(exceptionMessage);
+				throw new IllegalArgumentException(exceptionMessage);
 			}
 			readedType.setMimeType(normalizedMimeType);
 			updatedType = typeRepository.save(readedType);
@@ -168,7 +173,13 @@ public class SocialTypeManager implements EntityTypeOperations {
 				}
 			}
 		}
-		readedTypes = typeRepository.findAll(page).getContent();
+		try {
+			readedTypes = typeRepository.findAll(page).getContent();
+		} catch (PropertyReferenceException pre){
+			String exceptionMessage = String.format("Property reference exception in sorting operation. Property '%s' not exists. Use %s instead.", RepositoryUtils.getParamFromException(pre.getMessage()), RepositoryUtils.concatStringParams(SORTEABLE_PARAMS));
+			logger.error(exceptionMessage);
+			throw new IllegalArgumentException(exceptionMessage);
+		}
 		if (readedTypes == null) {
 			logger.warn("No entityType found in db");
 			return null;
@@ -192,8 +203,13 @@ public class SocialTypeManager implements EntityTypeOperations {
 					}
 				}
 			}
-			readedTypes = typeRepository.findByNameIgnoreCase(
-					normalizedName, page);
+			try {
+				readedTypes = typeRepository.findByNameIgnoreCase(normalizedName, page);
+			} catch (PropertyReferenceException pre){
+				String exceptionMessage = String.format("Property reference exception in sorting operation. Property '%s' not exists. Use %s instead.", RepositoryUtils.getParamFromException(pre.getMessage()), RepositoryUtils.concatStringParams(SORTEABLE_PARAMS));
+				logger.error(exceptionMessage);
+				throw new IllegalArgumentException(exceptionMessage);
+			}
 			if (readedTypes == null) {
 				logger.warn(String.format("No entityType found with name '%s'.", normalizedName));
 				return null;
@@ -220,8 +236,13 @@ public class SocialTypeManager implements EntityTypeOperations {
 					}
 				}
 			}
-			readedTypes = typeRepository.findByMimeType(mimeType,
-					page);
+			try {
+				readedTypes = typeRepository.findByMimeType(mimeType, page);
+			} catch (PropertyReferenceException pre){
+				String exceptionMessage = String.format("Property reference exception in sorting operation. Property '%s' not exists. Use %s instead.", RepositoryUtils.getParamFromException(pre.getMessage()), RepositoryUtils.concatStringParams(SORTEABLE_PARAMS));
+				logger.error(exceptionMessage);
+				throw new IllegalArgumentException(exceptionMessage);
+			}
 			if (readedTypes == null) {
 				logger.warn(String.format("No entityType found with mimeType '%s.'", mimeType));
 				return null;

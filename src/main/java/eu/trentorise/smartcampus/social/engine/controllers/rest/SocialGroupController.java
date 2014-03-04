@@ -233,13 +233,6 @@ public class SocialGroupController extends RestController {
 		if(sortList == null || sortList.isEmpty()){
 			mySortList.add(groupManager.getMembersort());
 		} else {
-			if(sortList.size() == 1){
-				for(String param : sortList){
-					if(param.compareTo(groupManager.getMembersort()) != 0){
-						throw new IllegalArgumentException(String.format(" parameter '%s' not exists in object group. Use 'userId' instead.", param));
-					}
-				}
-			}
 			mySortList.addAll(sortList);
 		}
 		try{

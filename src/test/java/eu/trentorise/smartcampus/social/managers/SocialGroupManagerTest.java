@@ -321,7 +321,7 @@ public class SocialGroupManagerTest {
 		
 		limit.setPage(1);
 		group_members = groupManager.readMembers(group.getId(), limit);
-		Assert.assertTrue(group_members.size() == 1 && group_members.get(0).getId().compareTo(MEMBER_ID_6) == 0); 
+		Assert.assertTrue(group_members.size() == 1 && group_members.get(0).getId().compareTo(MEMBER_ID_4) == 0); 
 		
 		// read members as String
 		limit.setPage(0);
@@ -336,7 +336,7 @@ public class SocialGroupManagerTest {
 		
 		limit.setPage(1);
 		group_members_string = groupManager.readMembersAsString(group.getId(), limit);
-		Assert.assertTrue(group_members_string.size() == 1 && group_members_string.get(0).compareTo(MEMBER_ID_6) == 0); 		
+		Assert.assertTrue(group_members_string.size() == 1 && group_members_string.get(0).compareTo(MEMBER_ID_4) == 0); 		
 
 		// check members
 		readedGroup = groupManager.readGroup(group.getId());
@@ -348,12 +348,41 @@ public class SocialGroupManagerTest {
 		delete_members.add(MEMBER_ID_2);
 		Assert.assertTrue(groupManager.removeMembers(group.getId(), delete_members));
 		
+		// sort list
 		limit.setPage(0);
+		List<String> parameters = new ArrayList<String>();
+		parameters.add("userId");
+		limit.setSortList(parameters);
 		group_members = groupManager.readMembers(group.getId(), limit);
 		Assert.assertTrue(group_members.size() == 4 && group_members.get(0).getId().compareTo(MEMBER_ID_3) == 0);
 		
+		// reverse sort
+		limit.setDirection(1);
 		group_members_string = groupManager.readMembersAsString(group.getId(), limit);
-		Assert.assertTrue(group_members_string.size() == 4 && group_members_string.get(0).compareTo(MEMBER_ID_3) == 0);
+		Assert.assertTrue(group_members_string.size() == 4 && group_members_string.get(3).compareTo(MEMBER_ID_3) == 0);
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void groupMembersSortErrParam(){
+		// set the limit error
+		limit = new Limit();
+		limit.setPage(0);
+		limit.setPageSize(5);
+		List<String> parameters = new ArrayList<String>();
+		parameters.add("member");	// add a wrong parameter name
+		limit.setSortList(parameters);
+		
+		// add members
+		Set<String> members = new HashSet<String>();
+		members.add(MEMBER_ID_1);
+		members.add(MEMBER_ID_2);
+		members.add(MEMBER_ID_3);
+		members.add(MEMBER_ID_4);
+		members.add(MEMBER_ID_5);
+		members.add(MEMBER_ID_6);
+		Assert.assertTrue(groupManager.addMembers(group.getId(), members));
+		
+		groupManager.readMembers(group.getId(), limit);
 	}
 	
 	@Test

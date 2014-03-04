@@ -192,7 +192,7 @@ public class SocialTypeManagerTest {
 		
 	}
 	
-	@Test(expected = org.springframework.data.mapping.PropertyReferenceException.class)
+	@Test(expected = java.lang.IllegalArgumentException.class)
 	public void test31_ReadTypesPageableAndSortErrorParam(){
 		Limit limit = new Limit();
 		limit.setPage(0);

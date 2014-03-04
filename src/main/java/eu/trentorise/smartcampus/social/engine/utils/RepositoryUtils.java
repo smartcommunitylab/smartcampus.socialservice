@@ -62,4 +62,22 @@ public class RepositoryUtils {
 		string2 = string2.toLowerCase();
 		return string1.compareTo(string2) == 0;
 	}
+	
+	public static String concatStringParams(String[] params){
+		String parameters = "";
+		int i = 0;
+		for(i = 0; i < params.length - 1; i++){
+			parameters = parameters.concat("'" + params[i] + "', ");
+		}
+		parameters = parameters.concat("'" + params[i] + "'");
+		return parameters;
+	}
+	
+	public static String getParamFromException(String exMessage){
+		String message = exMessage;
+		String property = "property";
+		String found = "found";
+		message = message.substring(message.lastIndexOf(property) + property.length() + 1, message.lastIndexOf(found) - 1);
+		return message;
+	}
 }
