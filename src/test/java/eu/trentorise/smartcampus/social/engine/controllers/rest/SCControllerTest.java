@@ -22,7 +22,7 @@ public class SCControllerTest {
 	};
 
 	private static final String USER_AUTH_TOKEN = "";
-	private static final String CLIENT_AUTH_TOKEN = "bba5843c-9582-41a2-922e-a59b4c7db926";
+	private static final String CLIENT_AUTH_TOKEN = "";
 
 	/** Controller utilities **/
 	private static final String RH_AUTH_TOKEN = "Authorization";
@@ -88,17 +88,27 @@ public class SCControllerTest {
 			ResultActions result) throws Exception {
 		return result.andDo(print()).andExpect(status().isBadRequest());
 	}
-	
-	protected ResultActions setNullResult(ResultActions result) throws Exception{
-		return result.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.data").value("null"));
+
+	protected ResultActions setNullResult(ResultActions result)
+			throws Exception {
+		return result.andDo(print()).andExpect(status().isOk())
+				.andExpect(jsonPath("$.data").value("null"));
 	}
-	
-	protected ResultActions setForbiddenExceptionResult(ResultActions result) throws Exception{
-		return result.andDo(print()).andExpect(status().isForbidden()).andExpect(jsonPath("$.error").value("access_denied"));
+
+	protected ResultActions setForbiddenExceptionResult(ResultActions result)
+			throws Exception {
+		return result.andDo(print()).andExpect(status().isForbidden())
+				.andExpect(jsonPath("$.error").value("access_denied"));
 	}
-	
-	protected ResultActions setMethodNotSupportedResult(ResultActions result) throws Exception{
-		return result.andDo(print()).andExpect(status().isMethodNotAllowed()).andExpect(jsonPath("$.errorCode").value(HttpStatus.METHOD_NOT_ALLOWED.toString()));
+
+	protected ResultActions setMethodNotSupportedResult(ResultActions result)
+			throws Exception {
+		return result
+				.andDo(print())
+				.andExpect(status().isMethodNotAllowed())
+				.andExpect(
+						jsonPath("$.errorCode").value(
+								HttpStatus.METHOD_NOT_ALLOWED.toString()));
 	}
-	
+
 }
