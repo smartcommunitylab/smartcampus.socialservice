@@ -72,9 +72,13 @@
      <resourceMapping uri="socialservice.community.{appId}.entities.read" 
         pathPattern="/app/{appId}/community/{communityId}/entity/{entityId}" method="GET"/>
     <resourceMapping uri="socialservice.user.shared.read" 
-        pathPattern="/user/entity/sharing" method="GET"/>
+        pathPattern="/user/shared" method="GET"/>
      <resourceMapping uri="socialservice.user.shared.read" 
-        pathPattern="/user/entity/sharing/{entityId}" method="GET"/>
+        pathPattern="/user/{appId}/shared/{entityId}" method="GET"/>
+     <resourceMapping uri="socialservice.community.{appId}.shared.read" 
+        pathPattern="/app/{appId}/community/{communityId}/shared" method="GET"/>
+    <resourceMapping uri="socialservice.community.{appId}.shared.read" 
+        pathPattern="/app/{appId}/community/{communityId}/shared/{entityId}" method="GET"/>
      
     <!-- community entities -->
     <resourceMapping uri="socialservice.community.{cid}.entities.read" 

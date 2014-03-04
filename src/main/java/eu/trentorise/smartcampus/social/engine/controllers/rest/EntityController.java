@@ -99,7 +99,7 @@ public class EntityController extends RestController {
 				.readEntity(entityManager.defineUri(appId, localId));
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "/user/entity/sharing")
+	@RequestMapping(method = RequestMethod.GET, value = "/user/shared")
 	public @ResponseBody
 	List<Entity> readSharedEntities() {
 		return entityManager.readShared(getUserId(), false,
@@ -107,11 +107,35 @@ public class EntityController extends RestController {
 
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "/user/{appId}/entity/sharing/{localId}")
+	@RequestMapping(method = RequestMethod.GET, value = "/user/{appId}/shared/{localId}")
 	public @ResponseBody
 	Entity readSharedEntity(@PathVariable String appId,
 			@PathVariable String localId) {
 		return entityManager.readShared(getUserId(), false,
+				entityManager.defineUri(appId, localId));
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/app/{appId}/community/{communityId}/shared")
+	public @ResponseBody
+	List<Entity> readCommunitySharedEntity(@PathVariable String appId,
+			@PathVariable String communityId) {
+
+		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
+			throw new SecurityException();
+		}
+		return entityManager.readShared(communityId, true,
+				setLimit(null, null, null, null));
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/app/{appId}/community/{communityId}/shared/{localId}")
+	public @ResponseBody
+	Entity readCommunitySharedEntity(@PathVariable String appId,
+			@PathVariable String communityId, @PathVariable String localId) {
+
+		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
+			throw new SecurityException();
+		}
+		return entityManager.readShared(communityId, true,
 				entityManager.defineUri(appId, localId));
 	}
 

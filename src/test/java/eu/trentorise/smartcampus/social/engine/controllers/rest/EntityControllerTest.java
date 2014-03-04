@@ -24,6 +24,8 @@ import org.springframework.web.context.WebApplicationContext;
 import eu.trentorise.smartcampus.social.engine.beans.Community;
 import eu.trentorise.smartcampus.social.engine.beans.Entity;
 import eu.trentorise.smartcampus.social.engine.beans.EntityType;
+import eu.trentorise.smartcampus.social.engine.beans.Visibility;
+import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.EntityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.SocialTypeRepository;
 import eu.trentorise.smartcampus.social.managers.SocialCommunityManager;
@@ -56,6 +58,9 @@ public class EntityControllerTest extends SCControllerTest {
 	@Autowired
 	EntityRepository entityRepo;
 
+	@Autowired
+	CommunityRepository communityRepo;
+
 	@Before
 	public void setup() throws Exception {
 		this.mockMvc = webAppContextSetup(this.wac).addFilter(
@@ -66,6 +71,7 @@ public class EntityControllerTest extends SCControllerTest {
 	public void cleanup() {
 		entityRepo.deleteAll();
 		typeRepo.deleteAll();
+		communityRepo.deleteAll();
 	}
 
 	@Test
@@ -107,6 +113,34 @@ public class EntityControllerTest extends SCControllerTest {
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
 				jsonPath("$.name").value("entity share"));
+	}
+
+	@Test
+	public void userSharing() throws Exception {
+		EntityType type = typeManager.create("image", "image/jpg");
+		Community community = communityManager.create("SC lab", APPID);
+		Entity entity = new Entity();
+		entity.setLocalId("3455");
+		entity.setName("entity share");
+		entity.setType(type.getId());
+		entity.setVisibility(new Visibility(true));
+
+		RequestBuilder request = setDefaultRequest(
+				post("/app/{appId}/community/{communityId}/entity", APPID,
+						community.getId()), Scope.CLIENT).content(
+				convertObjectToJsonString(entity));
+		ResultActions response = mockMvc.perform(request);
+
+		request = setDefaultRequest(get("/user/shared"), Scope.USER);
+		response = mockMvc.perform(request);
+		response.andExpect(jsonPath("$", Matchers.hasSize(1)));
+
+		request = setDefaultRequest(
+				get("/user/{appId}/shared/{localId}", APPID,
+						entity.getLocalId()), Scope.USER);
+		response = mockMvc.perform(request);
+		response.andExpect(jsonPath("$.visibility.publicShared").value(true));
+
 	}
 
 	@Test
@@ -162,5 +196,47 @@ public class EntityControllerTest extends SCControllerTest {
 		// "111111"), Scope.CLIENT).content(
 		// convertObjectToJsonString(entity));
 		// response = mockMvc.perform(request);
+	}
+
+	@Test
+	public void communitySharing() throws Exception {
+		EntityType type = typeManager.create("image", "image/jpg");
+		Community community = communityManager.create("SC lab", APPID);
+		Entity entity = new Entity();
+		entity.setLocalId("3455");
+		entity.setName("entity share");
+		entity.setType(type.getId());
+		entity.setVisibility(new Visibility(true));
+
+		RequestBuilder request = setDefaultRequest(
+				post("/user/{appId}/entity", APPID), Scope.USER).content(
+				convertObjectToJsonString(entity));
+		ResultActions response = mockMvc.perform(request);
+
+		request = setDefaultRequest(
+				get("/app/{appId}/community/{communityId}/shared", APPID,
+						community.getId()), Scope.CLIENT);
+		response = mockMvc.perform(request);
+		response.andExpect(jsonPath("$", Matchers.hasSize(1)));
+
+		request = setDefaultRequest(
+				get("/app/{appId}/community/{communityId}/shared/{localId}",
+						APPID, community.getId(), entity.getLocalId()),
+				Scope.CLIENT);
+		response = mockMvc.perform(request);
+		setDefaultResult(response).andExpect(
+				jsonPath("$.visibility.publicShared").value(true));
+
+		entity.setVisibility(new Visibility());
+		request = setDefaultRequest(post("/user/{appId}/entity", APPID),
+				Scope.USER).content(convertObjectToJsonString(entity));
+		response = mockMvc.perform(request);
+
+		request = setDefaultRequest(
+				get("/app/{appId}/community/{communityId}/shared", APPID,
+						community.getId()), Scope.CLIENT);
+		response = mockMvc.perform(request);
+		response.andExpect(jsonPath("$", Matchers.hasSize(0)));
+
 	}
 }

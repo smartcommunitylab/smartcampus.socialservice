@@ -118,16 +118,18 @@ public class EntityManager implements EntityOperations {
 			result.addAll(entityRepository.findByUserSharedWith(actorId));
 			result.addAll(entityRepository.findByGroupSharedWith(actorId));
 			result.addAll(entityRepository.findByCommunitySharedWith(actorId));
+			result.addAll(entityRepository.findPublicEntities(actorId));
 		} else {
 			try {
 				result.addAll(entityRepository
 						.findBySharedWithCommunity(new Long(actorId)));
+				result.addAll(entityRepository.findPublicEntities(new Long(
+						actorId)));
 			} catch (NumberFormatException e) {
 				logger.warn(String.format("%s is not valid community id",
 						actorId));
 			}
 		}
-		result.addAll(entityRepository.findPublicEntities(actorId));
 
 		return SocialEntity.toEntity(result);
 	}
@@ -265,18 +267,23 @@ public class EntityManager implements EntityOperations {
 				entity = entityRepository.findByCommunitySharedWith(actorId,
 						uri);
 			}
+			if (entity == null) {
+				entity = entityRepository.findPublicEntities(actorId, uri);
+			}
 		} else {
 			try {
 				entity = entityRepository.findBySharedWithCommunity(new Long(
 						actorId), uri);
+				if (entity == null) {
+					entity = entityRepository.findPublicEntities(new Long(
+							actorId), uri);
+				}
 			} catch (NumberFormatException e) {
 				logger.warn(String.format("%s is not valid community id",
 						actorId));
 			}
 		}
-		if (entity == null) {
-			entity = entityRepository.findPublicEntities(actorId, uri);
-		}
+
 		return entity != null ? entity.toEntity(true) : null;
 	}
 }
