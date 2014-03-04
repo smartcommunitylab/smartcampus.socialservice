@@ -63,7 +63,7 @@ public class EntityController extends RestController {
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
 			@RequestParam(value = "toDate", required = false) Long toDate) {
 		return entityManager.readEntities(getUserId(), null,
-				setLimit(pageNum, pageSize, fromDate, toDate));
+				setLimit(pageNum, pageSize, fromDate, toDate, null, null));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/user/{appId}/entity/{localId}")
@@ -93,7 +93,7 @@ public class EntityController extends RestController {
 			throw new SecurityException();
 		}
 		return entityManager.readEntities(null, communityId,
-				setLimit(pageNum, pageSize, fromDate, toDate));
+				setLimit(pageNum, pageSize, fromDate, toDate, null, null));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/app/{appId}/community/{communityId}/entity/{localId}")
@@ -119,7 +119,7 @@ public class EntityController extends RestController {
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
 			@RequestParam(value = "toDate", required = false) Long toDate) {
 		return entityManager.readShared(getUserId(), false,
-				setLimit(pageNum, pageSize, fromDate, toDate));
+				setLimit(pageNum, pageSize, fromDate, toDate, null, null));
 
 	}
 
@@ -145,7 +145,7 @@ public class EntityController extends RestController {
 			throw new SecurityException();
 		}
 		return entityManager.readShared(communityId, true,
-				setLimit(pageNum, pageSize, fromDate, toDate));
+				setLimit(pageNum, pageSize, fromDate, toDate, null, null));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/app/{appId}/community/{communityId}/shared/{localId}")

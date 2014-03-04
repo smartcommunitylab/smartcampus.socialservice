@@ -34,7 +34,7 @@ public class SocialCommunityController extends RestController {
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
 			@RequestParam(value = "toDate", required = false) Long toDate) {
 		return communityManager.readCommunities(setLimit(pageNum, pageSize,
-				fromDate, toDate));
+				fromDate, toDate, null, null));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/community/{communityId}")
