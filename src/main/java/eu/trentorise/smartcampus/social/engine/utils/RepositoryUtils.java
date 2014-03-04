@@ -20,7 +20,13 @@ public class RepositoryUtils {
 		}
 	}
 
-	public static List<?> getSublistPagination(List<?> list, Limit limit) {
+	public static <T> List<T> getSublistPagination(List<T> list, Limit limit) {
+		if (limit == null) {
+			return list;
+		}
+		if (list == null) {
+			return null;
+		}
 		int from = limit.getPage() * limit.getPageSize();
 		int to = from + (limit.getPageSize());
 		if (from >= list.size()) {
