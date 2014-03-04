@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -114,24 +115,35 @@ public class EntityManager implements EntityOperations {
 	public List<Entity> readShared(String actorId, boolean isCommunity,
 			Limit limit) {
 		Set<SocialEntity> result = new HashSet<SocialEntity>();
+		PageRequest pager = null;
+		/**
+		 * having 4 queries to collect all entities shared with actor is a
+		 * problem to paginate results.
+		 * 
+		 * To simplify pagination is done functionally, probably there will be
+		 * some PERFORMANCE problems when many entities [more than 10000] will
+		 * be shared public or with the actor
+		 */
 		if (!isCommunity) {
-			result.addAll(entityRepository.findByUserSharedWith(actorId));
-			result.addAll(entityRepository.findByGroupSharedWith(actorId));
-			result.addAll(entityRepository.findByCommunitySharedWith(actorId));
-			result.addAll(entityRepository.findPublicEntities(actorId));
+			result.addAll(entityRepository.findByUserSharedWith(actorId, pager));
+			result.addAll(entityRepository
+					.findByGroupSharedWith(actorId, pager));
+			result.addAll(entityRepository.findByCommunitySharedWith(actorId,
+					pager));
+			result.addAll(entityRepository.findPublicEntities(actorId, pager));
 		} else {
 			try {
-				result.addAll(entityRepository
-						.findBySharedWithCommunity(new Long(actorId)));
+				result.addAll(entityRepository.findBySharedWithCommunity(
+						new Long(actorId), pager));
 				result.addAll(entityRepository.findPublicEntities(new Long(
-						actorId)));
+						actorId), pager));
 			} catch (NumberFormatException e) {
 				logger.warn(String.format("%s is not valid community id",
 						actorId));
 			}
 		}
-
-		return SocialEntity.toEntity(result);
+		return SocialEntity.toEntity(RepositoryUtils.getSublistPagination(
+				new ArrayList<SocialEntity>(result), limit));
 	}
 
 	@Override
@@ -139,6 +151,10 @@ public class EntityManager implements EntityOperations {
 			Limit limit) {
 		SocialUser owner = null;
 		SocialCommunity communityOwner = null;
+		PageRequest pager = null;
+		if (limit != null) {
+			pager = new PageRequest(limit.getPage(), limit.getPageSize());
+		}
 		if (ownerId != null) {
 			owner = userManager.defineSocialUser(ownerId);
 		}
@@ -150,7 +166,7 @@ public class EntityManager implements EntityOperations {
 			return Collections.<Entity> emptyList();
 		} else {
 			return SocialEntity.toEntity(entityRepository
-					.findByOwnerOrCommunityOwner(owner, communityOwner));
+					.findByOwnerOrCommunityOwner(owner, communityOwner, pager));
 		}
 	}
 

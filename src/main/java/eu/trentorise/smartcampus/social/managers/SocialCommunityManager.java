@@ -1,7 +1,6 @@
 package eu.trentorise.smartcampus.social.managers;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -138,9 +137,9 @@ public class SocialCommunityManager implements CommunityOperations {
 		if (community != null) {
 			if (limit != null) {
 				return new HashSet<String>(
-						(Collection<? extends String>) RepositoryUtils
-								.getSublistPagination(new ArrayList<String>(
-										community.getMemberIds()), limit));
+						RepositoryUtils.getSublistPagination(
+								new ArrayList<String>(community.getMemberIds()),
+								limit));
 			} else {
 				return community.getMemberIds();
 			}

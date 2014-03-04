@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.trentorise.smartcampus.social.engine.beans.Entity;
@@ -56,8 +57,13 @@ public class EntityController extends RestController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/user/entity")
 	public @ResponseBody
-	List<Entity> readMyEntities() {
-		return entityManager.readEntities(getUserId(), null, null);
+	List<Entity> readMyEntities(
+			@RequestParam(value = "pageNum", required = false) Integer pageNum,
+			@RequestParam(value = "pageSize", required = false) Integer pageSize,
+			@RequestParam(value = "fromDate", required = false) Long fromDate,
+			@RequestParam(value = "toDate", required = false) Long toDate) {
+		return entityManager.readEntities(getUserId(), null,
+				setLimit(pageNum, pageSize, fromDate, toDate));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/user/{appId}/entity/{localId}")
@@ -75,13 +81,19 @@ public class EntityController extends RestController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/app/{appId}/community/{communityId}/entity")
 	public @ResponseBody
-	List<Entity> readCommunityEntities(@PathVariable String appId,
-			@PathVariable String communityId) {
+	List<Entity> readCommunityEntities(
+			@PathVariable String appId,
+			@PathVariable String communityId,
+			@RequestParam(value = "pageNum", required = false) Integer pageNum,
+			@RequestParam(value = "pageSize", required = false) Integer pageSize,
+			@RequestParam(value = "fromDate", required = false) Long fromDate,
+			@RequestParam(value = "toDate", required = false) Long toDate) {
 
 		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
 			throw new SecurityException();
 		}
-		return entityManager.readEntities(null, communityId, null);
+		return entityManager.readEntities(null, communityId,
+				setLimit(pageNum, pageSize, fromDate, toDate));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/app/{appId}/community/{communityId}/entity/{localId}")
@@ -101,9 +113,13 @@ public class EntityController extends RestController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/user/shared")
 	public @ResponseBody
-	List<Entity> readSharedEntities() {
+	List<Entity> readSharedEntities(
+			@RequestParam(value = "pageNum", required = false) Integer pageNum,
+			@RequestParam(value = "pageSize", required = false) Integer pageSize,
+			@RequestParam(value = "fromDate", required = false) Long fromDate,
+			@RequestParam(value = "toDate", required = false) Long toDate) {
 		return entityManager.readShared(getUserId(), false,
-				setLimit(null, null, null, null));
+				setLimit(pageNum, pageSize, fromDate, toDate));
 
 	}
 
@@ -117,14 +133,19 @@ public class EntityController extends RestController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/app/{appId}/community/{communityId}/shared")
 	public @ResponseBody
-	List<Entity> readCommunitySharedEntity(@PathVariable String appId,
-			@PathVariable String communityId) {
+	List<Entity> readCommunitySharedEntity(
+			@PathVariable String appId,
+			@PathVariable String communityId,
+			@RequestParam(value = "pageNum", required = false) Integer pageNum,
+			@RequestParam(value = "pageSize", required = false) Integer pageSize,
+			@RequestParam(value = "fromDate", required = false) Long fromDate,
+			@RequestParam(value = "toDate", required = false) Long toDate) {
 
 		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
 			throw new SecurityException();
 		}
 		return entityManager.readShared(communityId, true,
-				setLimit(null, null, null, null));
+				setLimit(pageNum, pageSize, fromDate, toDate));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/app/{appId}/community/{communityId}/shared/{localId}")

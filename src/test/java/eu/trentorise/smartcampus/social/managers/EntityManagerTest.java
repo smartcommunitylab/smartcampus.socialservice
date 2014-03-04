@@ -328,4 +328,53 @@ public class EntityManagerTest {
 		Assert.assertEquals(1, entity.getVisibility().getGroups().size());
 	}
 
+	@Test
+	public void resultPaging() {
+		initEnv();
+		for (int i = 0; i < 50; i++) {
+			Entity entity = new Entity();
+			entity.setName("my sunny sunday");
+			entity.setLocalId("1EAC00" + i);
+			entity.setVisibility(new Visibility(true));
+			entity.setOwner(USERID_2);
+			entity.setType(typeManager.readTypeByNameAndMimeType("photo",
+					"image/jpg").getId());
+			entity = manager.saveOrUpdate("testSpace", entity);
+		}
+
+		for (int i = 0; i < 20; i++) {
+			Entity entity = new Entity();
+			entity.setName("my sunny sunday");
+			entity.setLocalId("1EAC10" + i);
+			entity.setVisibility(new Visibility(Arrays.asList(USERID_1), null,
+					null));
+			entity.setOwner(USERID_2);
+			entity.setType(typeManager.readTypeByNameAndMimeType("photo",
+					"image/jpg").getId());
+			entity = manager.saveOrUpdate("testSpace", entity);
+		}
+
+		Limit limit = new Limit();
+		limit.setPageSize(10);
+		limit.setPage(0);
+		Assert.assertEquals(10, manager.readShared(USERID_1, false, limit)
+				.size());
+		limit.setPageSize(40);
+		limit.setPage(0);
+		Assert.assertEquals(40, manager.readShared(USERID_1, false, limit)
+				.size());
+		limit.setPage(1);
+		Assert.assertEquals(30, manager.readShared(USERID_1, false, limit)
+				.size());
+
+		limit.setPageSize(20);
+		limit.setPage(0);
+		Assert.assertEquals(20, manager.readEntities(USERID_2, null, limit)
+				.size());
+		limit.setPageSize(20);
+		limit.setPage(7);
+		Assert.assertEquals(0, manager.readEntities(USERID_2, null, limit)
+				.size());
+	}
+
 }
