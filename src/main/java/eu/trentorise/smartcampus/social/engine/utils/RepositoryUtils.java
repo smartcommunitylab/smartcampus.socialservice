@@ -2,6 +2,7 @@ package eu.trentorise.smartcampus.social.engine.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
@@ -40,9 +41,13 @@ public class RepositoryUtils {
 	}
 
 	public static <T extends Comparable<? super T>> List<T> asSortedList(
-			Collection<T> c) {
+			Collection<T> c, int direction) {
 		List<T> list = new ArrayList<T>(c);
-		java.util.Collections.sort(list);
+		if(direction == 0){
+			java.util.Collections.sort(list);
+		} else {
+			java.util.Collections.sort(list, Collections.reverseOrder());
+		}
 		return list;
 	}
 
@@ -53,10 +58,32 @@ public class RepositoryUtils {
 		}
 		return normalized;
 	}
+	
+	public static String normalizeStringLowerCase(String toNormalize) {
+		return normalizeString(toNormalize).toLowerCase();
+	}
 
 	public static boolean normalizeCompare(String string1, String string2) {
 		string1 = string1.toLowerCase();
 		string2 = string2.toLowerCase();
 		return string1.compareTo(string2) == 0;
+	}
+	
+	public static String concatStringParams(String[] params){
+		String parameters = "";
+		int i = 0;
+		for(i = 0; i < params.length - 1; i++){
+			parameters = parameters.concat("'" + params[i] + "', ");
+		}
+		parameters = parameters.concat("'" + params[i] + "'");
+		return parameters;
+	}
+	
+	public static String getParamFromException(String exMessage){
+		String message = exMessage;
+		String property = "property";
+		String found = "found";
+		message = message.substring(message.lastIndexOf(property) + property.length() + 1, message.lastIndexOf(found) - 1);
+		return message;
 	}
 }

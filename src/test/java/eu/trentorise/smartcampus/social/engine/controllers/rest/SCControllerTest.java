@@ -10,6 +10,7 @@ import java.io.IOException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -20,7 +21,7 @@ public class SCControllerTest {
 		USER, CLIENT
 	};
 
-	private static final String USER_AUTH_TOKEN = "51e66f7c-f6cc-4536-b532-e2fd2e6b6faa";
+	private static final String USER_AUTH_TOKEN = "";
 	private static final String CLIENT_AUTH_TOKEN = "bba5843c-9582-41a2-922e-a59b4c7db926";
 
 	/** Controller utilities **/
@@ -85,16 +86,19 @@ public class SCControllerTest {
 
 	protected ResultActions setIllegalArgumentExceptionResult(
 			ResultActions result) throws Exception {
-		return result.andDo(print()).andExpect(status().isBadRequest())
-				.andExpect(content().string(""));
+		return result.andDo(print()).andExpect(status().isBadRequest());
 	}
 	
 	protected ResultActions setNullResult(ResultActions result) throws Exception{
-		return result.andDo(print()).andExpect(status().isOk()).andExpect(content().string(""));
+		return result.andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.data").value("null"));
 	}
 	
 	protected ResultActions setForbiddenExceptionResult(ResultActions result) throws Exception{
 		return result.andDo(print()).andExpect(status().isForbidden()).andExpect(jsonPath("$.error").value("access_denied"));
+	}
+	
+	protected ResultActions setMethodNotSupportedResult(ResultActions result) throws Exception{
+		return result.andDo(print()).andExpect(status().isMethodNotAllowed()).andExpect(jsonPath("$.errorCode").value(HttpStatus.METHOD_NOT_ALLOWED.toString()));
 	}
 	
 }

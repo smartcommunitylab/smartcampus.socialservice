@@ -9,6 +9,9 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -32,8 +35,16 @@ public class SocialGroupManager implements GroupOperations {
 	@Autowired
 	SocialUserManager userManager;
 	
+	private static final String memberSort = "userId";
 	private static final Logger logger = Logger.getLogger(SocialGroupManager.class);
+	private static final String[] SORTEABLE_PARAMS = {"id", "name", "creationTime", "lastModifiedTime", "creatorId"};
 	
+	
+	
+	public static String getMembersort() {
+		return memberSort;
+	}
+
 	@Override
 	public Group create(String userId, String name) {
 		if (!StringUtils.hasLength(userId)) {
@@ -72,21 +83,32 @@ public class SocialGroupManager implements GroupOperations {
 
 	@Override
 	public List<Group> readGroups(String userId, Limit limit) {
-		
+		Pageable pageable = null;
 		List<SocialGroup> groups = null;
 		// load user
 		SocialUser user = userManager.readSocialUser(userId);
 		if(user != null){
 			if(limit != null){
-				Pageable pageable = new PageRequest(limit.getPage(), limit.getPageSize());
-				if(limit.getFromDate() > 0 && limit.getToDate() > 0){
-					groups = groupRepository.findByCreatorIdAndCreationTimeBetween(userId, limit.getFromDate(), limit.getToDate(), pageable);
-				} else if(limit.getFromDate() > 0){
-					groups = groupRepository.findByCreatorIdAndCreationTimeGreaterThan(userId, limit.getFromDate(), pageable);
-				} else if(limit.getToDate() > 0){
-					groups = groupRepository.findByCreatorIdAndCreationTimeLessThan(userId, limit.getToDate(), pageable);
+				if(limit.getSortList() != null && !limit.getSortList().isEmpty()){
+					Sort sort = new Sort(limit.getDirection() == 0 ? Direction.ASC : Direction.DESC, limit.getSortList());
+					pageable = new PageRequest(limit.getPage(), limit.getPageSize(), sort); 
 				} else {
-					groups = groupRepository.findByCreatorId(userId, pageable);
+					pageable = new PageRequest(limit.getPage(), limit.getPageSize());
+				}
+				try {
+					if(limit.getFromDate() > 0 && limit.getToDate() > 0){
+						groups = groupRepository.findByCreatorIdAndCreationTimeBetween(userId, limit.getFromDate(), limit.getToDate(), pageable);
+					} else if(limit.getFromDate() > 0){
+						groups = groupRepository.findByCreatorIdAndCreationTimeGreaterThan(userId, limit.getFromDate(), pageable);
+					} else if(limit.getToDate() > 0){
+						groups = groupRepository.findByCreatorIdAndCreationTimeLessThan(userId, limit.getToDate(), pageable);
+					} else {
+						groups = groupRepository.findByCreatorId(userId, pageable);
+					}
+				} catch (PropertyReferenceException pre){
+					String messageException = String.format("Property reference exception in sorting operation. Property '%s' not exists. Use %s instead.", RepositoryUtils.getParamFromException(pre.getMessage()), RepositoryUtils.concatStringParams(SORTEABLE_PARAMS));
+					logger.error(messageException);
+					throw new IllegalArgumentException(messageException);
 				}
 				return SocialGroup.toGroup(groups);
 			} else {
@@ -127,9 +149,17 @@ public class SocialGroupManager implements GroupOperations {
 				}
 				//To sort the list
 				List<User> unsorted = members.subList(0, members.size());	//Get all the list
-				members = RepositoryUtils.asSortedList(unsorted);
-				
 				if(limit != null){
+					if(limit.getSortList() != null && limit.getSortList().size() == 1){
+						String param = limit.getSortList().get(0);
+						if(param.compareTo(memberSort) == 0){
+							members = RepositoryUtils.asSortedList(unsorted, limit.getDirection());
+						} else {
+							String messageException = String.format(" parameter '%s' not exists in object group. Use '%s' instead.", param, memberSort);
+							logger.error(messageException);
+							throw new IllegalArgumentException(messageException);
+						}
+					}
 					return (List<User>) RepositoryUtils.getSublistPagination(members, limit);
 				} else {
 					logger.warn("No limit specified for this search.");
@@ -157,9 +187,17 @@ public class SocialGroupManager implements GroupOperations {
 				}
 				//To sort the list
 				List<String> unsorted = members.subList(0, members.size());	//Get all the list
-				members = RepositoryUtils.asSortedList(unsorted);
-				
 				if(limit != null){
+					if(limit.getSortList() != null && limit.getSortList().size() == 1){
+						String param = limit.getSortList().get(0);
+						if(param.compareTo("userId") == 0){
+							members = RepositoryUtils.asSortedList(unsorted, limit.getDirection());
+						} else {
+							String messageException = String.format(" parameter '%s' not exists in object group. Use '%s' instead.", param, memberSort);
+							logger.error(messageException);
+							throw new IllegalArgumentException(messageException);
+						}
+					}
 					return (List<String>) RepositoryUtils.getSublistPagination(members, limit);
 				} else {
 					logger.info("No limit specified for this search.");

@@ -32,16 +32,14 @@
 
 	<!-- Activates various annotations to be detected in bean classes -->
 	<context:annotation-config />
-
-	<import resource="datalayer.xml" />
-
-	<!-- <bean class="org.springframework.orm.hibernate4.HibernateExceptionTranslator"/> -->
-
-	<bean id="authServices"
-		class="eu.trentorise.smartcampus.social.managers.MockAuthServices" />
-
-	<!-- Smartcampus Exception resolver -->
-	<bean id="exceptionResolver"
-		class="eu.trentorise.smartcampus.social.engine.controllers.rest.SCExceptionResolver" />
+	
+		<import resource="datalayer.xml"/>
+	
+<!-- 	<bean class="org.springframework.orm.hibernate4.HibernateExceptionTranslator"/> -->
+	
+    <bean id="authServices" class="eu.trentorise.smartcampus.social.managers.MockAuthServices"/>	
+    
+    <!-- Smartcampus Exception resolver -->
+<!-- 	<bean id="exceptionResolver" class="eu.trentorise.smartcampus.social.engine.controllers.rest.SCExceptionResolver" /> -->
 
 </beans>

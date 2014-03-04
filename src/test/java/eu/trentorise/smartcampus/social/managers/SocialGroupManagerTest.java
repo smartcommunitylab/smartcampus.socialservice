@@ -82,9 +82,9 @@ public class SocialGroupManagerTest {
 			group = groupManager.update(group.getId(), formatter.parse("01-01-2013").getTime());
 			group2 = groupManager.update(group2.getId(), formatter.parse("01-02-2013").getTime());
 			group3 = groupManager.update(group3.getId(), formatter.parse("01-03-2013").getTime());
-			group9 = groupManager.update(group9.getId(), formatter.parse("01-03-2014").getTime());
-			group10 = groupManager.update(group10.getId(), formatter.parse("01-04-2014").getTime());
-			group11 = groupManager.update(group11.getId(), formatter.parse("01-05-2014").getTime());		
+			group9 = groupManager.update(group9.getId(), formatter.parse("01-05-2014").getTime());
+			group10 = groupManager.update(group10.getId(), formatter.parse("01-06-2014").getTime());
+			group11 = groupManager.update(group11.getId(), formatter.parse("01-07-2014").getTime());		
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
@@ -151,7 +151,7 @@ public class SocialGroupManagerTest {
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
 		try {
 			Long fromDate = formatter.parse("01-03-2013").getTime();
-			Long toDate = formatter.parse("25-02-2014").getTime();
+			Long toDate = formatter.parse("10-03-2014").getTime();
 			limit.setPage(1);
 			limit.setFromDate(fromDate);
 			limit.setToDate(toDate);
@@ -193,6 +193,107 @@ public class SocialGroupManagerTest {
 	}
 	
 	@Test
+	public void readGroupsSort() {
+		limit = new Limit();
+		limit.setPage(0);
+		limit.setPageSize(5);
+		// with sort (by name and creation time asc)
+		limit.setDirection(0);
+		List<String> orderParams = new ArrayList<String>();
+		orderParams.add("name");
+		orderParams.add("creationTime");
+		limit.setSortList(orderParams);
+		
+		// read : read all groups created from user "30" using pagination ( page 0, page_size 5 ) => I obtain the first five groups from 0 to 4
+		readedGroups = groupManager.readGroups(USER_ID, limit);
+		Assert.assertTrue(readedGroups.size() == 5 && readedGroups.get(0).getName().compareTo(GROUP_NAME_3) == 0);
+		
+		limit.setPage(2);
+		readedGroups = groupManager.readGroups(USER_ID, limit);
+		// read : read all groups created from user "30" using pagination ( page 2, page_size 5 ) => I obtain the last group from 10 to 10
+		Assert.assertTrue(readedGroups.size() == 1 && readedGroups.get(0).getName().compareTo(GROUP_NAME_9) == 0);
+		
+		// read with time pagination
+		changeCreationTime();
+		
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");	
+		try {
+			Long fromDate = formatter.parse("01-03-2013").getTime();
+			Long toDate = formatter.parse("10-03-2014").getTime();
+			limit.setPage(1);
+			limit.setFromDate(fromDate);
+			limit.setToDate(toDate);
+			// with sort (by name desc)
+			limit.setDirection(1);
+			orderParams = new ArrayList<String>();
+			orderParams.add("name");
+			limit.setSortList(orderParams);
+			
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		readedGroups = groupManager.readGroups(USER_ID, limit);
+		// read : read all groups created from user "30" using pagination ( page 1, page_size 5 ) created between 01-03-2013 and 15-02-2014 => I obtain only the group "group8"
+		Assert.assertTrue(readedGroups.size() == 1 && readedGroups.get(0).getName().compareTo(GROUP_NAME_2) == 0);
+		
+		try {
+			Long fromDate = formatter.parse("01-02-2014").getTime();
+			Long toDate = 0L;
+			limit.setPage(1);
+			limit.setFromDate(fromDate);
+			limit.setToDate(toDate);
+			// with sort (by lastModifiedTime asc)
+			limit.setDirection(0);
+			orderParams = new ArrayList<String>();
+			orderParams.add("lastModifiedTime");
+			limit.setSortList(orderParams);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		readedGroups = groupManager.readGroups(USER_ID, limit);
+		String group_name_1 = readedGroups.get(0).getName();
+		// read : read all groups created from user "30" using pagination ( page 1, page_size 5 ) created after 01-02-2014 => I obtain three groups from 8 to 10
+		Assert.assertTrue(readedGroups.size() == 3 && group_name_1.compareTo(GROUP_NAME_9) == 0);
+		
+		try {
+			Long fromDate = 0L;
+			Long toDate = formatter.parse("10-02-2014").getTime();
+			limit.setPage(0);
+			limit.setFromDate(fromDate);
+			limit.setToDate(toDate);
+			// with sort (by creationTime desc)
+			limit.setDirection(1);
+			orderParams = new ArrayList<String>();
+			orderParams.add("creationTime");
+			limit.setSortList(orderParams);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		readedGroups = groupManager.readGroups(USER_ID, limit);
+		group_name_1 = readedGroups.get(2).getName();
+		// read : read all groups created from user "30" using pagination ( page 0, page_size 5 ) created before 10-02-2014 => I obtain three groups from 0 to 2
+		Assert.assertTrue(readedGroups.size() == 3 && group_name_1.compareTo(GROUP_NAME_1) == 0);
+		
+		Long fromDate = 0L;
+		Long toDate = 0L;
+		limit.setPage(0);
+		limit.setPageSize(10);
+		limit.setFromDate(fromDate);
+		limit.setToDate(toDate);
+		// with sort (by lastModifiedTime desc)
+		limit.setDirection(1);
+		orderParams = new ArrayList<String>();
+		orderParams.add("lastModifiedTime");
+		limit.setSortList(orderParams);
+
+		readedGroups = groupManager.readGroups(USER_ID, limit);
+		group_name_1 = readedGroups.get(2).getName();
+		// read : read all groups created from user "30" using pagination ( page 0, page_size 5 ) created before 10-02-2014 => I obtain three groups from 0 to 2
+		Assert.assertTrue(readedGroups.size() == 10 && group_name_1.compareTo(GROUP_NAME_9) == 0);
+		
+	}
+	
+	@Test
 	public void groupMembers() {
 		limit = new Limit();
 		limit.setPage(0);
@@ -220,7 +321,7 @@ public class SocialGroupManagerTest {
 		
 		limit.setPage(1);
 		group_members = groupManager.readMembers(group.getId(), limit);
-		Assert.assertTrue(group_members.size() == 1 && group_members.get(0).getId().compareTo(MEMBER_ID_6) == 0); 
+		Assert.assertTrue(group_members.size() == 1 && group_members.get(0).getId().compareTo(MEMBER_ID_4) == 0); 
 		
 		// read members as String
 		limit.setPage(0);
@@ -235,7 +336,7 @@ public class SocialGroupManagerTest {
 		
 		limit.setPage(1);
 		group_members_string = groupManager.readMembersAsString(group.getId(), limit);
-		Assert.assertTrue(group_members_string.size() == 1 && group_members_string.get(0).compareTo(MEMBER_ID_6) == 0); 		
+		Assert.assertTrue(group_members_string.size() == 1 && group_members_string.get(0).compareTo(MEMBER_ID_4) == 0); 		
 
 		// check members
 		readedGroup = groupManager.readGroup(group.getId());
@@ -247,12 +348,41 @@ public class SocialGroupManagerTest {
 		delete_members.add(MEMBER_ID_2);
 		Assert.assertTrue(groupManager.removeMembers(group.getId(), delete_members));
 		
+		// sort list
 		limit.setPage(0);
+		List<String> parameters = new ArrayList<String>();
+		parameters.add("userId");
+		limit.setSortList(parameters);
 		group_members = groupManager.readMembers(group.getId(), limit);
 		Assert.assertTrue(group_members.size() == 4 && group_members.get(0).getId().compareTo(MEMBER_ID_3) == 0);
 		
+		// reverse sort
+		limit.setDirection(1);
 		group_members_string = groupManager.readMembersAsString(group.getId(), limit);
-		Assert.assertTrue(group_members_string.size() == 4 && group_members_string.get(0).compareTo(MEMBER_ID_3) == 0);
+		Assert.assertTrue(group_members_string.size() == 4 && group_members_string.get(3).compareTo(MEMBER_ID_3) == 0);
+	}
+	
+	@Test(expected = java.lang.IllegalArgumentException.class)
+	public void groupMembersSortErrParam(){
+		// set the limit error
+		limit = new Limit();
+		limit.setPage(0);
+		limit.setPageSize(5);
+		List<String> parameters = new ArrayList<String>();
+		parameters.add("member");	// add a wrong parameter name
+		limit.setSortList(parameters);
+		
+		// add members
+		Set<String> members = new HashSet<String>();
+		members.add(MEMBER_ID_1);
+		members.add(MEMBER_ID_2);
+		members.add(MEMBER_ID_3);
+		members.add(MEMBER_ID_4);
+		members.add(MEMBER_ID_5);
+		members.add(MEMBER_ID_6);
+		Assert.assertTrue(groupManager.addMembers(group.getId(), members));
+		
+		groupManager.readMembers(group.getId(), limit);
 	}
 	
 	@Test
