@@ -1,15 +1,16 @@
 package eu.trentorise.smartcampus.social.engine.beans;
 
-import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 
 public class Result {
-	private String data;
+	private Object data;
 	private String errorCode;
 	private String errorMessage;
 
-	private static final Logger logger = Logger.getLogger(Result.class);
+	public Result() {
+
+	}
 
 	public Result(String data) {
 		super();
@@ -24,16 +25,10 @@ public class Result {
 
 	public Result(Object toJson) {
 		super();
-		ObjectWriter ow = new ObjectMapper().writer()
-				.withDefaultPrettyPrinter();
-		try {
-			this.data = ow.writeValueAsString(toJson);
-		} catch (Exception e) {
-			logger.warn(String.format("Exception converting data in json"));
-		}
+		this.data = toJson;
 	}
 
-	public String getData() {
+	public Object getData() {
 		return data;
 	}
 
@@ -45,7 +40,7 @@ public class Result {
 		return errorMessage;
 	}
 
-	public void setData(String data) {
+	public void setData(Object data) {
 		this.data = data;
 	}
 

@@ -1,7 +1,6 @@
 package eu.trentorise.smartcampus.social.engine.controllers.rest;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.trentorise.smartcampus.social.engine.beans.Community;
+import eu.trentorise.smartcampus.social.engine.beans.Result;
 import eu.trentorise.smartcampus.social.managers.PermissionManager;
 import eu.trentorise.smartcampus.social.managers.SocialCommunityManager;
 
@@ -28,79 +28,79 @@ public class SocialCommunityController extends RestController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/community")
 	public @ResponseBody
-	List<Community> readCommunities(
+	Result readCommunities(
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
 			@RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
 			@RequestParam(value = "toDate", required = false) Long toDate) {
-		return communityManager.readCommunities(setLimit(pageNum, pageSize,
-				fromDate, toDate, null, null));
+		return new Result(communityManager.readCommunities(setLimit(pageNum,
+				pageSize, fromDate, toDate, null, null)));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/community/{communityId}")
 	public @ResponseBody
-	Community readCommunity(@PathVariable String communityId) {
-		return communityManager.readCommunity(communityId);
+	Result readCommunity(@PathVariable String communityId) {
+		return new Result(communityManager.readCommunity(communityId));
 	}
 
 	@RequestMapping(method = RequestMethod.POST, value = "/app/{appId}/community")
 	public @ResponseBody
-	Community createCommunity(@RequestBody Community community,
+	Result createCommunity(@RequestBody Community community,
 			@PathVariable String appId) {
-		return communityManager.create(community.getName(), appId);
+		return new Result(communityManager.create(community.getName(), appId));
 	}
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/app/{appId}/community/{communityId}")
 	public @ResponseBody
-	boolean deleteCommunity(@PathVariable String appId,
+	Result deleteCommunity(@PathVariable String appId,
 			@PathVariable String communityId) {
 
 		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
 			throw new SecurityException();
 		}
 
-		return communityManager.delete(communityId);
+		return new Result(communityManager.delete(communityId));
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/community/{communityId}/member")
 	public @ResponseBody
-	boolean subscribeUser(@PathVariable String communityId) {
+	Result subscribeUser(@PathVariable String communityId) {
 
 		Set<String> members = new HashSet<String>();
 		members.add(getUserId());
-		return communityManager.addMembers(communityId, members);
+		return new Result(communityManager.addMembers(communityId, members));
 	}
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/user/community/{communityId}/member")
 	public @ResponseBody
-	boolean unsubscribeUser(@PathVariable String communityId) {
+	Result unsubscribeUser(@PathVariable String communityId) {
 
 		Set<String> members = new HashSet<String>();
 		members.add(getUserId());
-		return communityManager.removeMembers(communityId, members);
+		return new Result(communityManager.removeMembers(communityId, members));
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/app/{appId}/community/{communityId}/members")
 	public @ResponseBody
-	boolean subscribe(@PathVariable String appId,
+	Result subscribe(@PathVariable String appId,
 			@PathVariable String communityId, @RequestParam Set<String> userIds) {
 
 		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
 			throw new SecurityException();
 		}
 
-		return communityManager.addMembers(communityId, userIds);
+		return new Result(communityManager.addMembers(communityId, userIds));
 	}
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/app/{appId}/community/{communityId}/members")
 	public @ResponseBody
-	boolean unsubscribe(@PathVariable String appId,
+	Result unsubscribe(@PathVariable String appId,
 			@PathVariable String communityId, @RequestParam Set<String> userIds) {
 
 		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
 			throw new SecurityException();
 		}
 
-		return communityManager.removeMembers(communityId, userIds);
+		return new Result(communityManager.removeMembers(communityId, userIds));
 	}
 }

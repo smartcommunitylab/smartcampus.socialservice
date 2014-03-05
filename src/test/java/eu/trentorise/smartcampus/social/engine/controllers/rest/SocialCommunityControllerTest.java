@@ -4,7 +4,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 import junit.framework.Assert;
@@ -26,6 +25,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.context.WebApplicationContext;
 
 import eu.trentorise.smartcampus.social.engine.beans.Community;
+import eu.trentorise.smartcampus.social.engine.beans.Result;
 import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -68,8 +68,7 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 				post("/app/{appId}/community", APPID), Scope.CLIENT).content(
 				"{\"name\": \"Palazzina\"}");
 		ResultActions response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				jsonPath("$.name").value("Palazzina"));
+		response.andExpect(jsonPath("$.data.name").value("Palazzina"));
 
 		request = setDefaultRequest(post("/app/{appId}/community", APPID),
 				Scope.CLIENT).content("{}");
@@ -85,7 +84,8 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 				delete("/app/{appId}/community/{communityId}", APPID,
 						community.getId()), Scope.CLIENT);
 		ResultActions response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(content().string("true"));
+		setDefaultResult(response).andExpect(
+				jsonPath("$.data", Matchers.is(true)));
 	}
 
 	@Test
@@ -93,31 +93,32 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 		RequestBuilder request = setDefaultRequest(get("/community"),
 				Scope.USER);
 		ResultActions response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(content().string("[]"));
+		setDefaultResult(response).andExpect(
+				jsonPath("$.data", Matchers.hasSize(0)));
 
 		Community community = createCommunity("SC Smartcampus", APPID);
 		request = setDefaultRequest(get("/community"), Scope.USER);
 		response = mockMvc.perform(request);
-		setDefaultResult(response)
-				.andExpect(jsonPath("$", Matchers.hasSize(1)));
+		setDefaultResult(response).andExpect(
+				jsonPath("$.data", Matchers.hasSize(1)));
 
 		community = createCommunity("Coders", APPID);
 		request = setDefaultRequest(get("/community"), Scope.USER);
 		response = mockMvc.perform(request);
-		setDefaultResult(response)
-				.andExpect(jsonPath("$", Matchers.hasSize(2)));
+		setDefaultResult(response).andExpect(
+				jsonPath("$.data", Matchers.hasSize(2)));
 
 		request = setDefaultRequest(get("/community"), Scope.USER).param(
 				"pageSize", "1");
 		response = mockMvc.perform(request);
-		setDefaultResult(response)
-				.andExpect(jsonPath("$", Matchers.hasSize(1)));
+		setDefaultResult(response).andExpect(
+				jsonPath("$.data", Matchers.hasSize(1)));
 
 		request = setDefaultRequest(
 				get("/community/{communityId}", community.getId()), Scope.USER);
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
-				jsonPath("$.id").value(community.getId()));
+				jsonPath("$.data.id").value(community.getId()));
 	}
 
 	@Test
@@ -127,12 +128,13 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 				put("/user/community/{communityId}/member", community.getId()),
 				Scope.USER);
 		ResultActions response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(content().string("true"));
+		setDefaultResult(response).andExpect(
+				jsonPath("$.data", Matchers.is(true)));
 		request = setDefaultRequest(
 				get("/community/{communityId}", community.getId()), Scope.USER);
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
-				jsonPath("$.memberIds", Matchers.hasSize(1)));
+				jsonPath("$.data.memberIds", Matchers.hasSize(1)));
 		request = setDefaultRequest(
 				delete("/user/community/{communityId}/member",
 						community.getId()), Scope.USER);
@@ -141,7 +143,7 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 				get("/community/{communityId}", community.getId()), Scope.USER);
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
-				jsonPath("$.memberIds", Matchers.hasSize(0)));
+				jsonPath("$.data.memberIds", Matchers.hasSize(0)));
 	}
 
 	@Test
@@ -158,7 +160,7 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 				get("/community/{communityId}", community.getId()), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
-				jsonPath("$.memberIds", Matchers.hasSize(3)));
+				jsonPath("$.data.memberIds", Matchers.hasSize(3)));
 		request = setDefaultRequest(
 				delete("/app/{appId}/community/{communityId}/members", APPID,
 						community.getId()), Scope.CLIENT).param("userIds",
@@ -168,7 +170,7 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 				get("/community/{communityId}", community.getId()), Scope.USER);
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
-				jsonPath("$.memberIds", Matchers.hasSize(2)));
+				jsonPath("$..data.memberIds", Matchers.hasSize(2)));
 	}
 
 	private Community createCommunity(String name, String appId)
@@ -181,8 +183,10 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 				convertObjectToJsonString(community));
 		MvcResult result = setDefaultResult(mockMvc.perform(request))
 				.andReturn();
-		community = convertJsonToObject(result.getResponse()
-				.getContentAsString(), Community.class);
+		Result r = convertJsonToObject(result.getResponse()
+				.getContentAsString(), Result.class);
+		community = convertObject(r.getData(), Community.class);
+		;
 		return community;
 	}
 }

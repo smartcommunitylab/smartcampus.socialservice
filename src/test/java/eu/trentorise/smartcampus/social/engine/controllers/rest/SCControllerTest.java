@@ -53,6 +53,10 @@ public class SCControllerTest {
 		return jsonOut.writeValueAsString(object);
 	}
 
+	protected <T> T convertObject(Object o, Class<T> classType) {
+		return mapper.convertValue(o, classType);
+	}
+
 	protected <T> T convertJsonToObject(String json, Class<T> classType) {
 		try {
 			if (json != null && classType != null) {
@@ -92,7 +96,7 @@ public class SCControllerTest {
 	protected ResultActions setNullResult(ResultActions result)
 			throws Exception {
 		return result.andDo(print()).andExpect(status().isOk())
-				.andExpect(jsonPath("$.data").value("null"));
+				.andExpect(jsonPath("$.data").doesNotExist());
 	}
 
 	protected ResultActions setForbiddenExceptionResult(ResultActions result)
