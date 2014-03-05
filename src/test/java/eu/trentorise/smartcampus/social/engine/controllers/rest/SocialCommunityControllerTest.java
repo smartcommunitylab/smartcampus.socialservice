@@ -186,7 +186,6 @@ public class SocialCommunityControllerTest extends SCControllerTest {
 		Result r = convertJsonToObject(result.getResponse()
 				.getContentAsString(), Result.class);
 		community = convertObject(r.getData(), Community.class);
-		;
 		return community;
 	}
 }

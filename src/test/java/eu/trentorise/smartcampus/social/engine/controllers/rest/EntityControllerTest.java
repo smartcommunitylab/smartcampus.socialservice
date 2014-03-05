@@ -24,6 +24,7 @@ import org.springframework.web.context.WebApplicationContext;
 import eu.trentorise.smartcampus.social.engine.beans.Community;
 import eu.trentorise.smartcampus.social.engine.beans.Entity;
 import eu.trentorise.smartcampus.social.engine.beans.EntityType;
+import eu.trentorise.smartcampus.social.engine.beans.Result;
 import eu.trentorise.smartcampus.social.engine.beans.Visibility;
 import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.EntityRepository;
@@ -85,34 +86,36 @@ public class EntityControllerTest extends SCControllerTest {
 		RequestBuilder request = setDefaultRequest(get("/user/entity"),
 				Scope.USER).content(convertObjectToJsonString(entity));
 		ResultActions response = mockMvc.perform(request);
-		setDefaultResult(response)
-				.andExpect(jsonPath("$", Matchers.hasSize(0)));
+		setDefaultResult(response).andExpect(
+				jsonPath("$.data", Matchers.hasSize(0)));
 
 		request = setDefaultRequest(post("/user/{appId}/entity", APPID),
 				Scope.USER).content(convertObjectToJsonString(entity));
 		response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				jsonPath("$.uri").value(APPID + "." + entity.getLocalId()))
-				.andExpect(jsonPath("$.owner").value("1"));
+		setDefaultResult(response)
+				.andExpect(
+						jsonPath("$.data.uri").value(
+								APPID + "." + entity.getLocalId())).andExpect(
+						jsonPath("$.data.owner").value("1"));
 
 		request = setDefaultRequest(get("/user/entity"), Scope.USER);
 		response = mockMvc.perform(request);
-		setDefaultResult(response)
-				.andExpect(jsonPath("$", Matchers.hasSize(1)));
+		setDefaultResult(response).andExpect(
+				jsonPath("$.data", Matchers.hasSize(1)));
 
 		request = setDefaultRequest(
 				get("/user/{appId}/entity/{localId}", APPID,
 						entity.getLocalId()), Scope.USER);
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
-				jsonPath("$.name").value("entity share"));
+				jsonPath("$.data.name").value("entity share"));
 
 		request = setDefaultRequest(
 				get("/user/{appId}/entity/{localId}", APPID,
 						entity.getLocalId()), Scope.USER);
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
-				jsonPath("$.name").value("entity share"));
+				jsonPath("$.data.name").value("entity share"));
 	}
 
 	@Test
@@ -133,13 +136,14 @@ public class EntityControllerTest extends SCControllerTest {
 
 		request = setDefaultRequest(get("/user/shared"), Scope.USER);
 		response = mockMvc.perform(request);
-		response.andExpect(jsonPath("$", Matchers.hasSize(1)));
+		response.andExpect(jsonPath("$.data", Matchers.hasSize(1)));
 
 		request = setDefaultRequest(
 				get("/user/{appId}/shared/{localId}", APPID,
 						entity.getLocalId()), Scope.USER);
 		response = mockMvc.perform(request);
-		response.andExpect(jsonPath("$.visibility.publicShared").value(true));
+		response.andExpect(jsonPath("$.data.visibility.publicShared").value(
+				true));
 
 	}
 
@@ -157,8 +161,8 @@ public class EntityControllerTest extends SCControllerTest {
 						community.getId()), Scope.CLIENT).content(
 				convertObjectToJsonString(entity));
 		ResultActions response = mockMvc.perform(request);
-		setDefaultResult(response)
-				.andExpect(jsonPath("$", Matchers.hasSize(0)));
+		setDefaultResult(response).andExpect(
+				jsonPath("$.data", Matchers.hasSize(0)));
 
 		request = setDefaultRequest(
 				post("/app/{appId}/community/{communityId}/entity", APPID,
@@ -167,20 +171,21 @@ public class EntityControllerTest extends SCControllerTest {
 		response = mockMvc.perform(request);
 		MvcResult result = setDefaultResult(response)
 				.andExpect(
-						jsonPath("$.uri").value(
+						jsonPath("$.data.uri").value(
 								APPID + "." + entity.getLocalId()))
 				.andExpect(
-						jsonPath("$.communityOwner").value(community.getId()))
-				.andReturn();
-		entity = convertJsonToObject(result.getResponse().getContentAsString(),
-				Entity.class);
+						jsonPath("$.data.communityOwner").value(
+								community.getId())).andReturn();
+		Result r = convertJsonToObject(result.getResponse()
+				.getContentAsString(), Result.class);
+		entity = convertObject(r.getData(), Entity.class);
 
 		request = setDefaultRequest(
 				get("/app/{appId}/community/{communityId}/entity", APPID,
 						community.getId()), Scope.CLIENT);
 		response = mockMvc.perform(request);
-		setDefaultResult(response)
-				.andExpect(jsonPath("$", Matchers.hasSize(1)));
+		setDefaultResult(response).andExpect(
+				jsonPath("$.data", Matchers.hasSize(1)));
 
 		request = setDefaultRequest(
 				get("/app/{appId}/community/{communityId}/entity/{localId}",
@@ -188,7 +193,7 @@ public class EntityControllerTest extends SCControllerTest {
 				Scope.CLIENT);
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
-				jsonPath("$.name").value("entity share"));
+				jsonPath("$.data.name").value("entity share"));
 
 		// TODO check when SecurityException is manage
 		// request = setDefaultRequest(
@@ -217,7 +222,7 @@ public class EntityControllerTest extends SCControllerTest {
 				get("/app/{appId}/community/{communityId}/shared", APPID,
 						community.getId()), Scope.CLIENT);
 		response = mockMvc.perform(request);
-		response.andExpect(jsonPath("$", Matchers.hasSize(1)));
+		response.andExpect(jsonPath("$.data", Matchers.hasSize(1)));
 
 		request = setDefaultRequest(
 				get("/app/{appId}/community/{communityId}/shared/{localId}",
@@ -225,7 +230,7 @@ public class EntityControllerTest extends SCControllerTest {
 				Scope.CLIENT);
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
-				jsonPath("$.visibility.publicShared").value(true));
+				jsonPath("$.data.visibility.publicShared").value(true));
 
 		entity.setVisibility(new Visibility());
 		request = setDefaultRequest(post("/user/{appId}/entity", APPID),
@@ -236,7 +241,7 @@ public class EntityControllerTest extends SCControllerTest {
 				get("/app/{appId}/community/{communityId}/shared", APPID,
 						community.getId()), Scope.CLIENT);
 		response = mockMvc.perform(request);
-		response.andExpect(jsonPath("$", Matchers.hasSize(0)));
+		response.andExpect(jsonPath("$.data", Matchers.hasSize(0)));
 
 	}
 }
