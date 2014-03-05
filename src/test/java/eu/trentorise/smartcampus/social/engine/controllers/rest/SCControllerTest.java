@@ -101,8 +101,12 @@ public class SCControllerTest {
 
 	protected ResultActions setForbiddenExceptionResult(ResultActions result)
 			throws Exception {
-		return result.andDo(print()).andExpect(status().isForbidden())
-				.andExpect(jsonPath("$.error").value("access_denied"));
+		return result
+				.andDo(print())
+				.andExpect(status().isForbidden())
+				.andExpect(
+						jsonPath("$.errorCode").value(
+								HttpStatus.FORBIDDEN.toString()));
 	}
 
 	protected ResultActions setMethodNotSupportedResult(ResultActions result)
