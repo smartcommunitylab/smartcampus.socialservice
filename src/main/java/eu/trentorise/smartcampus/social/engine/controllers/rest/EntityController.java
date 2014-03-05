@@ -43,9 +43,10 @@ public class EntityController extends RestController {
 	Result createOrUpdateByCommunity(@PathVariable String appId,
 			@PathVariable String communityId, @RequestBody Entity entity) {
 
-		if (!permissionManager.checkEntityPermission(communityId,
-				StringUtils.hasText(entity.getUri()) ? entity.getUri()
-						: entityManager.defineUri(appId, entity), true)) {
+		if (!permissionManager.checkCommunityPermission(appId, communityId)
+				|| !permissionManager.checkEntityPermission(communityId,
+						StringUtils.hasText(entity.getUri()) ? entity.getUri()
+								: entityManager.defineUri(appId, entity), true)) {
 			throw new SecurityException();
 		}
 

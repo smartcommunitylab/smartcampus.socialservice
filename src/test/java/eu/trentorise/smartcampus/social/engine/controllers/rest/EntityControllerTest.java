@@ -195,12 +195,54 @@ public class EntityControllerTest extends SCControllerTest {
 		setDefaultResult(response).andExpect(
 				jsonPath("$.data.name").value("entity share"));
 
-		// TODO check when SecurityException is manage
-		// request = setDefaultRequest(
-		// post("/app/{appId}/community/{communityId}/entity", APPID,
-		// "111111"), Scope.CLIENT).content(
-		// convertObjectToJsonString(entity));
-		// response = mockMvc.perform(request);
+	}
+
+	@Test
+	public void communitySecurityCases() throws Exception {
+		EntityType type = typeManager.create("image", "image/jpg");
+		Community community = communityManager.create("SC lab", APPID);
+		Community community1 = communityManager.create("Coders", APPID);
+		Entity entity = new Entity();
+		entity.setLocalId("3455");
+		entity.setName("entity share");
+		entity.setType(type.getId());
+
+		/**
+		 * create entity from not existing community
+		 */
+		RequestBuilder request = setDefaultRequest(
+				post("/app/{appId}/community/{communityId}/entity", APPID,
+						"111111"), Scope.CLIENT).content(
+				convertObjectToJsonString(entity));
+		ResultActions response = mockMvc.perform(request);
+		setForbiddenExceptionResult(response);
+
+		/**
+		 * try to edit not owned entity
+		 */
+		request = setDefaultRequest(
+				post("/app/{appId}/community/{communityId}/entity", APPID,
+						community.getId()), Scope.CLIENT).content(
+				convertObjectToJsonString(entity));
+		mockMvc.perform(request);
+
+		entity.setName("CHANGED");
+		request = setDefaultRequest(
+				post("/app/{appId}/community/{communityId}/entity", APPID,
+						community1.getId()), Scope.CLIENT).content(
+				convertObjectToJsonString(entity));
+		response = mockMvc.perform(request);
+		setForbiddenExceptionResult(response);
+
+		/**
+		 * try to read not owned entity
+		 */
+		request = setDefaultRequest(
+				get("/app/{appId}/community/{communityId}/entity/{localId}",
+						APPID, community1.getId(), entity.getLocalId()),
+				Scope.CLIENT);
+		response = mockMvc.perform(request);
+		setForbiddenExceptionResult(response);
 	}
 
 	@Test
