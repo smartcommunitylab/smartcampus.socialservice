@@ -62,15 +62,16 @@ public class SocialCommunityManager implements CommunityOperations {
 			if (limit.getPage() >= 0 && limit.getPageSize() > 0) {
 				page = new PageRequest(limit.getPage(), limit.getPageSize());
 			}
-			if (limit.getFromDate() > 0 && limit.getToDate() > 0) {
+			if (limit.getFromDate() > 0 || limit.getToDate() > 0) {
+				if (limit.getFromDate() <= 0) {
+					limit.setFromDate(RepositoryUtils.DEFAULT_FROM_DATE);
+				}
+
+				if (limit.getToDate() <= 0) {
+					limit.setToDate(RepositoryUtils.DEFAULT_TO_DATE);
+				}
 				result = communityRepository.findByCreationTimeBetween(
 						limit.getFromDate(), limit.getToDate(), page);
-			} else if (limit.getFromDate() > 0) {
-				result = communityRepository.findByCreationTimeGreaterThan(
-						limit.getFromDate(), page);
-			} else if (limit.getToDate() > 0) {
-				result = communityRepository.findByCreationTimeLessThan(
-						limit.getToDate(), page);
 			} else {
 				result = communityRepository.findAll(page).getContent();
 			}
