@@ -21,9 +21,6 @@
 	http://www.springframework.org/schema/data/mongo
     http://www.springframework.org/schema/data/mongo/spring-mongo-1.0.xsd">
 
-	<!-- <jpa:repositories base-package="eu.trentorise.smartcampus.social.engine.repo" 
-		/> -->
-
 	<!-- Configures support for @Controllers -->
 	<mvc:annotation-driven />
 
@@ -38,6 +35,14 @@
 <!-- 	<bean class="org.springframework.orm.hibernate4.HibernateExceptionTranslator"/> -->
 	
     <bean id="authServices" class="eu.trentorise.smartcampus.social.managers.MockAuthServices"/>	
+    
+    <!-- Mongo configuration -->
+    <mongo:mongo id="mongo" host="localhost" port="27017"/>
+        <bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+        	<constructor-arg ref="mongo"/>
+       		<constructor-arg name="databaseName" value="commentDb"/>
+        </bean>    
+    <mongo:repositories base-package="eu.trentorise.smartcampus.social.engine.repo.mongo"></mongo:repositories>    
     
     <!-- Smartcampus Exception resolver -->
 <!-- 	<bean id="exceptionResolver" class="eu.trentorise.smartcampus.social.engine.controllers.rest.SCExceptionResolver" /> -->

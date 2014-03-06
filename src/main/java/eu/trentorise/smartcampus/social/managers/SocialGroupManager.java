@@ -133,7 +133,6 @@ public class SocialGroupManager implements GroupOperations {
 		return result != null ? result.toGroup() : null;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> readMembers(String groupId, Limit limit) {
 		
@@ -171,7 +170,6 @@ public class SocialGroupManager implements GroupOperations {
 		return members;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> readMembersAsString(String groupId, Limit limit) {
 		
