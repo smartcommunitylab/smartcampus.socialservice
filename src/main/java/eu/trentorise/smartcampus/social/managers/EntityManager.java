@@ -65,6 +65,9 @@ public class EntityManager implements EntityOperations {
 			persistedEntity.setNamespace(namespace);
 			persistedEntity.setUri(uri);
 			persistedEntity.setLocalId(entity.getLocalId());
+			long date = System.currentTimeMillis();
+			persistedEntity.setCreationTime(date);
+			persistedEntity.setLastModifiedTime(date);
 
 			if (StringUtils.hasText(entity.getType())) {
 				try {
@@ -95,6 +98,8 @@ public class EntityManager implements EntityOperations {
 				throw new IllegalArgumentException(
 						"owner or communityOwner should be valid");
 			}
+		} else {
+			persistedEntity.setLastModifiedTime(System.currentTimeMillis());
 		}
 
 		if (StringUtils.hasText(entity.getName())) {
@@ -124,19 +129,33 @@ public class EntityManager implements EntityOperations {
 		 * some PERFORMANCE problems when many entities [more than 10000] will
 		 * be shared public or with the actor
 		 */
+		long fromDate = RepositoryUtils.DEFAULT_FROM_DATE;
+		long toDate = RepositoryUtils.DEFAULT_TO_DATE;
+		if (limit != null) {
+			if (limit.getFromDate() > 0) {
+				fromDate = limit.getFromDate();
+			}
+
+			if (limit.getToDate() > 0) {
+				toDate = limit.getToDate();
+			}
+		}
+
 		if (!isCommunity) {
-			result.addAll(entityRepository.findByUserSharedWith(actorId, pager));
-			result.addAll(entityRepository
-					.findByGroupSharedWith(actorId, pager));
+			result.addAll(entityRepository.findByUserSharedWith(actorId,
+					fromDate, toDate, pager));
+			result.addAll(entityRepository.findByGroupSharedWith(actorId,
+					fromDate, toDate, pager));
 			result.addAll(entityRepository.findByCommunitySharedWith(actorId,
-					pager));
-			result.addAll(entityRepository.findPublicEntities(actorId, pager));
+					fromDate, toDate, pager));
+			result.addAll(entityRepository.findPublicEntities(actorId,
+					fromDate, toDate, pager));
 		} else {
 			try {
 				result.addAll(entityRepository.findBySharedWithCommunity(
-						new Long(actorId), pager));
+						new Long(actorId), fromDate, toDate, pager));
 				result.addAll(entityRepository.findPublicEntities(new Long(
-						actorId), pager));
+						actorId), fromDate, toDate, pager));
 			} catch (NumberFormatException e) {
 				logger.warn(String.format("%s is not valid community id",
 						actorId));
@@ -152,8 +171,17 @@ public class EntityManager implements EntityOperations {
 		SocialUser owner = null;
 		SocialCommunity communityOwner = null;
 		PageRequest pager = null;
+		long fromDate = RepositoryUtils.DEFAULT_FROM_DATE;
+		long toDate = RepositoryUtils.DEFAULT_TO_DATE;
 		if (limit != null) {
 			pager = new PageRequest(limit.getPage(), limit.getPageSize());
+			if (limit.getFromDate() > 0) {
+				fromDate = limit.getFromDate();
+			}
+
+			if (limit.getToDate() > 0) {
+				toDate = limit.getToDate();
+			}
 		}
 		if (ownerId != null) {
 			owner = userManager.defineSocialUser(ownerId);
@@ -166,7 +194,8 @@ public class EntityManager implements EntityOperations {
 			return Collections.<Entity> emptyList();
 		} else {
 			return SocialEntity.toEntity(entityRepository
-					.findByOwnerOrCommunityOwner(owner, communityOwner, pager));
+					.findByOwnerOrCommunityOwnerAndCreationTimeBetween(owner,
+							communityOwner, fromDate, toDate, pager));
 		}
 	}
 

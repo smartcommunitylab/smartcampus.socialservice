@@ -15,23 +15,27 @@ import eu.trentorise.smartcampus.social.engine.model.SocialUser;
 public interface EntityRepository extends
 		PagingAndSortingRepository<SocialEntity, String> {
 
-	public List<SocialEntity> findByOwnerOrCommunityOwner(SocialUser owner,
-			SocialCommunity communityOwner, Pageable pager);
+	@Query("SELECT se FROM SocialEntity se WHERE (?1=se.owner OR ?2=se.communityOwner) AND se.creationTime BETWEEN ?3 AND ?4")
+	public List<SocialEntity> findByOwnerOrCommunityOwnerAndCreationTimeBetween(
+			SocialUser owner, SocialCommunity communityOwner, long fromDate,
+			long toDate, Pageable pager);
 
 	/** find all entities shared with user */
-	@Query("SELECT se FROM SocialEntity se WHERE ?1 MEMBER OF se.usersSharedWith AND (se.owner IS NULL OR ?1 <> se.owner.id)")
-	public List<SocialEntity> findByUserSharedWith(String userId, Pageable pager);
+	@Query("SELECT se FROM SocialEntity se WHERE ?1 MEMBER OF se.usersSharedWith AND se.creationTime BETWEEN ?2 AND ?3 AND (se.owner IS NULL OR ?1 <> se.owner.id)")
+	public List<SocialEntity> findByUserSharedWith(String userId,
+			long fromDate, long toDate, Pageable pager);
 
-	@Query("SELECT se FROM SocialEntity se, IN (se.groupsSharedWith) AS g WHERE ?1 MEMBER OF g.members AND (se.owner IS NULL OR ?1 <> se.owner.id)")
+	@Query("SELECT se FROM SocialEntity se, IN (se.groupsSharedWith) AS g WHERE ?1 MEMBER OF g.members AND se.creationTime BETWEEN ?2 AND ?3 AND (se.owner IS NULL OR ?1 <> se.owner.id)")
 	public List<SocialEntity> findByGroupSharedWith(String userId,
-			Pageable pager);
+			long fromDate, long toDate, Pageable pager);
 
-	@Query("SELECT se FROM SocialEntity se, IN (se.communitiesSharedWith) AS comm WHERE ?1 MEMBER OF comm.members AND (se.owner IS NULL OR ?1 <> se.owner.id)")
+	@Query("SELECT se FROM SocialEntity se, IN (se.communitiesSharedWith) AS comm WHERE ?1 MEMBER OF comm.members AND se.creationTime BETWEEN ?2 AND ?3 AND (se.owner IS NULL OR ?1 <> se.owner.id)")
 	public List<SocialEntity> findByCommunitySharedWith(String userId,
-			Pageable pager);
+			long fromDate, long toDate, Pageable pager);
 
-	@Query("SELECT se FROM SocialEntity se WHERE publicShared=true AND (se.owner IS NULL OR ?1 <> se.owner.id)")
-	public List<SocialEntity> findPublicEntities(String userId, Pageable pager);
+	@Query("SELECT se FROM SocialEntity se WHERE publicShared=true AND se.creationTime BETWEEN ?2 AND ?3 AND (se.owner IS NULL OR ?1 <> se.owner.id)")
+	public List<SocialEntity> findPublicEntities(String userId, long fromDate,
+			long toDate, Pageable pager);
 
 	/** find entity shared with user */
 	@Query("SELECT se FROM SocialEntity se WHERE ?2=se.id AND ?1 MEMBER OF se.usersSharedWith AND (se.owner IS NULL OR ?1 <> se.owner.id)")
@@ -47,16 +51,16 @@ public interface EntityRepository extends
 	public SocialEntity findPublicEntities(String userId, String uri);
 
 	/** find entities shared with community */
-	@Query("SELECT se FROM SocialEntity se, IN (se.communitiesSharedWith) AS comm WHERE ?1=comm.id AND (se.communityOwner IS NULL OR ?1 <> se.communityOwner.id)")
+	@Query("SELECT se FROM SocialEntity se, IN (se.communitiesSharedWith) AS comm WHERE ?1=comm.id AND se.creationTime BETWEEN ?2 AND ?3 AND (se.communityOwner IS NULL OR ?1 <> se.communityOwner.id)")
 	public List<SocialEntity> findBySharedWithCommunity(Long communityId,
-			Pageable pager);
+			long fromDate, long toDate, Pageable pager);
 
 	@Query("SELECT se FROM SocialEntity se, IN (se.communitiesSharedWith) AS comm WHERE ?2=se.id AND ?1=comm.id AND (se.communityOwner IS NULL OR ?1 <> se.communityOwner.id)")
 	public SocialEntity findBySharedWithCommunity(Long communityId, String uri);
 
-	@Query("SELECT se FROM SocialEntity se WHERE publicShared=true AND (se.communityOwner IS NULL OR ?1 <> se.communityOwner.id)")
+	@Query("SELECT se FROM SocialEntity se WHERE publicShared=true AND  se.creationTime BETWEEN ?2 AND ?3 AND (se.communityOwner IS NULL OR ?1 <> se.communityOwner.id)")
 	public List<SocialEntity> findPublicEntities(Long communityId,
-			Pageable pager);
+			long fromDate, long toDate, Pageable pager);
 
 	@Query("SELECT se FROM SocialEntity se WHERE publicShared=true AND ?2=se.id AND (se.communityOwner IS NULL OR ?1 <> se.communityOwner.id)")
 	public SocialEntity findPublicEntities(Long communityId, String uri);

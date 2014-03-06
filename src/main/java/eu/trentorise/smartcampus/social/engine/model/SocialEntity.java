@@ -13,7 +13,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 
-import eu.trentorise.smartcampus.social.engine.beans.Visibility;
 import eu.trentorise.smartcampus.social.managers.EntityManager;
 
 @Entity
@@ -53,6 +52,9 @@ public class SocialEntity implements Serializable {
 	private Set<SocialCommunity> communitiesSharedWith;
 
 	private boolean publicShared;
+
+	private long creationTime;
+	private long lastModifiedTime;
 
 	public String getName() {
 		return name;
@@ -181,11 +183,27 @@ public class SocialEntity implements Serializable {
 		return outputList;
 	}
 
-	public void setVisibility(Visibility visibility) {
-		if (visibility != null) {
-			publicShared = visibility.isPublicShared();
+	// public void setVisibility(Visibility visibility) {
+	// if (visibility != null) {
+	// publicShared = visibility.isPublicShared();
+	//
+	// }
+	// }
 
-		}
+	public long getCreationTime() {
+		return creationTime;
+	}
+
+	public void setCreationTime(long creationTime) {
+		this.creationTime = creationTime;
+	}
+
+	public long getLastModifiedTime() {
+		return lastModifiedTime;
+	}
+
+	public void setLastModifiedTime(long lastModifiedTime) {
+		this.lastModifiedTime = lastModifiedTime;
 	}
 
 }

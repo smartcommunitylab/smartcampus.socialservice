@@ -1,5 +1,6 @@
 package eu.trentorise.smartcampus.social.managers;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,9 +20,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import eu.trentorise.smartcampus.social.engine.beans.Entity;
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
 import eu.trentorise.smartcampus.social.engine.beans.Visibility;
+import eu.trentorise.smartcampus.social.engine.model.SocialEntity;
+import eu.trentorise.smartcampus.social.engine.model.SocialType;
+import eu.trentorise.smartcampus.social.engine.model.SocialUser;
 import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.EntityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.GroupRepository;
+import eu.trentorise.smartcampus.social.engine.repo.SocialTypeRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("/spring/applicationContext.xml")
@@ -41,6 +46,9 @@ public class EntityManagerTest {
 
 	@Autowired
 	EntityRepository entityRepo;
+
+	@Autowired
+	SocialTypeRepository typeRepo;
 
 	@Autowired
 	CommunityRepository communityRepo;
@@ -81,6 +89,69 @@ public class EntityManagerTest {
 		Assert.assertEquals("AAEAC00", manager.readEntity(entity.getUri())
 				.getLocalId());
 
+	}
+
+	private void initFilterCaseDb() throws Exception {
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+
+		SocialType type = new SocialType("image", "image/png");
+		type = typeRepo.save(type);
+
+		SocialEntity entity = new SocialEntity();
+		String ns = "testSpace";
+		String localId = "RJRJ0";
+		String creationTime = "2014-02-28";
+		entity.setUri(ns + "." + localId);
+		entity.setOwner(new SocialUser(USERID_2));
+		entity.setName("entity");
+		entity.setPublicShared(true);
+		entity.setType(type);
+		entity.setCreationTime(formatter.parse(creationTime).getTime());
+		entity.setNamespace(ns);
+		entity.setLocalId(localId);
+		entityRepo.save(entity);
+
+		entity = new SocialEntity();
+		ns = "testSpace";
+		localId = "RJRJ1";
+		creationTime = "2014-03-04";
+		entity.setUri(ns + "." + localId);
+		entity.setOwner(new SocialUser(USERID_2));
+		entity.setName("entity");
+		entity.setPublicShared(true);
+		entity.setType(type);
+		entity.setCreationTime(formatter.parse(creationTime).getTime());
+		entity.setNamespace(ns);
+		entity.setLocalId(localId);
+		entityRepo.save(entity);
+
+		entity = new SocialEntity();
+		ns = "testSpace";
+		localId = "RJRJ2";
+		creationTime = "2013-03-04";
+		entity.setUri(ns + "." + localId);
+		entity.setOwner(new SocialUser(USERID_2));
+		entity.setName("entity");
+		entity.setPublicShared(true);
+		entity.setType(type);
+		entity.setCreationTime(formatter.parse(creationTime).getTime());
+		entity.setNamespace(ns);
+		entity.setLocalId(localId);
+		entityRepo.save(entity);
+
+		entity = new SocialEntity();
+		ns = "testSpace";
+		localId = "RJRJ3";
+		creationTime = "2012-02-02";
+		entity.setUri(ns + "." + localId);
+		entity.setOwner(new SocialUser(USERID_2));
+		entity.setName("entity");
+		entity.setPublicShared(true);
+		entity.setType(type);
+		entity.setCreationTime(formatter.parse(creationTime).getTime());
+		entity.setNamespace(ns);
+		entity.setLocalId(localId);
+		entityRepo.save(entity);
 	}
 
 	private void initEnv() {
@@ -326,6 +397,61 @@ public class EntityManagerTest {
 		Assert.assertEquals(3, entity.getVisibility().getUsers().size());
 		Assert.assertEquals(1, entity.getVisibility().getCommunities().size());
 		Assert.assertEquals(1, entity.getVisibility().getGroups().size());
+	}
+
+	@Test
+	public void filterByDate() throws Exception {
+		initFilterCaseDb();
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+		Limit limit = null;
+		Assert.assertEquals(4, manager.readEntities(USERID_2, null, limit)
+				.size());
+
+		limit = new Limit();
+		limit.setPage(0);
+		limit.setPageSize(50);
+		limit.setFromDate(formatter.parse("2014-03-05").getTime());
+		Assert.assertEquals(0, manager.readEntities(USERID_2, null, limit)
+				.size());
+
+		limit.setFromDate(formatter.parse("2011-03-05").getTime());
+		Assert.assertEquals(4, manager.readEntities(USERID_2, null, limit)
+				.size());
+
+		limit.setFromDate(formatter.parse("2014-03-04").getTime());
+		Assert.assertEquals(1, manager.readEntities(USERID_2, null, limit)
+				.size());
+
+		limit.setFromDate(formatter.parse("2011-03-05").getTime());
+		limit.setToDate(formatter.parse("2012-09-05").getTime());
+		Assert.assertEquals(1, manager.readEntities(USERID_2, null, limit)
+				.size());
+
+		limit = new Limit();
+		limit.setPage(0);
+		limit.setPageSize(50);
+		Assert.assertEquals(0, manager.readShared(USERID_2, false, limit)
+				.size());
+		Assert.assertEquals(4, manager.readShared(USERID_1, false, limit)
+				.size());
+
+		limit.setFromDate(formatter.parse("2014-03-05").getTime());
+		Assert.assertEquals(0, manager.readShared(USERID_1, false, limit)
+				.size());
+
+		limit.setFromDate(formatter.parse("2011-03-05").getTime());
+		Assert.assertEquals(4, manager.readShared(USERID_1, false, limit)
+				.size());
+
+		limit.setFromDate(formatter.parse("2014-03-04").getTime());
+		Assert.assertEquals(1, manager.readShared(USERID_1, false, limit)
+				.size());
+
+		limit.setFromDate(formatter.parse("2011-03-05").getTime());
+		limit.setToDate(formatter.parse("2012-09-05").getTime());
+		Assert.assertEquals(1, manager.readShared(USERID_1, false, limit)
+				.size());
+
 	}
 
 	@Test
