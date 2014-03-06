@@ -32,9 +32,11 @@ public class SocialCommunityController extends RestController {
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
 			@RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
-			@RequestParam(value = "toDate", required = false) Long toDate) {
+			@RequestParam(value = "toDate", required = false) Long toDate,
+			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
+			@RequestParam(value = "sortList", required = false) Set<String> sortList) {
 		return new Result(communityManager.readCommunities(setLimit(pageNum,
-				pageSize, fromDate, toDate, null, null)));
+				pageSize, fromDate, toDate, sortDirection, sortList)));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/community/{communityId}")

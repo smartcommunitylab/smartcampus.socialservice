@@ -9,6 +9,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -56,24 +58,41 @@ public class SocialCommunityManager implements CommunityOperations {
 	@Override
 	public List<Community> readCommunities(Limit limit) {
 		if (limit != null) {
-			List<SocialCommunity> result = null;
+			Iterable<SocialCommunity> result = null;
 
 			PageRequest page = null;
-			if (limit.getPage() >= 0 && limit.getPageSize() > 0) {
-				page = new PageRequest(limit.getPage(), limit.getPageSize());
+			Sort sort = null;
+			if (limit.getSortList() != null && !limit.getSortList().isEmpty()) {
+				sort = new Sort(limit.getDirection() == 0 ? Direction.ASC
+						: Direction.DESC, limit.getSortList());
 			}
+
+			if (limit.getPage() >= 0 && limit.getPageSize() > 0) {
+				page = new PageRequest(limit.getPage(), limit.getPageSize(),
+						sort);
+				sort = null;
+			}
+
 			if (limit.getFromDate() > 0 || limit.getToDate() > 0) {
 				if (limit.getFromDate() <= 0) {
 					limit.setFromDate(RepositoryUtils.DEFAULT_FROM_DATE);
 				}
-
 				if (limit.getToDate() <= 0) {
 					limit.setToDate(RepositoryUtils.DEFAULT_TO_DATE);
 				}
-				result = communityRepository.findByCreationTimeBetween(
-						limit.getFromDate(), limit.getToDate(), page);
+				if (page != null) {
+					result = communityRepository.findByCreationTimeBetween(
+							limit.getFromDate(), limit.getToDate(), page);
+				} else {
+					result = communityRepository.findByCreationTimeBetween(
+							limit.getFromDate(), limit.getToDate(), sort);
+				}
 			} else {
-				result = communityRepository.findAll(page).getContent();
+				if (page != null) {
+					result = communityRepository.findAll(page).getContent();
+				} else {
+					result = communityRepository.findAll(sort);
+				}
 			}
 			return SocialCommunity.toCommunity(result);
 		} else {

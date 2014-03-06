@@ -3,6 +3,7 @@ package eu.trentorise.smartcampus.social.engine.repo;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
@@ -18,6 +19,9 @@ public interface CommunityRepository extends
 
 	public List<SocialCommunity> findByCreationTimeBetween(Long beginTime,
 			Long endTime, Pageable pager);
+
+	public List<SocialCommunity> findByCreationTimeBetween(Long beginTime,
+			Long endTime, Sort sort);
 
 	public List<SocialCommunity> findByCreationTimeGreaterThan(Long beginTime,
 			Pageable pager);

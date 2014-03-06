@@ -2,8 +2,10 @@ package eu.trentorise.smartcampus.social.managers;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -12,6 +14,7 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -211,8 +214,54 @@ public class SocialCommunityManagerTest {
 			Assert.assertEquals(2, communityManager.readCommunities(limit)
 					.size());
 
+			// test sorting
+			limit = new Limit();
+			limit.setDirection(0);
+			limit.setSortList(Arrays.asList("creationTime"));
+			List<Community> communities = communityManager
+					.readCommunities(limit);
+			Assert.assertEquals(4, communities.size());
+			Assert.assertEquals("community 1", communities.get(0).getName());
+
+			limit = new Limit();
+			limit.setDirection(1);
+			limit.setSortList(Arrays.asList("creationTime"));
+			communities = communityManager.readCommunities(limit);
+			Assert.assertEquals(4, communities.size());
+			Assert.assertEquals("community 4", communities.get(0).getName());
+
+			limit.setFromDate(formatter.parse("31-03-2013").getTime());
+			limit.setToDate(formatter.parse("03-01-2014").getTime());
+			limit.setDirection(1);
+			limit.setSortList(Arrays.asList("creationTime"));
+			communities = communityManager.readCommunities(limit);
+			Assert.assertEquals(2, communities.size());
+			Assert.assertEquals("community 3", communities.get(0).getName());
 		} catch (ParseException e) {
 			Assert.fail("Exception parsing limit dates");
+		}
+	}
+
+	@Test
+	public void sortingException() {
+		initTestEnv();
+		Limit limit = new Limit();
+		Assert.assertEquals(4, communityManager.readCommunities(limit).size());
+
+		limit.setSortList(new ArrayList<String>());
+		Assert.assertEquals(4, communityManager.readCommunities(limit).size());
+
+		limit.setDirection(1234);
+		limit.setSortList(new ArrayList<String>());
+		Assert.assertEquals(4, communityManager.readCommunities(limit).size());
+
+		limit.setDirection(1234);
+		limit.setSortList(Arrays.asList("fakeField"));
+		try {
+			communityManager.readCommunities(limit);
+			Assert.fail();
+		} catch (PropertyReferenceException e) {
+			Assert.assertTrue(true);
 		}
 	}
 
