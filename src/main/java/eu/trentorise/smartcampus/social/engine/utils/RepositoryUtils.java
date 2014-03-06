@@ -34,7 +34,7 @@ public class RepositoryUtils {
 		int from = limit.getPage() * limit.getPageSize();
 		int to = from + (limit.getPageSize());
 		if (from >= list.size()) {
-			return null;
+			return Collections.<T> emptyList();
 		}
 		if (to > list.size()) {
 			to = list.size();
