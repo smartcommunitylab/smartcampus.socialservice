@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
+import eu.trentorise.smartcampus.social.engine.utils.SocialComparator.ORDER;
 
 public class RepositoryUtils {
 
@@ -25,22 +26,30 @@ public class RepositoryUtils {
 	}
 
 	public static <T> List<T> getSublistPagination(List<T> list, Limit limit) {
-		if (limit == null) {
-			return list;
-		}
 		if (list == null) {
 			return null;
 		}
-		int from = limit.getPage() * limit.getPageSize();
-		int to = from + (limit.getPageSize());
-		if (from >= list.size()) {
-			return Collections.<T> emptyList();
+		List<T> result = list;
+
+		if (limit != null) {
+			if (limit.getPageSize() > 0) {
+				int from = limit.getPage() * limit.getPageSize();
+				int to = from + (limit.getPageSize());
+				if (from >= list.size()) {
+					return Collections.<T> emptyList();
+				}
+				if (to > list.size()) {
+					to = list.size();
+				}
+				result = list.subList(from, to);
+			}
+			Collections.sort(
+					result,
+					new SocialComparator<T>(limit.getSortList(), limit
+							.getDirection() == 0 ? ORDER.ASC : ORDER.DESC));
 		}
-		if (to > list.size()) {
-			to = list.size();
-		}
-		return list.subList(from, to); // NB: from index is included, to index
-										// is excluded!
+		return result;// NB: from index is included, to index
+						// is excluded!
 	}
 
 	public static <T extends Comparable<? super T>> List<T> asSortedList(
