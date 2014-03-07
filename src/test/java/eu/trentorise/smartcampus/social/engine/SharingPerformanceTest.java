@@ -83,16 +83,19 @@ public class SharingPerformanceTest {
 		printEnv();
 		long startTime = System.currentTimeMillis();
 		String user = USERS[rand.nextInt(USERS.length)];
-		Limit limit = null;
+		Limit limit = new Limit();
+		limit.setSortList(Arrays.asList("creationTime"));
+		limit.setDirection(1);
 		List<Entity> res = entityManager.readShared(user, false, limit);
 		DecimalFormat formatter = (DecimalFormat) DecimalFormat.getInstance();
 		formatter.setMaximumFractionDigits(2);
-		System.out.println(String.format(
-				">> Readed %s shared entities for user %s in %s sec",
-				res.size(),
-				user,
-				formatter.format(new Float(System.currentTimeMillis()
-						- startTime) / 1000)));
+		System.out
+				.println(String
+						.format(">> Readed %s shared entities for user %s in %s sec ordered by creationTime desc",
+								res.size(), user, formatter
+										.format(new Float(System
+												.currentTimeMillis()
+												- startTime) / 1000)));
 
 	}
 
