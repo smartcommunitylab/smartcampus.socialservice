@@ -109,6 +109,15 @@ public class SocialCommentControllerTest extends SCControllerTest {
 	}
 	
 	@Test
+	public void test22_readCommentsByEntityAndAuthor() throws Exception {
+		String entityId = "1";
+		RequestBuilder request = setDefaultRequest(get("/user/entity/{entityId}/comment", entityId), Scope.USER).param("author", NAME_SURNAME);
+		ResultActions response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string(allOf(containsString(COMMENT_TEST1), containsString(COMMENT_TEST2), containsString(COMMENT_TEST3))));
+	}
+	
+	@Test
 	public void test3_deleteComment() throws Exception {
 		String entityId = "1";
 		String commentId = COMMENTID_TEST2;

@@ -8,6 +8,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.codehaus.jackson.JsonGenerationException;
@@ -42,10 +44,10 @@ public class SocialCommentController extends RestController {
 	private static String mongoRestPort = "27080";
 	private static String mongoRestHost = "localhost";
 	private static String mongoQuery = "_find";
-	private static int QUERY_TYPE_INTOBJ = 0;
-	private static int QUERY_TYPE_STRING = 1;
-	private static int QUERY_AND_CONDITION = 0;
-	private static int QUERY_OR_CONDITION = 1;
+	private static final int QUERY_TYPE_INTOBJ = 0;
+	private static final int QUERY_TYPE_STRING = 1;
+	private static final int QUERY_AND_CONDITION = 0;
+	private static final int QUERY_OR_CONDITION = 1;
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/user/comment")
 	public @ResponseBody
@@ -69,7 +71,26 @@ public class SocialCommentController extends RestController {
 		if(StringUtils.hasLength(author)){
 			query = createSimpleQuery("author", author, QUERY_TYPE_STRING);
 		}
-		uri = uri.concat(mongoQuery).concat(query);
+		
+		// sort
+		String sort = "";
+		if(sortList != null && !sortList.isEmpty()){
+			List<String> params = new ArrayList<String>();
+			params.addAll(sortList);
+			if(sortDirection != null){
+				sort = orderResult(params, sortDirection.intValue());
+			} else {
+				sort = orderResult(params, 0);
+			}
+		}
+		
+		// set limit
+		String limit = "";
+		if(pageNum!= null){
+			// here I have to use "_count" operation but it seems to are not available
+		}
+		
+		uri = uri.concat(mongoQuery).concat(query).concat(sort).concat(limit);
 		
 		URL url = new URL(uri);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -147,7 +168,7 @@ public class SocialCommentController extends RestController {
 		// create query
 		String query = "";
 		if(StringUtils.hasLength(author)){
-			query = createMultipleQuery("author", "entityId", author, entityId, QUERY_AND_CONDITION);
+			query = createMultipleQuery("author", "entityId", author, entityId, QUERY_TYPE_STRING, QUERY_TYPE_STRING, QUERY_AND_CONDITION);
 		} else {
 			query = createSimpleQuery("entityId", entityId, QUERY_TYPE_STRING);
 		}
@@ -180,6 +201,7 @@ public class SocialCommentController extends RestController {
 	Result createUserEntityComment(@RequestBody Comment commentInRequest, @PathVariable String entityId) throws SocialServiceException, IOException{
 		String userId = getUserId();
 		String user = concatNameAndSurname(getUserObject(userId).getName(),getUserObject(userId).getSurname());
+		//String user = "mattia bortolamedi";		// for test
 		
 		Result result = null;
 		try{
@@ -303,14 +325,59 @@ public class SocialCommentController extends RestController {
 		return query;
 	}
 	
-	private String createMultipleQuery(String param1, String param2, String value1, String value2, int condition){
+	private String createMultipleQuery(String param1, String param2, String value1, String value2, int type1, int type2, int condition){
 		// condition 0 -> and, condition 1 -> or
 		String query = "";
+		String query1, query2;
 		switch (condition){
-			case 0: query = String.format("?criteria={_and:[{\"%s\":\"%s\"},{\"%s\":\"%s\"}]}", param1, value1, param2, value2);break;
-			case 1: query = String.format("?criteria={_or:[{\"%s\":\"%s\"},{\"%s\":\"%s\"}]}", param1, value1, param2, value2);break;
+			case  QUERY_AND_CONDITION: 	
+				if(type1 == QUERY_TYPE_INTOBJ){
+					//&& type2 == 0){
+					query1 = String.format("{\"%s\":%s}", param1, value1);
+				} else {
+					try {
+						value1 = URLEncoder.encode(value1, "UTF-8").replace("+", "%20");
+					} catch (UnsupportedEncodingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					query1 = String.format("{\"%s\":\"%s\"}", param1, value1);
+				}
+				if(type2 == QUERY_TYPE_INTOBJ){
+					query2 = String.format("{\"%s\":%s}", param2, value2);
+				} else {
+					try {
+						value2 = URLEncoder.encode(value2, "UTF-8").replace("+", "%20");
+					} catch (UnsupportedEncodingException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					query2 = String.format("{\"%s\":\"%s\"}", param2, value2);
+				}
+				query = String.format("?criteria={\"$and\":[%s,%s]}", query1, query2);
+				break;
+			case  QUERY_OR_CONDITION: query = String.format("?criteria={\"$or\":[{\"%s\":\"%s\"},{\"%s\":\"%s\"}]}", param1, value1, param2, value2);break;
 			default: break;
 		}
+		return query;
+	}
+	
+	private String orderResult(List<String> params, int direction){
+		String query = "&sort={";
+		if(direction == 1){
+			direction = -1;	// here, for descending order I have to use -1 value (in the project is 1)
+		}
+		if(params.size()==1){
+			query = query.concat(String.format("\"%s\":%s", params.get(0),direction));
+		} else {
+			int i;
+			for(i = 0; i < params.size()-1; i++){
+				query = query.concat(String.format("{\"%s\":%s},", params.get(i),direction));
+			}
+			query = query.concat(String.format("{\"%s\":%s}", params.get(i),direction));
+		}
+		query = query.concat("}");
+		
 		return query;
 	}
 	

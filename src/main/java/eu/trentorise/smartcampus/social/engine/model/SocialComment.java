@@ -9,7 +9,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import eu.trentorise.smartcampus.social.engine.beans.Comment;
 
 
-
 @Document(collection = "comment")
 public class SocialComment implements Serializable {
 
