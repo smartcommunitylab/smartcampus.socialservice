@@ -400,7 +400,7 @@ public class EntityManagerTest {
 	}
 
 	@Test
-	public void filterByDate() throws Exception {
+	public void filterByDateAndSort() throws Exception {
 		initFilterCaseDb();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		Limit limit = null;
@@ -408,16 +408,33 @@ public class EntityManagerTest {
 				.size());
 
 		limit = new Limit();
-		limit.setPage(0);
-		limit.setPageSize(50);
 		limit.setFromDate(formatter.parse("2014-03-05").getTime());
 		Assert.assertEquals(0, manager.readEntities(USERID_2, null, limit)
 				.size());
 
 		limit.setFromDate(formatter.parse("2011-03-05").getTime());
-		Assert.assertEquals(4, manager.readEntities(USERID_2, null, limit)
-				.size());
+		limit.setDirection(1);
+		limit.setSortList(Arrays.asList("creationTime"));
+		List<Entity> entities = manager.readEntities(USERID_2, null, limit);
+		Assert.assertEquals(4, entities.size());
+		Assert.assertEquals("RJRJ1", entities.get(0).getLocalId());
+		Assert.assertEquals("RJRJ0", entities.get(1).getLocalId());
 
+		limit.setDirection(1);
+		limit.setSortList(Arrays.asList("localId"));
+		entities = manager.readEntities(USERID_2, null, limit);
+		Assert.assertEquals("RJRJ3", entities.get(0).getLocalId());
+
+		limit = new Limit();
+		limit.setFromDate(formatter.parse("2011-03-05").getTime());
+		limit.setDirection(1);
+		limit.setSortList(Arrays.asList("creationTime"));
+		entities = manager.readShared(USERID_1, false, limit);
+		Assert.assertEquals(4, entities.size());
+		Assert.assertEquals("RJRJ1", entities.get(0).getLocalId());
+		Assert.assertEquals("RJRJ0", entities.get(1).getLocalId());
+
+		limit = new Limit();
 		limit.setFromDate(formatter.parse("2014-03-04").getTime());
 		Assert.assertEquals(1, manager.readEntities(USERID_2, null, limit)
 				.size());
@@ -428,12 +445,15 @@ public class EntityManagerTest {
 				.size());
 
 		limit = new Limit();
-		limit.setPage(0);
-		limit.setPageSize(50);
 		Assert.assertEquals(0, manager.readShared(USERID_2, false, limit)
 				.size());
 		Assert.assertEquals(4, manager.readShared(USERID_1, false, limit)
 				.size());
+
+		limit.setDirection(1);
+		limit.setSortList(Arrays.asList("localId"));
+		entities = manager.readShared(USERID_1, false, limit);
+		Assert.assertEquals("RJRJ3", entities.get(0).getLocalId());
 
 		limit.setFromDate(formatter.parse("2014-03-05").getTime());
 		Assert.assertEquals(0, manager.readShared(USERID_1, false, limit)

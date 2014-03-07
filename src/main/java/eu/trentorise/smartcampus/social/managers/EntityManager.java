@@ -9,6 +9,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -120,7 +122,11 @@ public class EntityManager implements EntityOperations {
 	public List<Entity> readShared(String actorId, boolean isCommunity,
 			Limit limit) {
 		Set<SocialEntity> result = new HashSet<SocialEntity>();
-		PageRequest pager = null;
+		Sort sort = null;
+		if (limit.getSortList() != null && !limit.getSortList().isEmpty()) {
+			sort = new Sort(limit.getDirection() == 0 ? Direction.ASC
+					: Direction.DESC, limit.getSortList());
+		}
 		/**
 		 * having 4 queries to collect all entities shared with actor is a
 		 * problem to paginate results.
@@ -143,19 +149,19 @@ public class EntityManager implements EntityOperations {
 
 		if (!isCommunity) {
 			result.addAll(entityRepository.findByUserSharedWith(actorId,
-					fromDate, toDate, pager));
+					fromDate, toDate, sort));
 			result.addAll(entityRepository.findByGroupSharedWith(actorId,
-					fromDate, toDate, pager));
+					fromDate, toDate, sort));
 			result.addAll(entityRepository.findByCommunitySharedWith(actorId,
-					fromDate, toDate, pager));
+					fromDate, toDate, sort));
 			result.addAll(entityRepository.findPublicEntities(actorId,
-					fromDate, toDate, pager));
+					fromDate, toDate, sort));
 		} else {
 			try {
 				result.addAll(entityRepository.findBySharedWithCommunity(
-						new Long(actorId), fromDate, toDate, pager));
+						new Long(actorId), fromDate, toDate, sort));
 				result.addAll(entityRepository.findPublicEntities(new Long(
-						actorId), fromDate, toDate, pager));
+						actorId), fromDate, toDate, sort));
 			} catch (NumberFormatException e) {
 				logger.warn(String.format("%s is not valid community id",
 						actorId));
@@ -171,10 +177,19 @@ public class EntityManager implements EntityOperations {
 		SocialUser owner = null;
 		SocialCommunity communityOwner = null;
 		PageRequest pager = null;
+		Sort sort = null;
 		long fromDate = RepositoryUtils.DEFAULT_FROM_DATE;
 		long toDate = RepositoryUtils.DEFAULT_TO_DATE;
 		if (limit != null) {
-			pager = new PageRequest(limit.getPage(), limit.getPageSize());
+			if (limit.getSortList() != null && !limit.getSortList().isEmpty()) {
+				sort = new Sort(limit.getDirection() == 0 ? Direction.ASC
+						: Direction.DESC, limit.getSortList());
+			}
+			if (limit.getPage() >= 0 && limit.getPageSize() > 0) {
+				pager = new PageRequest(limit.getPage(), limit.getPageSize(),
+						sort);
+			}
+			// pager = new PageRequest(limit.getPage(), limit.getPageSize());
 			if (limit.getFromDate() > 0) {
 				fromDate = limit.getFromDate();
 			}
@@ -193,9 +208,17 @@ public class EntityManager implements EntityOperations {
 		if (communityOwner == null && owner == null) {
 			return Collections.<Entity> emptyList();
 		} else {
-			return SocialEntity.toEntity(entityRepository
-					.findByOwnerOrCommunityOwnerAndCreationTimeBetween(owner,
-							communityOwner, fromDate, toDate, pager));
+			if (pager != null) {
+				return SocialEntity
+						.toEntity(entityRepository
+								.findByOwnerOrCommunityOwnerAndCreationTimeBetween(
+										owner, communityOwner, fromDate,
+										toDate, pager));
+			} else {
+				return SocialEntity.toEntity(entityRepository
+						.findByOwnerOrCommunityOwnerAndCreationTimeBetween(
+								owner, communityOwner, fromDate, toDate, sort));
+			}
 		}
 	}
 
