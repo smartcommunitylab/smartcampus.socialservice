@@ -119,6 +119,19 @@
         pathPattern="/app/type" method="POST"/>
     <resourceMapping uri="socialservice.type.all" 
         pathPattern="/concept" method="GET"/>
+    
+	    <!-- user entities comments -->
+    <resourceMapping uri="socialservice.user.entities.write" 
+        pathPattern="/user/entity/{eid}/comment" method="POST,GET"/>
+    <resourceMapping uri="socialservice.user.entities.read" 
+        pathPattern="/user/entity/{eid}/comment/{cid}" method="GET"/>
+     <resourceMapping uri="socialservice.user.entities.read" 
+        pathPattern="/user/comment" method="GET"/>
+     <resourceMapping uri="socialservice.user.entities.read" 
+        pathPattern="/user/comment/{cid}" method="GET"/>
+    <resourceMapping uri="socialservice.user.entities.write" 
+        pathPattern="/user/entity/{eid}/comment/{cid}" method="PUT,DELETE"/>
+    
 </service>
 
 

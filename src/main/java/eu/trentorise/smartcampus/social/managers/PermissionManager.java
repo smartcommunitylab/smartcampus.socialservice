@@ -7,10 +7,12 @@ import org.springframework.util.StringUtils;
 
 import eu.trentorise.smartcampus.social.engine.beans.Group;
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
+import eu.trentorise.smartcampus.social.engine.model.SocialComment;
 import eu.trentorise.smartcampus.social.engine.model.SocialCommunity;
 import eu.trentorise.smartcampus.social.engine.model.SocialEntity;
 import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.EntityRepository;
+import eu.trentorise.smartcampus.social.engine.repo.mongo.CommentRepository;
 import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
 @Component
@@ -24,6 +26,9 @@ public class PermissionManager {
 
 	@Autowired
 	EntityRepository entityRepo;
+	
+	@Autowired
+	CommentRepository commentRepo;
 
 	Limit limit = null;
 
@@ -81,6 +86,16 @@ public class PermissionManager {
 							.equals(ownerId);
 		} else {
 			return entity == null || entity.getOwner().getId().equals(ownerId);
+		}
+	}
+	
+	public boolean checkCommentPermission(String commentId, String author){
+		try{
+			SocialComment comment = commentRepo.findById(commentId);
+			return (comment != null) && (comment.getAuthor().compareToIgnoreCase(author) == 0);
+		} catch (Exception ex){
+			logger.error(String.format("Error in checking permission for comment '%s'", commentId));
+			return false;
 		}
 	}
 }
