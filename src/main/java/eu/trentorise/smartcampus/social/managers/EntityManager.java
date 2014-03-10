@@ -123,7 +123,8 @@ public class EntityManager implements EntityOperations {
 			Limit limit) {
 		Set<SocialEntity> result = new HashSet<SocialEntity>();
 		Sort sort = null;
-		if (limit.getSortList() != null && !limit.getSortList().isEmpty()) {
+		if (limit != null && limit.getSortList() != null
+				&& !limit.getSortList().isEmpty()) {
 			sort = new Sort(limit.getDirection() == 0 ? Direction.ASC
 					: Direction.DESC, limit.getSortList());
 		}
