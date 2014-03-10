@@ -34,13 +34,13 @@ public class SocialGroupManager implements GroupOperations {
 
 	@Autowired
 	SocialUserManager userManager;
-	
+
 	private static final String memberSort = "userId";
-	private static final Logger logger = Logger.getLogger(SocialGroupManager.class);
-	private static final String[] SORTEABLE_PARAMS = {"id", "name", "creationTime", "lastModifiedTime", "creatorId"};
-	
-	
-	
+	private static final Logger logger = Logger
+			.getLogger(SocialGroupManager.class);
+	private static final String[] SORTEABLE_PARAMS = { "id", "name",
+			"creationTime", "lastModifiedTime", "creatorId" };
+
 	public static String getMembersort() {
 		return memberSort;
 	}
@@ -50,11 +50,11 @@ public class SocialGroupManager implements GroupOperations {
 		if (!StringUtils.hasLength(userId)) {
 			throw new IllegalArgumentException("param 'userId' should be valid");
 		}
-		
+
 		if (!StringUtils.hasLength(name)) {
 			throw new IllegalArgumentException("param 'name' should be valid");
 		}
-		
+
 		String normalizedName = RepositoryUtils.normalizeString(name);
 		SocialGroup created_group = null;
 		SocialGroup search_group = null;
@@ -65,18 +65,23 @@ public class SocialGroupManager implements GroupOperations {
 			logger.info(String.format("New user %s created.", userId));
 		}
 		// verify if a group with same name* already exist (* ignoring case)
-		search_group = groupRepository.findByCreatorIdAndNameIgnoreCase(userId, normalizedName);
-		if(search_group != null){
-			//logger.error(String.format("Group name %s already present.", normalizedName));
-			throw new IllegalArgumentException(String.format("Group name %s already present.", normalizedName));
+		search_group = groupRepository.findByCreatorIdAndNameIgnoreCase(userId,
+				normalizedName);
+		if (search_group != null) {
+			// logger.error(String.format("Group name %s already present.",
+			// normalizedName));
+			throw new IllegalArgumentException(String.format(
+					"Group name %s already present.", normalizedName));
 		}
 		// create new group
 		SocialGroup group = new SocialGroup(normalizedName, user);
 		created_group = groupRepository.save(group);
-		if(created_group != null){
-			logger.info(String.format("New group %s correctly created.", created_group.getName()));
+		if (created_group != null) {
+			logger.info(String.format("New group %s correctly created.",
+					created_group.getName()));
 		} else {
-			logger.error(String.format("Error in creating new group %s .", normalizedName));
+			logger.error(String.format("Error in creating new group %s .",
+					normalizedName));
 		}
 		return created_group.toGroup();
 	}
@@ -87,33 +92,52 @@ public class SocialGroupManager implements GroupOperations {
 		List<SocialGroup> groups = null;
 		// load user
 		SocialUser user = userManager.readSocialUser(userId);
-		if(user != null){
-			if(limit != null){
-				if(limit.getSortList() != null && !limit.getSortList().isEmpty()){
-					Sort sort = new Sort(limit.getDirection() == 0 ? Direction.ASC : Direction.DESC, limit.getSortList());
-					pageable = new PageRequest(limit.getPage(), limit.getPageSize(), sort); 
+		if (user != null) {
+			if (limit != null) {
+				if (limit.getSortList() != null
+						&& !limit.getSortList().isEmpty()) {
+					Sort sort = new Sort(
+							limit.getDirection() == 0 ? Direction.ASC
+									: Direction.DESC, limit.getSortList());
+					pageable = new PageRequest(limit.getPage(),
+							limit.getPageSize(), sort);
 				} else {
-					pageable = new PageRequest(limit.getPage(), limit.getPageSize());
+					pageable = new PageRequest(limit.getPage(),
+							limit.getPageSize());
 				}
 				try {
-					if(limit.getFromDate() > 0 && limit.getToDate() > 0){
-						groups = groupRepository.findByCreatorIdAndCreationTimeBetween(userId, limit.getFromDate(), limit.getToDate(), pageable);
-					} else if(limit.getFromDate() > 0){
-						groups = groupRepository.findByCreatorIdAndCreationTimeGreaterThan(userId, limit.getFromDate(), pageable);
-					} else if(limit.getToDate() > 0){
-						groups = groupRepository.findByCreatorIdAndCreationTimeLessThan(userId, limit.getToDate(), pageable);
+					if (limit.getFromDate() > 0 && limit.getToDate() > 0) {
+						groups = groupRepository
+								.findByCreatorIdAndCreationTimeBetween(userId,
+										limit.getFromDate(), limit.getToDate(),
+										pageable);
+					} else if (limit.getFromDate() > 0) {
+						groups = groupRepository
+								.findByCreatorIdAndCreationTimeGreaterThan(
+										userId, limit.getFromDate(), pageable);
+					} else if (limit.getToDate() > 0) {
+						groups = groupRepository
+								.findByCreatorIdAndCreationTimeLessThan(userId,
+										limit.getToDate(), pageable);
 					} else {
-						groups = groupRepository.findByCreatorId(userId, pageable);
+						groups = groupRepository.findByCreatorId(userId,
+								pageable);
 					}
-				} catch (PropertyReferenceException pre){
-					String messageException = String.format("Property reference exception in sorting operation. Property '%s' not exists. Use %s instead.", RepositoryUtils.getParamFromException(pre.getMessage()), RepositoryUtils.concatStringParams(SORTEABLE_PARAMS));
+				} catch (PropertyReferenceException pre) {
+					String messageException = String
+							.format("Property reference exception in sorting operation. Property '%s' not exists. Use %s instead.",
+									RepositoryUtils.getParamFromException(pre
+											.getMessage()),
+									RepositoryUtils
+											.concatStringParams(SORTEABLE_PARAMS));
 					logger.error(messageException);
 					throw new IllegalArgumentException(messageException);
 				}
 				return SocialGroup.toGroup(groups);
 			} else {
 				logger.warn("No limit specified for this search.");
-				return SocialGroup.toGroup(groupRepository.findByCreatorId(userId));
+				return SocialGroup.toGroup(groupRepository
+						.findByCreatorId(userId));
 			}
 		} else {
 			logger.error(String.format("User with id %s not exists.", userId));
@@ -127,7 +151,7 @@ public class SocialGroupManager implements GroupOperations {
 			return null;
 		}
 		SocialGroup result = retrieveGroup(groupId);
-		if(result == null){
+		if (result == null) {
 			logger.error(String.format("Group with id %s not exists.", groupId));
 		}
 		return result != null ? result.toGroup() : null;
@@ -136,72 +160,46 @@ public class SocialGroupManager implements GroupOperations {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<User> readMembers(String groupId, Limit limit) {
-		
+
 		List<User> members = new ArrayList<User>();
-		//For the limit I consider only the page and the page size because the from/to date is not applicable
+		// For the limit I consider only the page and the page size because the
+		// from/to date is not applicable
 		SocialGroup result = retrieveGroup(groupId);
-		if(result != null){
-			if(result.getMembers().size() == 0){
-				logger.warn(String.format("No members found for group %s .", groupId));
+		if (result != null) {
+			if (result.getMembers().size() == 0) {
+				logger.warn(String.format("No members found for group %s .",
+						groupId));
 			} else {
-				for (SocialUser su:result.getMembers()){
+				for (SocialUser su : result.getMembers()) {
 					members.add(su.toUser());
 				}
-				//To sort the list
-				List<User> unsorted = members.subList(0, members.size());	//Get all the list
-				if(limit != null){
-					if(limit.getSortList() != null && limit.getSortList().size() == 1){
-						String param = limit.getSortList().get(0);
-						if(param.compareTo(memberSort) == 0){
-							members = RepositoryUtils.asSortedList(unsorted, limit.getDirection());
-						} else {
-							String messageException = String.format(" parameter '%s' not exists in object group. Use '%s' instead.", param, memberSort);
-							logger.error(messageException);
-							throw new IllegalArgumentException(messageException);
-						}
-					}
-					return (List<User>) RepositoryUtils.getSublistPagination(members, limit);
-				} else {
-					logger.warn("No limit specified for this search.");
-				}
+				return RepositoryUtils.getSublistPagination(members, limit);
 			}
 		} else {
 			logger.error(String.format("Group with id %s not exists.", groupId));
 		}
 		return members;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> readMembersAsString(String groupId, Limit limit) {
-		
+
 		List<String> members = new ArrayList<String>();
-		//For the limit I consider only the page and the page size because the from/to date is not applicable
+		// For the limit I consider only the page and the page size because the
+		// from/to date is not applicable
 		SocialGroup result = retrieveGroup(groupId);
-		if(result != null){
-			if(result.getMembers().size() == 0){
-				logger.warn(String.format("No members found for group %s .", groupId));
+		if (result != null) {
+			if (result.getMembers().size() == 0) {
+				logger.warn(String.format("No members found for group %s .",
+						groupId));
 			} else {
-				for (SocialUser su:result.getMembers()){
+				for (SocialUser su : result.getMembers()) {
 					members.add(su.getId());
 				}
-				//To sort the list
-				List<String> unsorted = members.subList(0, members.size());	//Get all the list
-				if(limit != null){
-					if(limit.getSortList() != null && limit.getSortList().size() == 1){
-						String param = limit.getSortList().get(0);
-						if(param.compareTo("userId") == 0){
-							members = RepositoryUtils.asSortedList(unsorted, limit.getDirection());
-						} else {
-							String messageException = String.format(" parameter '%s' not exists in object group. Use '%s' instead.", param, memberSort);
-							logger.error(messageException);
-							throw new IllegalArgumentException(messageException);
-						}
-					}
-					return (List<String>) RepositoryUtils.getSublistPagination(members, limit);
-				} else {
-					logger.info("No limit specified for this search.");
-				}
+
+				return (List<String>) RepositoryUtils.getSublistPagination(
+						members, limit);
 			}
 		} else {
 			logger.error(String.format("Group with id %s not exists.", groupId));
@@ -212,56 +210,90 @@ public class SocialGroupManager implements GroupOperations {
 	@Override
 	public Group update(String groupId, String name) {
 		if (!StringUtils.hasLength(groupId)) {
-			throw new IllegalArgumentException("param 'groupId' should be valid");
+			throw new IllegalArgumentException(
+					"param 'groupId' should be valid");
 		}
-		
+
 		if (!StringUtils.hasLength(name)) {
 			throw new IllegalArgumentException("param 'name' should be valid");
 		}
-		
+
 		String normalizedName = RepositoryUtils.normalizeString(name);
 		SocialGroup saved_group = null;
 		SocialGroup group = retrieveGroup(groupId);
-		if(group != null){
+		if (group != null) {
 			// block of already group name from same user
 			String creatorId = group.getCreator().getId();
-			List<SocialGroup> user_group = groupRepository.findByCreatorId(creatorId);
-			if(SocialGroup.toGroupName(user_group).contains(name) && (!RepositoryUtils.normalizeCompare(group.getName(), name))){	// Add check to current group (If I want to overwrite the same group with the same name I can do it)
-				throw new IllegalArgumentException(String.format("A group from this user with name %s already exists.", normalizedName));
+			List<SocialGroup> user_group = groupRepository
+					.findByCreatorId(creatorId);
+			if (SocialGroup.toGroupName(user_group).contains(name)
+					&& (!RepositoryUtils
+							.normalizeCompare(group.getName(), name))) { // Add
+																			// check
+																			// to
+																			// current
+																			// group
+																			// (If
+																			// I
+																			// want
+																			// to
+																			// overwrite
+																			// the
+																			// same
+																			// group
+																			// with
+																			// the
+																			// same
+																			// name
+																			// I
+																			// can
+																			// do
+																			// it)
+				throw new IllegalArgumentException(String.format(
+						"A group from this user with name %s already exists.",
+						normalizedName));
 			}
 			group.setName(normalizedName);
 			group.setLastModifiedTime(System.currentTimeMillis());
 			saved_group = groupRepository.save(group);
-			if(saved_group != null){
-				logger.info(String.format("Group %s correctly updated.", groupId));
+			if (saved_group != null) {
+				logger.info(String.format("Group %s correctly updated.",
+						groupId));
 				return saved_group.toGroup();
 			} else {
-				logger.error(String.format("Error in updating group %s.",groupId));
+				logger.error(String.format("Error in updating group %s.",
+						groupId));
 			}
 		} else {
-			//throw new IllegalArgumentException(String.format("Group with id %s not exists.", groupId));
+			// throw new
+			// IllegalArgumentException(String.format("Group with id %s not exists.",
+			// groupId));
 			logger.error(String.format("Group with id %s not exists.", groupId));
 		}
 		return null;
 	}
-	
-	//Used in tests
+
+	// Used in tests
 	@Override
 	public Group update(String groupId, Long creationTime) {
 		SocialGroup saved_group = null;
 		SocialGroup group = retrieveGroup(groupId);
-		if(group != null){
+		if (group != null) {
 			group.setCreationTime(creationTime);
 			group.setLastModifiedTime(System.currentTimeMillis());
 			saved_group = groupRepository.save(group);
-			if(saved_group != null){
-				logger.info(String.format("Group %s correctly updated.", groupId));
+			if (saved_group != null) {
+				logger.info(String.format("Group %s correctly updated.",
+						groupId));
 				return saved_group.toGroup();
 			} else {
-				logger.error(String.format("Error in updating group %s.",groupId));
+				logger.error(String.format("Error in updating group %s.",
+						groupId));
 			}
 		} else {
-			//throw new IllegalArgumentException(String.format("Group with id %s not exists.", groupId));
+			// throw new
+			// IllegalArgumentException(String.format("Group with id %s not exists.",
+			// groupId));
 			logger.error(String.format("Group with id %s not exists.", groupId));
 		}
 		return null;
@@ -271,22 +303,24 @@ public class SocialGroupManager implements GroupOperations {
 	public boolean addMembers(String groupId, Set<String> userIds) {
 		SocialGroup saved_group = null;
 		SocialGroup group = retrieveGroup(groupId);
-		if(userIds == null || userIds.isEmpty()){
+		if (userIds == null || userIds.isEmpty()) {
 			return true;
 		}
-		if(group != null){
+		if (group != null) {
 			Set<SocialUser> users = new HashSet<SocialUser>();
 			for (String userId : userIds) {
-				if(StringUtils.hasLength(userId)){
+				if (StringUtils.hasLength(userId)) {
 					users.add(new SocialUser(userId));
 				}
 			}
 			group.getMembers().addAll(users);
 			saved_group = groupRepository.save(group);
-			if(saved_group != null){
-				logger.info(String.format("Members added correctly to group %s .", groupId));
+			if (saved_group != null) {
+				logger.info(String.format(
+						"Members added correctly to group %s .", groupId));
 			} else {
-				logger.error(String.format("Error in adding members to group %s .", groupId));
+				logger.error(String.format(
+						"Error in adding members to group %s .", groupId));
 			}
 		} else {
 			logger.error(String.format("Group with id %s not exists.", groupId));
@@ -299,27 +333,32 @@ public class SocialGroupManager implements GroupOperations {
 		boolean removed = true;
 		SocialGroup saved_group = null;
 		SocialGroup group = retrieveGroup(groupId);
-		if(userIds == null || userIds.isEmpty()){
+		if (userIds == null || userIds.isEmpty()) {
 			return true;
 		}
-		if(group != null){
+		if (group != null) {
 			Set<SocialUser> users = new HashSet<SocialUser>();
 			for (String userId : userIds) {
-				if(StringUtils.hasLength(userId)){
+				if (StringUtils.hasLength(userId)) {
 					users.add(new SocialUser(userId));
 				}
 			}
-			if(users.size() > 0){
+			if (users.size() > 0) {
 				removed = group.getMembers().removeAll(users);
 				saved_group = groupRepository.save(group);
-				if(saved_group != null){
-					logger.info(String.format("Members correctly removed from group %s .", groupId));
+				if (saved_group != null) {
+					logger.info(String.format(
+							"Members correctly removed from group %s .",
+							groupId));
 				} else {
-					logger.error(String.format("Error in removing members from group %s .", groupId));
+					logger.error(String.format(
+							"Error in removing members from group %s .",
+							groupId));
 				}
 			} else {
-				logger.warn(String.format("No members to remove in group %s .", groupId));
-			}	
+				logger.warn(String.format("No members to remove in group %s .",
+						groupId));
+			}
 		} else {
 			logger.error(String.format("Group with id %s not exists.", groupId));
 		}
@@ -329,7 +368,7 @@ public class SocialGroupManager implements GroupOperations {
 	@Override
 	public boolean delete(String groupId) {
 		SocialGroup group = retrieveGroup(groupId);
-		if(group != null){
+		if (group != null) {
 			groupRepository.delete(SocialGroup.convertId(groupId));
 			logger.info(String.format("Group %s correctly removed.", groupId));
 		} else {

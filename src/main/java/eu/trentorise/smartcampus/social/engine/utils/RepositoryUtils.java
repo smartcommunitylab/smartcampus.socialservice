@@ -32,21 +32,22 @@ public class RepositoryUtils {
 		List<T> result = list;
 
 		if (limit != null) {
-			if (limit.getPageSize() > 0) {
-				int from = limit.getPage() * limit.getPageSize();
-				int to = from + (limit.getPageSize());
-				if (from >= list.size()) {
-					return Collections.<T> emptyList();
-				}
-				if (to > list.size()) {
-					to = list.size();
-				}
-				result = list.subList(from, to);
-			}
 			Collections.sort(
 					result,
 					new SocialComparator<T>(limit.getSortList(), limit
 							.getDirection() == 0 ? ORDER.ASC : ORDER.DESC));
+			if (limit.getPageSize() > 0) {
+				int from = limit.getPage() * limit.getPageSize();
+				int to = from + (limit.getPageSize());
+				if (from >= result.size()) {
+					return Collections.<T> emptyList();
+				}
+				if (to > result.size()) {
+					to = result.size();
+				}
+				result = result.subList(from, to);
+			}
+
 		}
 		return result;// NB: from index is included, to index
 						// is excluded!

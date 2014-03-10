@@ -1,15 +1,20 @@
 package eu.trentorise.smartcampus.social.engine.utils;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 
 public class SocialComparator<T> implements Comparator<T> {
 
 	private List<String> fields;
 	private ORDER order;
+
+	private static final List BASE = Arrays.asList(Long.class, String.class,
+			Boolean.class);
 
 	public static enum ORDER {
 		ASC, DESC
@@ -23,19 +28,22 @@ public class SocialComparator<T> implements Comparator<T> {
 	public int compare(T o1, T o2) {
 		CompareToBuilder compBuilder = new CompareToBuilder();
 		int compare = 0;
-		if (fields == null || fields.isEmpty()) {
-			compare = CompareToBuilder.reflectionCompare(o1, o2);
-		} else {
-			for (String field : fields) {
-				try {
-					compBuilder.append(extractValue(o1, field),
-							extractValue(o2, field));
-				} catch (Exception e) {
-					throw new IllegalArgumentException(String.format(
-							"Sort error %s not exist", field));
+
+		if (fields != null) {
+			if (fields.isEmpty() && isBaseType(o1.getClass())) {
+				compare = CompareToBuilder.reflectionCompare(o1, o2);
+			} else {
+				for (String field : fields) {
+					try {
+						compBuilder.append(extractValue(o1, field),
+								extractValue(o2, field));
+					} catch (Exception e) {
+						throw new IllegalArgumentException(String.format(
+								"Sort error %s not exist", field));
+					}
 				}
+				compare = compBuilder.toComparison();
 			}
-			compare = compBuilder.toComparison();
 		}
 		switch (order) {
 		case ASC:
@@ -46,7 +54,12 @@ public class SocialComparator<T> implements Comparator<T> {
 		}
 	}
 
-	private <T> Object extractValue(T a, String field)
+	private boolean isBaseType(Class<? extends Object> class1) {
+		Class wrapped = ClassUtils.primitiveToWrapper(class1);
+		return BASE.contains(wrapped);
+	}
+
+	private Object extractValue(T a, String field)
 			throws IllegalArgumentException, SecurityException,
 			IllegalAccessException, InvocationTargetException,
 			NoSuchMethodException {
