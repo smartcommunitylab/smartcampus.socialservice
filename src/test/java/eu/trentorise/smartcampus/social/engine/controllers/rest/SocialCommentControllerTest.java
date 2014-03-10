@@ -118,6 +118,15 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString(COMMENT_TEST1), containsString(COMMENT_TEST2), containsString(COMMENT_TEST3))));
+		
+		// add time limit
+		Long now = System.currentTimeMillis();
+		Long yesterday = now-86400000;
+		Long tomorrow = now+86400000;
+		request = setDefaultRequest(get("/user/comment"), Scope.USER).param("author", NAME_SURNAME).param("fromDate", yesterday.toString()).param("toDate", tomorrow.toString());
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string(allOf(containsString(COMMENT_TEST1), containsString(COMMENT_TEST2), containsString(COMMENT_TEST3))));
 	}
 	
 	@Test
