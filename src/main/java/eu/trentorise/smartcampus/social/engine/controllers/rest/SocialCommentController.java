@@ -43,11 +43,13 @@ public class SocialCommentController extends RestController {
 	private static String mongoRestCollection = "comment";
 	private static String mongoRestPort = "27080";
 	private static String mongoRestHost = "localhost";
-	private static String mongoQuery = "_find";
+	private static final String mongoQuery = "_find";
+	private static final String mongoCount = "_count"; 
 	private static final int QUERY_TYPE_INTOBJ = 0;
 	private static final int QUERY_TYPE_STRING = 1;
 	private static final int QUERY_AND_CONDITION = 0;
 	private static final int QUERY_OR_CONDITION = 1;
+	private static final int PAGE_SIZE = 5;
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/user/comment")
 	public @ResponseBody
@@ -86,8 +88,46 @@ public class SocialCommentController extends RestController {
 		
 		// set limit
 		String limit = "";
+		String queryCount = "";
+		int totElements = 0;
 		if(pageNum!= null){
-			// here I have to use "_count" operation but it seems to are not available
+			if(pageSize == null){
+				pageSize = PAGE_SIZE;
+			}
+			
+			// here I have to use "_count" operation but it seems to be not available - OK added to handlers.py
+			queryCount = uri.concat(mongoCount).concat(query);
+			
+			// create and manage the rest call for count operation
+			URL url = new URL(queryCount);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setRequestProperty("Accept", "application/json");
+			
+			if (connection.getResponseCode() != 200) {
+				throw new RuntimeException("Failed : HTTP error code : " + connection.getResponseCode());
+			}
+	 
+			BufferedReader br = new BufferedReader(new InputStreamReader((connection.getInputStream())));
+	 
+			String output;
+			fromServer = "";
+			while ((output = br.readLine()) != null) {
+				fromServer = fromServer.concat(output);
+			}
+			connection.disconnect();
+			
+			String tot = fromServer.substring(10, fromServer.indexOf(","));	// 10 is the index of the "count" string + size + 1 in the response
+			totElements = Integer.parseInt(tot);
+			
+			// check the max page I can request
+			if(pageNum.intValue()*pageSize.intValue() > totElements){
+				// error in log ad return map available page
+				pageNum = totElements/pageSize.intValue();
+			}
+			
+			limit = setPagination(pageSize, pageNum);
+				
 		}
 		
 		uri = uri.concat(mongoQuery).concat(query).concat(sort).concat(limit);
@@ -104,6 +144,7 @@ public class SocialCommentController extends RestController {
 		BufferedReader br = new BufferedReader(new InputStreamReader((connection.getInputStream())));
  
 		String output;
+		fromServer = "";
 		while ((output = br.readLine()) != null) {
 			fromServer = fromServer.concat(output);
 		}
@@ -379,6 +420,15 @@ public class SocialCommentController extends RestController {
 		query = query.concat("}");
 		
 		return query;
+	}
+	
+	private String setPagination(Integer pageSize, Integer pageNumber){
+		// limit -> pageSize, skip -> pageNumber
+		String pagination = "&limit=%s&skip=%s";
+		int limit = pageSize.intValue();
+		int skip = (pageNumber.intValue() - 1) * limit;
+		pagination = String.format(pagination, limit, skip);
+		return pagination;
 	}
 	
 	private String getJSONStringResult(String serverResponse){

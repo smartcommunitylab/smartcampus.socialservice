@@ -106,6 +106,18 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(allOf(containsString(COMMENT_TEST1), containsString(COMMENT_TEST2), containsString(COMMENT_TEST3))));
+		
+		// add pagination
+		request = setDefaultRequest(get("/user/comment"), Scope.USER).param("author", NAME_SURNAME).param("pageNum","2").param("pageSize","5");
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string(allOf(containsString(COMMENT_TEST1), containsString(COMMENT_TEST2), containsString(COMMENT_TEST3))));
+		
+		// add sort
+		request = setDefaultRequest(get("/user/comment"), Scope.USER).param("author", NAME_SURNAME).param("pageNum","2").param("pageSize","5").param("sortList", "creationTime");
+		response = mockMvc.perform(request);
+		setDefaultResult(response)
+		.andExpect(content().string(allOf(containsString(COMMENT_TEST1), containsString(COMMENT_TEST2), containsString(COMMENT_TEST3))));
 	}
 	
 	@Test
