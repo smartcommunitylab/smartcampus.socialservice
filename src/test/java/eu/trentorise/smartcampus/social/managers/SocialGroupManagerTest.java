@@ -220,8 +220,6 @@ public class SocialGroupManagerTest {
 	public void readGroupsSort() throws ParseException {
 		initDateFilterAndSortEnv();
 		limit = new Limit();
-		limit.setPage(0);
-		limit.setPageSize(5);
 		// with sort (by name and creation time asc)
 		limit.setDirection(0);
 		limit.setSortList(Arrays.asList("name", "creationTime"));

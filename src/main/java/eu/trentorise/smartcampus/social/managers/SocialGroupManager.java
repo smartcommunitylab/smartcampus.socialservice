@@ -8,7 +8,6 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.mapping.PropertyReferenceException;
@@ -88,40 +87,66 @@ public class SocialGroupManager implements GroupOperations {
 
 	@Override
 	public List<Group> readGroups(String userId, Limit limit) {
-		Pageable pageable = null;
 		List<SocialGroup> groups = null;
 		// load user
 		SocialUser user = userManager.readSocialUser(userId);
 		if (user != null) {
 			if (limit != null) {
+				PageRequest pageable = null;
+				Sort sort = null;
 				if (limit.getSortList() != null
 						&& !limit.getSortList().isEmpty()) {
-					Sort sort = new Sort(
-							limit.getDirection() == 0 ? Direction.ASC
-									: Direction.DESC, limit.getSortList());
+					sort = new Sort(limit.getDirection() == 0 ? Direction.ASC
+							: Direction.DESC, limit.getSortList());
+				}
+
+				if (limit.getPage() >= 0 && limit.getPageSize() > 0) {
 					pageable = new PageRequest(limit.getPage(),
 							limit.getPageSize(), sort);
-				} else {
-					pageable = new PageRequest(limit.getPage(),
-							limit.getPageSize());
 				}
+
 				try {
 					if (limit.getFromDate() > 0 && limit.getToDate() > 0) {
-						groups = groupRepository
-								.findByCreatorIdAndCreationTimeBetween(userId,
-										limit.getFromDate(), limit.getToDate(),
-										pageable);
+						if (pageable != null) {
+							groups = groupRepository
+									.findByCreatorIdAndCreationTimeBetween(
+											userId, limit.getFromDate(),
+											limit.getToDate(), pageable);
+						} else {
+							groups = groupRepository
+									.findByCreatorIdAndCreationTimeBetween(
+											userId, limit.getFromDate(),
+											limit.getToDate(), sort);
+						}
 					} else if (limit.getFromDate() > 0) {
-						groups = groupRepository
-								.findByCreatorIdAndCreationTimeGreaterThan(
-										userId, limit.getFromDate(), pageable);
+						if (pageable != null) {
+							groups = groupRepository
+									.findByCreatorIdAndCreationTimeGreaterThan(
+											userId, limit.getFromDate(),
+											pageable);
+						} else {
+							groups = groupRepository
+									.findByCreatorIdAndCreationTimeGreaterThan(
+											userId, limit.getFromDate(), sort);
+						}
 					} else if (limit.getToDate() > 0) {
-						groups = groupRepository
-								.findByCreatorIdAndCreationTimeLessThan(userId,
-										limit.getToDate(), pageable);
+						if (pageable != null) {
+							groups = groupRepository
+									.findByCreatorIdAndCreationTimeLessThan(
+											userId, limit.getToDate(), pageable);
+						} else {
+							groups = groupRepository
+									.findByCreatorIdAndCreationTimeLessThan(
+											userId, limit.getToDate(), sort);
+						}
 					} else {
-						groups = groupRepository.findByCreatorId(userId,
-								pageable);
+						if (pageable != null) {
+							groups = groupRepository.findByCreatorId(userId,
+									pageable);
+						} else {
+							groups = groupRepository.findByCreatorId(userId,
+									sort);
+						}
 					}
 				} catch (PropertyReferenceException pre) {
 					String messageException = String
