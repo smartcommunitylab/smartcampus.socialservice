@@ -483,6 +483,54 @@ public class SocialCommentController extends RestController {
 		return query;
 	}
 	
+	private String composeQuery(List<String> params, List<String> values, List<Integer> types, int condition){
+		String query = "";
+		String queryHead = "?criteria=";
+		int numParams = params.size();
+		if(numParams == 1){
+			query = queryHead.concat(composeSingleParam(params.get(0), values.get(0), types.get(0)));
+		} else {
+			query = queryHead;
+			if(condition == QUERY_AND_CONDITION){	// And case
+				query = query.concat("{\"$and\":[");
+			} else {			// Or case
+				query = query.concat("{\"$or\":[");
+			}
+			int i = 0;
+			for(i = 0; i < params.size() - 1; i++){
+				query = query.concat(composeSingleParam(params.get(i), values.get(i), types.get(i)) + ",");
+			}
+			query = query.concat(composeSingleParam(params.get(i), values.get(i), types.get(i)) + "]}");
+		}
+		return query;
+	}
+	
+	private String composeSingleParam(String param, String value, int type){
+		String query = "";
+		switch (type){
+			case 0:	//Object - int
+				query = String.format("{\"%s\":%s}", param, value);
+				break;	
+			case 1: //String
+				try {
+					value = URLEncoder.encode(value, "UTF-8").replace("+", "%20");
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				query = String.format("{\"%s\":\"%s\"}", param, value); 
+				break;	
+			case 2: //Grater than
+				query = String.format("{\"%s\":{\"$gt\":%s}}", param, value);
+				break;	
+			case 3:	//Little than 
+				query = String.format("{\"%s\":{\"$lt\":%s}}", param, value);
+				break;	
+			default: break;
+		}
+		return query;
+	}
+	
 	private String orderResult(List<String> params, int direction){
 		String query = "&sort={";
 		if(direction == 1){
