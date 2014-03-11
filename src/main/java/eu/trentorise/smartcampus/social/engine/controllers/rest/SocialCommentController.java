@@ -49,8 +49,9 @@ public class SocialCommentController extends RestController {
 	private static final int QUERY_TYPE_STRING = 1;
 	private static final int QUERY_TYPE_GT = 2;
 	private static final int QUERY_TYPE_LT = 3;
+	private static final int QUERY_NO_CONDITION = -1;
 	private static final int QUERY_AND_CONDITION = 0;
-	private static final int QUERY_OR_CONDITION = 1;
+	//private static final int QUERY_OR_CONDITION = 1;
 	private static final int PAGE_SIZE = 5;
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/user/comment")
@@ -72,35 +73,25 @@ public class SocialCommentController extends RestController {
 		
 		// create query
 		String query = "";
+		List<String> parameters = new ArrayList<String>();
+		List<String> values = new ArrayList<String>();
+		List<Integer> types = new ArrayList<Integer>();
 		if(StringUtils.hasLength(author)){
-			// use author and date in find
-			if(fromDate != null && toDate != null){
-				// case date between
-				query = createTimeQuery("author", "creationTime", "creationTime", author, fromDate, toDate, QUERY_TYPE_STRING, QUERY_TYPE_GT, QUERY_TYPE_LT, QUERY_AND_CONDITION);
-			} else if(fromDate != null && toDate == null){
-				// case date from
-				query = createMultipleQuery("author", "creationTime", author, fromDate.toString(), QUERY_TYPE_STRING, QUERY_TYPE_GT, QUERY_AND_CONDITION);
-			} else if(fromDate == null && toDate != null){
-				// case date to
-				query = createMultipleQuery("author", "creationTime", author, toDate.toString(), QUERY_TYPE_STRING, QUERY_TYPE_LT, QUERY_AND_CONDITION);
-			} else {
-				// no date spec
-				query = createSimpleQuery("author", author, QUERY_TYPE_STRING);
-			}
-			
-		} else {
-			// use only date in find
-			if(fromDate != null && toDate != null){
-				// case date between
-				query = createMultipleQuery("creationTime", "creationTime", fromDate.toString(), toDate.toString(), QUERY_TYPE_GT, QUERY_TYPE_LT, QUERY_AND_CONDITION);
-			} else if(fromDate != null && toDate == null){
-				// case date from
-				query = createSimpleQuery("creationTime", fromDate.toString(), QUERY_TYPE_GT);
-			} else if(fromDate == null && toDate != null){
-				// case date to
-				query = createSimpleQuery("creationTime", toDate.toString(), QUERY_TYPE_LT);
-			}
+			parameters.add("author");
+			values.add(author);
+			types.add(QUERY_TYPE_STRING);
 		}
+		if(fromDate != null){
+			parameters.add("creationTime");
+			values.add(fromDate.toString());
+			types.add(QUERY_TYPE_GT);
+		}
+		if(toDate != null){
+			parameters.add("creationTime");
+			values.add(toDate.toString());
+			types.add(QUERY_TYPE_LT);
+		}	
+		query = composeQuery(parameters, values, types, QUERY_AND_CONDITION);
 		
 		// sort
 		String sort = "";
@@ -193,7 +184,14 @@ public class SocialCommentController extends RestController {
 		
 		// create query
 		String objectId = String.format("{\"$oid\":\"%s\"}", commentId);	// wrap id in objectId
-		String query = createSimpleQuery("_id", objectId, QUERY_TYPE_INTOBJ);
+		List<String> params = new ArrayList<String>();
+		List<String> values = new ArrayList<String>();
+		List<Integer> types = new ArrayList<Integer>();
+		params.add("_id");
+		values.add(objectId);
+		types.add(QUERY_TYPE_INTOBJ);
+		//String query = createSimpleQuery("_id", objectId, QUERY_TYPE_INTOBJ);
+		String query = composeQuery(params, values, types, QUERY_NO_CONDITION);
 		uri = uri.concat(mongoQuery).concat(query);
 		
 		// create final url and open connection
@@ -235,10 +233,24 @@ public class SocialCommentController extends RestController {
 		
 		// create query
 		String query = "";
+		List<String> params = new ArrayList<String>();
+		List<String> values = new ArrayList<String>();
+		List<Integer> types = new ArrayList<Integer>();
 		if(StringUtils.hasLength(author)){
-			query = createMultipleQuery("author", "entityId", author, entityId, QUERY_TYPE_STRING, QUERY_TYPE_STRING, QUERY_AND_CONDITION);
+			params.add("author");
+			params.add("entityId");
+			values.add(author);
+			values.add(entityId);
+			types.add(QUERY_TYPE_STRING);
+			types.add(QUERY_TYPE_STRING);
+			//query = createMultipleQuery("author", "entityId", author, entityId, QUERY_TYPE_STRING, QUERY_TYPE_STRING, QUERY_AND_CONDITION);
+			query = composeQuery(params, values, types, QUERY_AND_CONDITION);
 		} else {
-			query = createSimpleQuery("entityId", entityId, QUERY_TYPE_STRING);
+			params.add("entityId");
+			values.add(entityId);
+			types.add(QUERY_TYPE_STRING);
+			//query = createSimpleQuery("entityId", entityId, QUERY_TYPE_STRING);
+			query = composeQuery(params, values, types, QUERY_NO_CONDITION);
 		}
 		uri = uri.concat(mongoQuery).concat(query);
 		
@@ -374,120 +386,11 @@ public class SocialCommentController extends RestController {
 		return String.format("http://%s:%s/%s/%s/", host, port, db, collection);
 	}
 	
-	private String createSimpleQuery(String param, String value, int type){
-		// type 0 -> object, type 1-> string
-		String query = "";
-		switch (type){
-			case 0: query = String.format("?criteria={\"%s\":%s}", param, value); break;
-			case 1: 
-				try {
-					value = URLEncoder.encode(value, "UTF-8").replace("+", "%20");
-				} catch (UnsupportedEncodingException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				query = String.format("?criteria={\"%s\":\"%s\"}", param, value);  
-				break;
-			case 2: query = String.format("?criteria={\"%s\":{\"$gt\":%s}}", param, value); break;
-			case 3: query = String.format("?criteria={\"%s\":{\"$lt\":%s}}", param, value); break;
-			default: break;	
-		}
-		return query;
-	}
-	
-	private String createMultipleQuery(String param1, String param2, String value1, String value2, int type1, int type2, int condition){
-		// condition 0 -> and, condition 1 -> or
-		String query = "";
-		String query1, query2;
-		switch (condition){
-			case  QUERY_AND_CONDITION: 	
-				if(type1 == QUERY_TYPE_INTOBJ){
-					query1 = String.format("{\"%s\":%s}", param1, value1);
-				} else if(type1 == QUERY_TYPE_GT){
-					query1 = String.format("{\"%s\":{\"$gt\":%s}}", param1, value1);
-				} else if(type1 == QUERY_TYPE_LT){
-					query1 = String.format("{\"%s\":{\"$lt\":%s}}", param1, value1);
-				} else {
-					try {
-						value1 = URLEncoder.encode(value1, "UTF-8").replace("+", "%20");
-					} catch (UnsupportedEncodingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					query1 = String.format("{\"%s\":\"%s\"}", param1, value1);
-				}
-				if(type2 == QUERY_TYPE_INTOBJ){
-					query2 = String.format("{\"%s\":%s}", param2, value2);
-				} else if(type2 == QUERY_TYPE_GT){
-					query2 = String.format("{\"%s\":{\"$gt\":%s}}", param2, value2);
-				} else if(type2 == QUERY_TYPE_LT){
-					query2 = String.format("{\"%s\":{\"$lt\":%s}}", param2, value2);
-				} else {
-					try {
-						value2 = URLEncoder.encode(value2, "UTF-8").replace("+", "%20");
-					} catch (UnsupportedEncodingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					query2 = String.format("{\"%s\":\"%s\"}", param2, value2);
-				}
-				query = String.format("?criteria={\"$and\":[%s,%s]}", query1, query2);
-				break;
-			case  QUERY_OR_CONDITION: query = String.format("?criteria={\"$or\":[{\"%s\":\"%s\"},{\"%s\":\"%s\"}]}", param1, value1, param2, value2);break;
-			default: break;
-		}
-		return query;
-	}
-	
-	
-	private String createTimeQuery(String param1, String param2, String param3, String value1, Long value2, Long value3, int type1, int type2, int type3,int condition){
-		// condition 0 -> and, condition 1 -> or
-		String query = "";
-		String query1, query2, query3;
-		switch (condition){
-			case  QUERY_AND_CONDITION: 	
-				if(type1 == QUERY_TYPE_INTOBJ){
-					query1 = String.format("{\"%s\":%s}", param1, value1);
-				} else {
-					try {
-						value1 = URLEncoder.encode(value1, "UTF-8").replace("+", "%20");
-					} catch (UnsupportedEncodingException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					query1 = String.format("{\"%s\":\"%s\"}", param1, value1);
-				}
-				if(type2 == QUERY_TYPE_INTOBJ){
-					query2 = String.format("{\"%s\":%s}", param2, value2);
-				} else if(type2 == QUERY_TYPE_GT){
-					query2 = String.format("{\"%s\":{\"$gt\":%s}}", param2, value2);
-				} else if(type2 == QUERY_TYPE_LT){
-					query2 = String.format("{\"%s\":{\"$lt\":%s}}", param2, value2);
-				} else {
-					query2 = "";
-				}
-				if(type3 == QUERY_TYPE_INTOBJ){
-					query3 = String.format("{\"%s\":%s}", param3, value3);
-				} else if(type3 == QUERY_TYPE_GT){
-					query3 = String.format("{\"%s\":{\"$gt\":%s}}", param3, value3);
-				} else if(type3 == QUERY_TYPE_LT){
-					query3 = String.format("{\"%s\":{\"$lt\":%s}}", param3, value3);
-				} else {
-					query3 = "";
-				}
-				query = String.format("?criteria={\"$and\":[%s,%s,%s]}", query1, query2, query3);
-				break;
-			case  QUERY_OR_CONDITION: query = String.format("?criteria={\"$or\":[{\"%s\":\"%s\"},{\"%s\":\"%s\"}]}", param1, value1, param2, value2);break;
-			default: break;
-		}
-		return query;
-	}
-	
 	private String composeQuery(List<String> params, List<String> values, List<Integer> types, int condition){
 		String query = "";
 		String queryHead = "?criteria=";
 		int numParams = params.size();
-		if(numParams == 1){
+		if(numParams == 1 || condition == QUERY_NO_CONDITION){
 			query = queryHead.concat(composeSingleParam(params.get(0), values.get(0), types.get(0)));
 		} else {
 			query = queryHead;
