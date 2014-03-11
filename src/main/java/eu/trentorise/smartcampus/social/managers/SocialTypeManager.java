@@ -189,23 +189,25 @@ public class SocialTypeManager implements EntityTypeOperations {
 	@Override
 	public List<EntityType> readTypes(Limit limit) {
 		PageRequest page = null;
-		List<SocialType> readedTypes = null;
+		Sort sort = null;
+		Iterable<SocialType> readedTypes = null;
 		if (limit != null) {
+			if (limit.getSortList() != null && !limit.getSortList().isEmpty()) {
+				sort = new Sort(limit.getDirection() == 0 ? Direction.ASC
+						: Direction.DESC, limit.getSortList());
+			}
+
 			if (limit.getPage() >= 0 && limit.getPageSize() > 0) {
-				if (limit.getSortList() != null
-						&& !limit.getSortList().isEmpty()) {
-					Sort sort = new Sort(
-							limit.getDirection() == 0 ? Direction.ASC
-									: Direction.DESC, limit.getSortList());
-					page = new PageRequest(limit.getPage(),
-							limit.getPageSize(), sort);
-				} else {
-					page = new PageRequest(limit.getPage(), limit.getPageSize());
-				}
+				page = new PageRequest(limit.getPage(), limit.getPageSize(),
+						sort);
 			}
 		}
 		try {
-			readedTypes = typeRepository.findAll(page).getContent();
+			if (page != null) {
+				readedTypes = typeRepository.findAll(page).getContent();
+			} else {
+				readedTypes = typeRepository.findAll(sort);
+			}
 		} catch (PropertyReferenceException pre) {
 			String exceptionMessage = String
 					.format("Property reference exception in sorting operation. Property '%s' not exists. Use %s instead.",
