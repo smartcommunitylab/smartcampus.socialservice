@@ -1,5 +1,7 @@
 package eu.trentorise.smartcampus.social.engine.controllers.rest;
 
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -61,9 +63,15 @@ public class EntityController extends RestController {
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
 			@RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
-			@RequestParam(value = "toDate", required = false) Long toDate) {
-		return new Result(entityManager.readEntities(getUserId(), null, null,
-				setLimit(pageNum, pageSize, fromDate, toDate, null, null)));
+			@RequestParam(value = "toDate", required = false) Long toDate,
+			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
+			@RequestParam(value = "sortList", required = false) Set<String> sortList) {
+		return new Result(entityManager.readEntities(
+				getUserId(),
+				null,
+				null,
+				setLimit(pageNum, pageSize, fromDate, toDate, sortDirection,
+						sortList)));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/user/{appId}/entity")
@@ -73,9 +81,15 @@ public class EntityController extends RestController {
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
 			@RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
-			@RequestParam(value = "toDate", required = false) Long toDate) {
-		return new Result(entityManager.readEntities(getUserId(), null, appId,
-				setLimit(pageNum, pageSize, fromDate, toDate, null, null)));
+			@RequestParam(value = "toDate", required = false) Long toDate,
+			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
+			@RequestParam(value = "sortList", required = false) Set<String> sortList) {
+		return new Result(entityManager.readEntities(
+				getUserId(),
+				null,
+				appId,
+				setLimit(pageNum, pageSize, fromDate, toDate, sortDirection,
+						sortList)));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/user/{appId}/entity/{localId}")
@@ -99,13 +113,19 @@ public class EntityController extends RestController {
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
 			@RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
-			@RequestParam(value = "toDate", required = false) Long toDate) {
+			@RequestParam(value = "toDate", required = false) Long toDate,
+			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
+			@RequestParam(value = "sortList", required = false) Set<String> sortList) {
 
 		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
 			throw new SecurityException();
 		}
-		return new Result(entityManager.readEntities(null, communityId, null,
-				setLimit(pageNum, pageSize, fromDate, toDate, null, null)));
+		return new Result(entityManager.readEntities(
+				null,
+				communityId,
+				null,
+				setLimit(pageNum, pageSize, fromDate, toDate, sortDirection,
+						sortList)));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/app/{appId}/community/{communityId}/entity/{localId}")
@@ -129,9 +149,11 @@ public class EntityController extends RestController {
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
 			@RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
-			@RequestParam(value = "toDate", required = false) Long toDate) {
+			@RequestParam(value = "toDate", required = false) Long toDate,
+			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
+			@RequestParam(value = "sortList", required = false) Set<String> sortList) {
 		return new Result(entityManager.readShared(getUserId(), false, null,
-				setLimit(pageNum, pageSize, fromDate, toDate, null, null)));
+				setLimit(pageNum, pageSize, fromDate, toDate, sortDirection, sortList)));
 
 	}
 
@@ -142,9 +164,15 @@ public class EntityController extends RestController {
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
 			@RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
-			@RequestParam(value = "toDate", required = false) Long toDate) {
-		return new Result(entityManager.readShared(getUserId(), false, appId,
-				setLimit(pageNum, pageSize, fromDate, toDate, null, null)));
+			@RequestParam(value = "toDate", required = false) Long toDate,
+			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
+			@RequestParam(value = "sortList", required = false) Set<String> sortList) {
+		return new Result(entityManager.readShared(
+				getUserId(),
+				false,
+				appId,
+				setLimit(pageNum, pageSize, fromDate, toDate, sortDirection,
+						sortList)));
 
 	}
 
@@ -164,13 +192,19 @@ public class EntityController extends RestController {
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
 			@RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
-			@RequestParam(value = "toDate", required = false) Long toDate) {
+			@RequestParam(value = "toDate", required = false) Long toDate,
+			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
+			@RequestParam(value = "sortList", required = false) Set<String> sortList) {
 
 		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
 			throw new SecurityException();
 		}
-		return new Result(entityManager.readShared(communityId, true, null,
-				setLimit(pageNum, pageSize, fromDate, toDate, null, null)));
+		return new Result(entityManager.readShared(
+				communityId,
+				true,
+				null,
+				setLimit(pageNum, pageSize, fromDate, toDate, sortDirection,
+						sortList)));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/app/{appId}/community/{communityId}/shared/{localId}")
