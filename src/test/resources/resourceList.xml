@@ -50,17 +50,8 @@
     <resourceMapping uri="socialservice.community.{appId}.write" 
         pathPattern="/app/{appId}/community/{communityId}/members" method="PUT,DELETE"/>
 
-    <!-- user entities -->
-    <resourceMapping uri="socialservice.user.entities.read" 
-        pathPattern="/user/entities" method="GET"/>
-    <resourceMapping uri="socialservice.user.entities.read" 
-        pathPattern="/user/entities/{eid}" method="GET"/>
-    <resourceMapping uri="socialservice.user.entities.write" 
-        pathPattern="/user/entities" method="POST"/>
-    <resourceMapping uri="socialservice.user.entities.write" 
-        pathPattern="/user/entities/{eid}" method="PUT,DELETE"/>
      
-     <!-- sharing: new mappings -->
+     <!-- sharing -->
      <resourceMapping uri="socialservice.user.entities.write" 
         pathPattern="/user/{appId}/entity" method="POST"/>
      <resourceMapping uri="socialservice.community.{appId}.entities.write" 
@@ -86,32 +77,6 @@
     <resourceMapping uri="socialservice.community.{appId}.shared.read" 
         pathPattern="/app/{appId}/community/{communityId}/shared/{entityId}" method="GET"/>
      
-    <!-- community entities -->
-    <resourceMapping uri="socialservice.community.{cid}.entities.read" 
-        pathPattern="/community/{cid}/entities" method="GET"/>
-    <resourceMapping uri="socialservice.community.{cid}.entities.read" 
-        pathPattern="/community/{cid}/entities/{eid}" method="GET"/>
-    <resourceMapping uri="socialservice.community.{cid}.entities.write" 
-        pathPattern="/community/{cid}/entities" method="POST"/>
-    <resourceMapping uri="socialservice.community.{cid}.entities.write" 
-        pathPattern="/community/{cid}/entities/{eid}" method="PUT,DELETE"/>
-        
-   <!-- user sharing -->
-    <resourceMapping uri="socialservice.user.shared.read" 
-        pathPattern="/user/shared" method="POST"/>
-    <resourceMapping uri="socialservice.user.shared.read" 
-        pathPattern="/user/shared/{eid}" method="GET"/>
-    <resourceMapping uri="socialservice.user.shared.write" 
-        pathPattern="/user/shared/{eid}" method="PUT,DELETE"/>
-
-   <!-- community sharing -->
-    <resourceMapping uri="socialservice.community.{cid}.shared.read" 
-        pathPattern="/community/{cid}/shared" method="POST"/>
-    <resourceMapping uri="socialservice.community.{cid}.shared.read" 
-        pathPattern="/community/{cid}/shared/{eid}" method="GET"/>
-    <resourceMapping uri="socialservice.community.{cid}.shared.write" 
-        pathPattern="/community/{cid}/shared/{eid}" method="PUT,DELETE"/>
-        
    <!-- resource types -->
     <resourceMapping uri="socialservice.type.all" 
         pathPattern="/user/type" method="GET"/>
