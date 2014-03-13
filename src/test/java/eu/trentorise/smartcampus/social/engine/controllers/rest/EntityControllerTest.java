@@ -38,7 +38,9 @@ import eu.trentorise.smartcampus.social.managers.SocialTypeManager;
 		"classpath:/spring/spring-security.xml" })
 public class EntityControllerTest extends SCControllerTest {
 
-	private static final String APPID = "testCom";
+	private static final String APPID_1 = "space1";
+	private static final String APPID_2 = "space2";
+
 	@Autowired
 	private FilterChainProxy springSecurityFilterChain;
 
@@ -89,14 +91,13 @@ public class EntityControllerTest extends SCControllerTest {
 		setDefaultResult(response).andExpect(
 				jsonPath("$.data", Matchers.hasSize(0)));
 
-		request = setDefaultRequest(post("/user/{appId}/entity", APPID),
+		request = setDefaultRequest(post("/user/{appId}/entity", APPID_1),
 				Scope.USER).content(convertObjectToJsonString(entity));
 		response = mockMvc.perform(request);
-		setDefaultResult(response)
-				.andExpect(
-						jsonPath("$.data.uri").value(
-								APPID + "." + entity.getLocalId())).andExpect(
-						jsonPath("$.data.owner").value("1"));
+		setDefaultResult(response).andExpect(
+				jsonPath("$.data.uri").value(
+						APPID_1 + "." + entity.getLocalId())).andExpect(
+				jsonPath("$.data.owner").value("1"));
 
 		request = setDefaultRequest(get("/user/entity"), Scope.USER);
 		response = mockMvc.perform(request);
@@ -104,14 +105,14 @@ public class EntityControllerTest extends SCControllerTest {
 				jsonPath("$.data", Matchers.hasSize(1)));
 
 		request = setDefaultRequest(
-				get("/user/{appId}/entity/{localId}", APPID,
+				get("/user/{appId}/entity/{localId}", APPID_1,
 						entity.getLocalId()), Scope.USER);
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
 				jsonPath("$.data.name").value("entity share"));
 
 		request = setDefaultRequest(
-				get("/user/{appId}/entity/{localId}", APPID,
+				get("/user/{appId}/entity/{localId}", APPID_1,
 						entity.getLocalId()), Scope.USER);
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
@@ -121,7 +122,7 @@ public class EntityControllerTest extends SCControllerTest {
 	@Test
 	public void userSharing() throws Exception {
 		EntityType type = typeManager.create("image", "image/jpg");
-		Community community = communityManager.create("SC lab", APPID);
+		Community community = communityManager.create("SC lab", APPID_1);
 		Entity entity = new Entity();
 		entity.setLocalId("3455");
 		entity.setName("entity share");
@@ -129,17 +130,17 @@ public class EntityControllerTest extends SCControllerTest {
 		entity.setVisibility(new Visibility(true));
 
 		RequestBuilder request = setDefaultRequest(
-				post("/app/{appId}/community/{communityId}/entity", APPID,
+				post("/app/{appId}/community/{communityId}/entity", APPID_1,
 						community.getId()), Scope.CLIENT).content(
 				convertObjectToJsonString(entity));
 		ResultActions response = mockMvc.perform(request);
-
+		setDefaultResult(response);
 		request = setDefaultRequest(get("/user/shared"), Scope.USER);
 		response = mockMvc.perform(request);
 		response.andExpect(jsonPath("$.data", Matchers.hasSize(1)));
 
 		request = setDefaultRequest(
-				get("/user/{appId}/shared/{localId}", APPID,
+				get("/user/{appId}/shared/{localId}", APPID_1,
 						entity.getLocalId()), Scope.USER);
 		response = mockMvc.perform(request);
 		response.andExpect(jsonPath("$.data.visibility.publicShared").value(
@@ -150,14 +151,14 @@ public class EntityControllerTest extends SCControllerTest {
 	@Test
 	public void communityEntities() throws Exception {
 		EntityType type = typeManager.create("image", "image/jpg");
-		Community community = communityManager.create("SC lab", APPID);
+		Community community = communityManager.create("SC lab", APPID_1);
 		Entity entity = new Entity();
 		entity.setLocalId("3455");
 		entity.setName("entity share");
 		entity.setType(type.getId());
 
 		RequestBuilder request = setDefaultRequest(
-				get("/app/{appId}/community/{communityId}/entity", APPID,
+				get("/app/{appId}/community/{communityId}/entity", APPID_1,
 						community.getId()), Scope.CLIENT).content(
 				convertObjectToJsonString(entity));
 		ResultActions response = mockMvc.perform(request);
@@ -165,14 +166,14 @@ public class EntityControllerTest extends SCControllerTest {
 				jsonPath("$.data", Matchers.hasSize(0)));
 
 		request = setDefaultRequest(
-				post("/app/{appId}/community/{communityId}/entity", APPID,
+				post("/app/{appId}/community/{communityId}/entity", APPID_1,
 						community.getId()), Scope.CLIENT).content(
 				convertObjectToJsonString(entity));
 		response = mockMvc.perform(request);
 		MvcResult result = setDefaultResult(response)
 				.andExpect(
 						jsonPath("$.data.uri").value(
-								APPID + "." + entity.getLocalId()))
+								APPID_1 + "." + entity.getLocalId()))
 				.andExpect(
 						jsonPath("$.data.communityOwner").value(
 								community.getId())).andReturn();
@@ -181,7 +182,7 @@ public class EntityControllerTest extends SCControllerTest {
 		entity = convertObject(r.getData(), Entity.class);
 
 		request = setDefaultRequest(
-				get("/app/{appId}/community/{communityId}/entity", APPID,
+				get("/app/{appId}/community/{communityId}/entity", APPID_1,
 						community.getId()), Scope.CLIENT);
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
@@ -189,7 +190,7 @@ public class EntityControllerTest extends SCControllerTest {
 
 		request = setDefaultRequest(
 				get("/app/{appId}/community/{communityId}/entity/{localId}",
-						APPID, community.getId(), entity.getLocalId()),
+						APPID_1, community.getId(), entity.getLocalId()),
 				Scope.CLIENT);
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
@@ -200,8 +201,8 @@ public class EntityControllerTest extends SCControllerTest {
 	@Test
 	public void communitySecurityCases() throws Exception {
 		EntityType type = typeManager.create("image", "image/jpg");
-		Community community = communityManager.create("SC lab", APPID);
-		Community community1 = communityManager.create("Coders", APPID);
+		Community community = communityManager.create("SC lab", APPID_1);
+		Community community1 = communityManager.create("Coders", APPID_1);
 		Entity entity = new Entity();
 		entity.setLocalId("3455");
 		entity.setName("entity share");
@@ -211,7 +212,7 @@ public class EntityControllerTest extends SCControllerTest {
 		 * create entity from not existing community
 		 */
 		RequestBuilder request = setDefaultRequest(
-				post("/app/{appId}/community/{communityId}/entity", APPID,
+				post("/app/{appId}/community/{communityId}/entity", APPID_1,
 						"111111"), Scope.CLIENT).content(
 				convertObjectToJsonString(entity));
 		ResultActions response = mockMvc.perform(request);
@@ -221,14 +222,14 @@ public class EntityControllerTest extends SCControllerTest {
 		 * try to edit not owned entity
 		 */
 		request = setDefaultRequest(
-				post("/app/{appId}/community/{communityId}/entity", APPID,
+				post("/app/{appId}/community/{communityId}/entity", APPID_1,
 						community.getId()), Scope.CLIENT).content(
 				convertObjectToJsonString(entity));
 		mockMvc.perform(request);
 
 		entity.setName("CHANGED");
 		request = setDefaultRequest(
-				post("/app/{appId}/community/{communityId}/entity", APPID,
+				post("/app/{appId}/community/{communityId}/entity", APPID_1,
 						community1.getId()), Scope.CLIENT).content(
 				convertObjectToJsonString(entity));
 		response = mockMvc.perform(request);
@@ -239,7 +240,7 @@ public class EntityControllerTest extends SCControllerTest {
 		 */
 		request = setDefaultRequest(
 				get("/app/{appId}/community/{communityId}/entity/{localId}",
-						APPID, community1.getId(), entity.getLocalId()),
+						APPID_1, community1.getId(), entity.getLocalId()),
 				Scope.CLIENT);
 		response = mockMvc.perform(request);
 		setForbiddenExceptionResult(response);
@@ -247,8 +248,6 @@ public class EntityControllerTest extends SCControllerTest {
 
 	@Test
 	public void readByAppId() throws Exception {
-		String appId1 = "space1";
-		String appId2 = "space2";
 
 		EntityType type = typeManager.create("image", "image/jpg");
 		for (int i = 0; i < 5; i++) {
@@ -258,7 +257,7 @@ public class EntityControllerTest extends SCControllerTest {
 			entity.setType(type.getId());
 
 			RequestBuilder request = setDefaultRequest(
-					post("/user/{appId}/entity", appId1), Scope.USER).content(
+					post("/user/{appId}/entity", APPID_1), Scope.USER).content(
 					convertObjectToJsonString(entity));
 			ResultActions response = mockMvc.perform(request);
 		}
@@ -270,30 +269,32 @@ public class EntityControllerTest extends SCControllerTest {
 			entity.setType(type.getId());
 			entity.setVisibility(new Visibility(true));
 			RequestBuilder request = setDefaultRequest(
-					post("/user/{appId}/entity", appId2), Scope.USER).content(
+					post("/user/{appId}/entity", APPID_2), Scope.USER).content(
 					convertObjectToJsonString(entity));
 			ResultActions response = mockMvc.perform(request);
 		}
 
-		RequestBuilder request = setDefaultRequest(get("/user/entity"),
-				Scope.USER);
+		RequestBuilder request = setDefaultRequest(
+				get("/user/entity").param("sortDirection", "1").param(
+						"sortList", "uri"), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
-				jsonPath("$.data", Matchers.hasSize(8)));
+				jsonPath("$.data", Matchers.hasSize(8))).andExpect(
+				jsonPath("$.data[0].uri").value("space2.34552"));
 
-		request = setDefaultRequest(get("/user/{appId}/entity", appId1),
+		request = setDefaultRequest(get("/user/{appId}/entity", APPID_1),
 				Scope.USER);
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
 				jsonPath("$.data", Matchers.hasSize(5)));
 
-		request = setDefaultRequest(get("/user/{appId}/entity", appId2),
+		request = setDefaultRequest(get("/user/{appId}/entity", APPID_2),
 				Scope.USER);
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
 				jsonPath("$.data", Matchers.hasSize(3)));
 
-		request = setDefaultRequest(get("/user/{appId}/shared", appId2),
+		request = setDefaultRequest(get("/user/{appId}/shared", APPID_2),
 				Scope.USER);
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
@@ -304,7 +305,7 @@ public class EntityControllerTest extends SCControllerTest {
 	@Test
 	public void communitySharing() throws Exception {
 		EntityType type = typeManager.create("image", "image/jpg");
-		Community community = communityManager.create("SC lab", APPID);
+		Community community = communityManager.create("SC lab", APPID_1);
 		Entity entity = new Entity();
 		entity.setLocalId("3455");
 		entity.setName("entity share");
@@ -312,31 +313,31 @@ public class EntityControllerTest extends SCControllerTest {
 		entity.setVisibility(new Visibility(true));
 
 		RequestBuilder request = setDefaultRequest(
-				post("/user/{appId}/entity", APPID), Scope.USER).content(
+				post("/user/{appId}/entity", APPID_1), Scope.USER).content(
 				convertObjectToJsonString(entity));
 		ResultActions response = mockMvc.perform(request);
 
 		request = setDefaultRequest(
-				get("/app/{appId}/community/{communityId}/shared", APPID,
+				get("/app/{appId}/community/{communityId}/shared", APPID_1,
 						community.getId()), Scope.CLIENT);
 		response = mockMvc.perform(request);
 		response.andExpect(jsonPath("$.data", Matchers.hasSize(1)));
 
 		request = setDefaultRequest(
 				get("/app/{appId}/community/{communityId}/shared/{localId}",
-						APPID, community.getId(), entity.getLocalId()),
+						APPID_1, community.getId(), entity.getLocalId()),
 				Scope.CLIENT);
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
 				jsonPath("$.data.visibility.publicShared").value(true));
 
 		entity.setVisibility(new Visibility());
-		request = setDefaultRequest(post("/user/{appId}/entity", APPID),
+		request = setDefaultRequest(post("/user/{appId}/entity", APPID_1),
 				Scope.USER).content(convertObjectToJsonString(entity));
 		response = mockMvc.perform(request);
 
 		request = setDefaultRequest(
-				get("/app/{appId}/community/{communityId}/shared", APPID,
+				get("/app/{appId}/community/{communityId}/shared", APPID_1,
 						community.getId()), Scope.CLIENT);
 		response = mockMvc.perform(request);
 		response.andExpect(jsonPath("$.data", Matchers.hasSize(0)));
