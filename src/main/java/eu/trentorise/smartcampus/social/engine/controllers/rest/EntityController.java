@@ -62,7 +62,19 @@ public class EntityController extends RestController {
 			@RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
 			@RequestParam(value = "toDate", required = false) Long toDate) {
-		return new Result(entityManager.readEntities(getUserId(), null,
+		return new Result(entityManager.readEntities(getUserId(), null, null,
+				setLimit(pageNum, pageSize, fromDate, toDate, null, null)));
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/user/{appId}/entity")
+	public @ResponseBody
+	Result readMyEntitiesByApp(
+			@PathVariable String appId,
+			@RequestParam(value = "pageNum", required = false) Integer pageNum,
+			@RequestParam(value = "pageSize", required = false) Integer pageSize,
+			@RequestParam(value = "fromDate", required = false) Long fromDate,
+			@RequestParam(value = "toDate", required = false) Long toDate) {
+		return new Result(entityManager.readEntities(getUserId(), null, appId,
 				setLimit(pageNum, pageSize, fromDate, toDate, null, null)));
 	}
 
@@ -92,7 +104,7 @@ public class EntityController extends RestController {
 		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
 			throw new SecurityException();
 		}
-		return new Result(entityManager.readEntities(null, communityId,
+		return new Result(entityManager.readEntities(null, communityId, null,
 				setLimit(pageNum, pageSize, fromDate, toDate, null, null)));
 	}
 
@@ -118,7 +130,20 @@ public class EntityController extends RestController {
 			@RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
 			@RequestParam(value = "toDate", required = false) Long toDate) {
-		return new Result(entityManager.readShared(getUserId(), false,
+		return new Result(entityManager.readShared(getUserId(), false, null,
+				setLimit(pageNum, pageSize, fromDate, toDate, null, null)));
+
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/user/{appId}/shared")
+	public @ResponseBody
+	Result readSharedEntitiesByAppId(
+			@PathVariable String appId,
+			@RequestParam(value = "pageNum", required = false) Integer pageNum,
+			@RequestParam(value = "pageSize", required = false) Integer pageSize,
+			@RequestParam(value = "fromDate", required = false) Long fromDate,
+			@RequestParam(value = "toDate", required = false) Long toDate) {
+		return new Result(entityManager.readShared(getUserId(), false, appId,
 				setLimit(pageNum, pageSize, fromDate, toDate, null, null)));
 
 	}
@@ -144,7 +169,7 @@ public class EntityController extends RestController {
 		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
 			throw new SecurityException();
 		}
-		return new Result(entityManager.readShared(communityId, true,
+		return new Result(entityManager.readShared(communityId, true, null,
 				setLimit(pageNum, pageSize, fromDate, toDate, null, null)));
 	}
 

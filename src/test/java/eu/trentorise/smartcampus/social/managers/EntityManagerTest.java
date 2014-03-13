@@ -66,13 +66,14 @@ public class EntityManagerTest {
 		final String NO_ENTITY = "fakeUri";
 		Assert.assertNull(manager.readEntity(NO_ENTITY));
 
-		Assert.assertEquals(0, manager.readEntities(USERID_1, null, null)
+		Assert.assertEquals(0, manager.readEntities(USERID_1, null, null, null)
 				.size());
 		create();
-		Assert.assertEquals(1, manager.readEntities(USERID_1, null, null)
+		Assert.assertEquals(1, manager.readEntities(USERID_1, null, null, null)
 				.size());
 		Assert.assertEquals(0,
-				manager.readEntities(null, envCommunities.get(0), null).size());
+				manager.readEntities(null, envCommunities.get(0), null, null)
+						.size());
 
 		Entity entity = new Entity();
 		entity.setName("welcome all");
@@ -83,8 +84,10 @@ public class EntityManagerTest {
 				"image/jpg").getId());
 		entity = manager.saveOrUpdate("testSpace", entity);
 		Assert.assertEquals(1,
-				manager.readEntities(null, envCommunities.get(0), null).size());
-		Assert.assertEquals(0, manager.readEntities(null, null, null).size());
+				manager.readEntities(null, envCommunities.get(0), null, null)
+						.size());
+		Assert.assertEquals(0, manager.readEntities(null, null, null, null)
+				.size());
 
 		Assert.assertEquals("AAEAC00", manager.readEntity(entity.getUri())
 				.getLocalId());
@@ -240,20 +243,24 @@ public class EntityManagerTest {
 				"image/jpg").getId());
 		entity = manager.saveOrUpdate("testSpace", entity);
 		Assert.assertEquals(1,
-				manager.readShared(envCommunities.get(0), true, limit).size());
+				manager.readShared(envCommunities.get(0), true, null, limit)
+						.size());
 		Assert.assertNotNull(manager.readShared(envCommunities.get(0), true,
 				manager.defineUri("testSpace", entity.getLocalId())));
 		Assert.assertEquals(0,
-				manager.readShared(envCommunities.get(1), true, limit).size());
+				manager.readShared(envCommunities.get(1), true, null, limit)
+						.size());
 
 		entity = new Entity();
 		entity.setLocalId("1EAC00");
 		entity.setVisibility(new Visibility(true));
 		entity = manager.saveOrUpdate("testSpace", entity);
 		Assert.assertEquals(1,
-				manager.readShared(envCommunities.get(0), true, limit).size());
+				manager.readShared(envCommunities.get(0), true, null, limit)
+						.size());
 		Assert.assertEquals(1,
-				manager.readShared(envCommunities.get(1), true, limit).size());
+				manager.readShared(envCommunities.get(1), true, null, limit)
+						.size());
 		Assert.assertNotNull(manager.readShared(envCommunities.get(1), true,
 				manager.defineUri("testSpace", entity.getLocalId())));
 	}
@@ -261,7 +268,7 @@ public class EntityManagerTest {
 	@Test
 	public void sharing() {
 		Limit limit = null;
-		Assert.assertEquals(0, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(0, manager.readShared(USERID_1, false, null, limit)
 				.size());
 
 		initEnv();
@@ -274,23 +281,23 @@ public class EntityManagerTest {
 				"image/jpg").getId());
 		entity = manager.saveOrUpdate("testSpace", entity);
 
-		Assert.assertEquals(1, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(1, manager.readShared(USERID_1, false, null, limit)
 				.size());
 
 		entity.setVisibility(new Visibility());
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(0, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(0, manager.readShared(USERID_1, false, null, limit)
 				.size());
 
 		entity.setVisibility(new Visibility(true));
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(1, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(1, manager.readShared(USERID_1, false, null, limit)
 				.size());
 		Assert.assertNotNull(manager.readShared(USERID_1, false,
 				manager.defineUri("testSpace", "1EAC00")));
 		Assert.assertNull(manager.readShared(USERID_1, false,
 				manager.defineUri("testSpace", "1EAC03")));
-		Assert.assertEquals(0, manager.readShared(USERID_2, false, limit)
+		Assert.assertEquals(0, manager.readShared(USERID_2, false, null, limit)
 				.size());
 
 		/* ************************ community test ***************************** */
@@ -300,55 +307,55 @@ public class EntityManagerTest {
 
 		entity.setVisibility(new Visibility());
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(0, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(0, manager.readShared(USERID_1, false, null, limit)
 				.size());
 
 		entity.setVisibility(new Visibility(null, Arrays.asList(envCommunities
 				.get(1)), null));
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(0, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(0, manager.readShared(USERID_1, false, null, limit)
 				.size());
 
 		entity.setVisibility(new Visibility(null, Arrays.asList(envCommunities
 				.get(0)), null));
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(1, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(1, manager.readShared(USERID_1, false, null, limit)
 				.size());
 
 		entity.setVisibility(new Visibility(Arrays.asList(USERID_1), Arrays
 				.asList(envCommunities.get(0)), null));
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(1, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(1, manager.readShared(USERID_1, false, null, limit)
 				.size());
 
 		// USER_1 unsubscribes from Smartcampus community
 		communityManager.removeMembers(envCommunities.get(0),
 				new HashSet<String>(Arrays.asList(USERID_1)));
-		Assert.assertEquals(1, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(1, manager.readShared(USERID_1, false, null, limit)
 				.size());
 		entity.setVisibility(new Visibility(true));
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(1, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(1, manager.readShared(USERID_1, false, null, limit)
 				.size());
 		entity.setVisibility(new Visibility());
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(0, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(0, manager.readShared(USERID_1, false, null, limit)
 				.size());
 
 		/* ************************ group test ***************************** */
 
 		groupManager.addMembers(env.get(USERID_2).get(0), new HashSet<String>(
 				Arrays.asList(USERID_1)));
-		Assert.assertEquals(0, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(0, manager.readShared(USERID_1, false, null, limit)
 				.size());
 		entity.setVisibility(new Visibility(null, null, Arrays.asList(env.get(
 				USERID_2).get(0))));
 		entity = manager.saveOrUpdate("testSpace", entity);
-		Assert.assertEquals(1, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(1, manager.readShared(USERID_1, false, null, limit)
 				.size());
 		groupManager.removeMembers(env.get(USERID_2).get(0),
 				new HashSet<String>(Arrays.asList(USERID_1)));
-		Assert.assertEquals(0, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(0, manager.readShared(USERID_1, false, null, limit)
 				.size());
 	}
 
@@ -404,74 +411,115 @@ public class EntityManagerTest {
 		initFilterCaseDb();
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		Limit limit = null;
-		Assert.assertEquals(4, manager.readEntities(USERID_2, null, limit)
-				.size());
+		Assert.assertEquals(4, manager
+				.readEntities(USERID_2, null, null, limit).size());
 
 		limit = new Limit();
 		limit.setFromDate(formatter.parse("2014-03-05").getTime());
-		Assert.assertEquals(0, manager.readEntities(USERID_2, null, limit)
-				.size());
+		Assert.assertEquals(0, manager
+				.readEntities(USERID_2, null, null, limit).size());
 
 		limit.setFromDate(formatter.parse("2011-03-05").getTime());
 		limit.setDirection(1);
 		limit.setSortList(Arrays.asList("creationTime"));
-		List<Entity> entities = manager.readEntities(USERID_2, null, limit);
+		List<Entity> entities = manager.readEntities(USERID_2, null, null,
+				limit);
 		Assert.assertEquals(4, entities.size());
 		Assert.assertEquals("RJRJ1", entities.get(0).getLocalId());
 		Assert.assertEquals("RJRJ0", entities.get(1).getLocalId());
 
 		limit.setDirection(1);
 		limit.setSortList(Arrays.asList("localId"));
-		entities = manager.readEntities(USERID_2, null, limit);
+		entities = manager.readEntities(USERID_2, null, null, limit);
 		Assert.assertEquals("RJRJ3", entities.get(0).getLocalId());
 
 		limit = new Limit();
 		limit.setFromDate(formatter.parse("2011-03-05").getTime());
 		limit.setDirection(1);
 		limit.setSortList(Arrays.asList("creationTime"));
-		entities = manager.readShared(USERID_1, false, limit);
+		entities = manager.readShared(USERID_1, false, null, limit);
 		Assert.assertEquals(4, entities.size());
 		Assert.assertEquals("RJRJ1", entities.get(0).getLocalId());
 		Assert.assertEquals("RJRJ0", entities.get(1).getLocalId());
 
 		limit = new Limit();
 		limit.setFromDate(formatter.parse("2014-03-04").getTime());
-		Assert.assertEquals(1, manager.readEntities(USERID_2, null, limit)
-				.size());
+		Assert.assertEquals(1, manager
+				.readEntities(USERID_2, null, null, limit).size());
 
 		limit.setFromDate(formatter.parse("2011-03-05").getTime());
 		limit.setToDate(formatter.parse("2012-09-05").getTime());
-		Assert.assertEquals(1, manager.readEntities(USERID_2, null, limit)
-				.size());
+		Assert.assertEquals(1, manager
+				.readEntities(USERID_2, null, null, limit).size());
 
 		limit = new Limit();
-		Assert.assertEquals(0, manager.readShared(USERID_2, false, limit)
+		Assert.assertEquals(0, manager.readShared(USERID_2, false, null, limit)
 				.size());
-		Assert.assertEquals(4, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(4, manager.readShared(USERID_1, false, null, limit)
 				.size());
 
 		limit.setDirection(1);
 		limit.setSortList(Arrays.asList("localId"));
-		entities = manager.readShared(USERID_1, false, limit);
+		entities = manager.readShared(USERID_1, false, null, limit);
 		Assert.assertEquals("RJRJ3", entities.get(0).getLocalId());
 
 		limit.setFromDate(formatter.parse("2014-03-05").getTime());
-		Assert.assertEquals(0, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(0, manager.readShared(USERID_1, false, null, limit)
 				.size());
 
 		limit.setFromDate(formatter.parse("2011-03-05").getTime());
-		Assert.assertEquals(4, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(4, manager.readShared(USERID_1, false, null, limit)
 				.size());
 
 		limit.setFromDate(formatter.parse("2014-03-04").getTime());
-		Assert.assertEquals(1, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(1, manager.readShared(USERID_1, false, null, limit)
 				.size());
 
 		limit.setFromDate(formatter.parse("2011-03-05").getTime());
 		limit.setToDate(formatter.parse("2012-09-05").getTime());
-		Assert.assertEquals(1, manager.readShared(USERID_1, false, limit)
+		Assert.assertEquals(1, manager.readShared(USERID_1, false, null, limit)
 				.size());
 
+	}
+
+	@Test
+	public void readByAppId() {
+		initEnv();
+		for (int i = 0; i < 5; i++) {
+			Entity entity = new Entity();
+			entity.setName("my sunny sunday");
+			entity.setLocalId("1EAC10" + i);
+			entity.setVisibility(new Visibility(Arrays.asList(USERID_1), null,
+					null));
+			entity.setOwner(USERID_2);
+			entity.setType(typeManager.readTypeByNameAndMimeType("photo",
+					"image/jpg").getId());
+			entity = manager.saveOrUpdate("testSpace", entity);
+		}
+
+		for (int i = 0; i < 3; i++) {
+			Entity entity = new Entity();
+			entity.setName("my sunny sunday");
+			entity.setLocalId("1EAC10" + i);
+			entity.setVisibility(new Visibility(Arrays.asList(USERID_1), null,
+					null));
+			entity.setOwner(USERID_2);
+			entity.setType(typeManager.readTypeByNameAndMimeType("photo",
+					"image/jpg").getId());
+			entity = manager.saveOrUpdate("ns1", entity);
+		}
+
+		Assert.assertEquals(8, manager.readEntities(USERID_2, null, null, null)
+				.size());
+		Assert.assertEquals(5,
+				manager.readEntities(USERID_2, null, "testSpace", null).size());
+		Assert.assertEquals(3, manager
+				.readEntities(USERID_2, null, "ns1", null).size());
+		Assert.assertEquals(0,
+				manager.readEntities(USERID_2, null, "fake_ns", null).size());
+
+		Assert.assertEquals(3, manager.readShared(USERID_1, false, "ns1", null)
+				.size());
 	}
 
 	@Test
@@ -503,24 +551,24 @@ public class EntityManagerTest {
 		Limit limit = new Limit();
 		limit.setPageSize(10);
 		limit.setPage(0);
-		Assert.assertEquals(10, manager.readShared(USERID_1, false, limit)
-				.size());
+		Assert.assertEquals(10, manager
+				.readShared(USERID_1, false, null, limit).size());
 		limit.setPageSize(40);
 		limit.setPage(0);
-		Assert.assertEquals(40, manager.readShared(USERID_1, false, limit)
-				.size());
+		Assert.assertEquals(40, manager
+				.readShared(USERID_1, false, null, limit).size());
 		limit.setPage(1);
-		Assert.assertEquals(30, manager.readShared(USERID_1, false, limit)
-				.size());
+		Assert.assertEquals(30, manager
+				.readShared(USERID_1, false, null, limit).size());
 
 		limit.setPageSize(20);
 		limit.setPage(0);
-		Assert.assertEquals(20, manager.readEntities(USERID_2, null, limit)
-				.size());
+		Assert.assertEquals(20,
+				manager.readEntities(USERID_2, null, null, limit).size());
 		limit.setPageSize(20);
 		limit.setPage(7);
-		Assert.assertEquals(0, manager.readEntities(USERID_2, null, limit)
-				.size());
+		Assert.assertEquals(0, manager
+				.readEntities(USERID_2, null, null, limit).size());
 	}
 
 }

@@ -84,7 +84,7 @@ public class EntityControllerTest extends SCControllerTest {
 		entity.setType(type.getId());
 
 		RequestBuilder request = setDefaultRequest(get("/user/entity"),
-				Scope.USER).content(convertObjectToJsonString(entity));
+				Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
 				jsonPath("$.data", Matchers.hasSize(0)));
@@ -243,6 +243,62 @@ public class EntityControllerTest extends SCControllerTest {
 				Scope.CLIENT);
 		response = mockMvc.perform(request);
 		setForbiddenExceptionResult(response);
+	}
+
+	@Test
+	public void readByAppId() throws Exception {
+		String appId1 = "space1";
+		String appId2 = "space2";
+
+		EntityType type = typeManager.create("image", "image/jpg");
+		for (int i = 0; i < 5; i++) {
+			Entity entity = new Entity();
+			entity.setLocalId("3455" + i);
+			entity.setName("entity share");
+			entity.setType(type.getId());
+
+			RequestBuilder request = setDefaultRequest(
+					post("/user/{appId}/entity", appId1), Scope.USER).content(
+					convertObjectToJsonString(entity));
+			ResultActions response = mockMvc.perform(request);
+		}
+
+		for (int i = 0; i < 3; i++) {
+			Entity entity = new Entity();
+			entity.setLocalId("3455" + i);
+			entity.setName("entity share");
+			entity.setType(type.getId());
+			entity.setVisibility(new Visibility(true));
+			RequestBuilder request = setDefaultRequest(
+					post("/user/{appId}/entity", appId2), Scope.USER).content(
+					convertObjectToJsonString(entity));
+			ResultActions response = mockMvc.perform(request);
+		}
+
+		RequestBuilder request = setDefaultRequest(get("/user/entity"),
+				Scope.USER);
+		ResultActions response = mockMvc.perform(request);
+		setDefaultResult(response).andExpect(
+				jsonPath("$.data", Matchers.hasSize(8)));
+
+		request = setDefaultRequest(get("/user/{appId}/entity", appId1),
+				Scope.USER);
+		response = mockMvc.perform(request);
+		setDefaultResult(response).andExpect(
+				jsonPath("$.data", Matchers.hasSize(5)));
+
+		request = setDefaultRequest(get("/user/{appId}/entity", appId2),
+				Scope.USER);
+		response = mockMvc.perform(request);
+		setDefaultResult(response).andExpect(
+				jsonPath("$.data", Matchers.hasSize(3)));
+
+		request = setDefaultRequest(get("/user/{appId}/shared", appId2),
+				Scope.USER);
+		response = mockMvc.perform(request);
+		setDefaultResult(response).andExpect(
+				jsonPath("$.data", Matchers.hasSize(0)));
+
 	}
 
 	@Test

@@ -120,7 +120,7 @@ public class EntityManager implements EntityOperations {
 
 	@Override
 	public List<Entity> readShared(String actorId, boolean isCommunity,
-			Limit limit) {
+			String appId, Limit limit) {
 		Set<SocialEntity> result = new HashSet<SocialEntity>();
 		Sort sort = null;
 		if (limit != null && limit.getSortList() != null
@@ -149,20 +149,41 @@ public class EntityManager implements EntityOperations {
 		}
 
 		if (!isCommunity) {
-			result.addAll(entityRepository.findByUserSharedWith(actorId,
-					fromDate, toDate, sort));
-			result.addAll(entityRepository.findByGroupSharedWith(actorId,
-					fromDate, toDate, sort));
-			result.addAll(entityRepository.findByCommunitySharedWith(actorId,
-					fromDate, toDate, sort));
-			result.addAll(entityRepository.findPublicEntities(actorId,
-					fromDate, toDate, sort));
+			if (appId == null) {
+				result.addAll(entityRepository.findByUserSharedWith(actorId,
+						fromDate, toDate, sort));
+				result.addAll(entityRepository.findByGroupSharedWith(actorId,
+						fromDate, toDate, sort));
+				result.addAll(entityRepository.findByCommunitySharedWith(
+						actorId, fromDate, toDate, sort));
+				result.addAll(entityRepository.findPublicEntities(actorId,
+						fromDate, toDate, sort));
+			} else {
+				result.addAll(entityRepository.findByUserSharedWithByAppId(
+						actorId, fromDate, toDate, appId, sort));
+				result.addAll(entityRepository.findByGroupSharedWithByAppId(
+						actorId, fromDate, toDate, appId, sort));
+				result.addAll(entityRepository
+						.findByCommunitySharedWithByAppId(actorId, fromDate,
+								toDate, appId, sort));
+				result.addAll(entityRepository.findPublicEntitiesByAppId(
+						actorId, fromDate, toDate, appId, sort));
+			}
 		} else {
 			try {
-				result.addAll(entityRepository.findBySharedWithCommunity(
-						new Long(actorId), fromDate, toDate, sort));
-				result.addAll(entityRepository.findPublicEntities(new Long(
-						actorId), fromDate, toDate, sort));
+				if (appId == null) {
+					result.addAll(entityRepository.findBySharedWithCommunity(
+							new Long(actorId), fromDate, toDate, sort));
+					result.addAll(entityRepository.findPublicEntities(new Long(
+							actorId), fromDate, toDate, sort));
+				} else {
+					result.addAll(entityRepository
+							.findBySharedWithCommunityByAppId(
+									new Long(actorId), fromDate, toDate, appId,
+									sort));
+					result.addAll(entityRepository.findPublicEntitiesByAppId(
+							new Long(actorId), fromDate, toDate, appId, sort));
+				}
 			} catch (NumberFormatException e) {
 				logger.warn(String.format("%s is not valid community id",
 						actorId));
@@ -174,7 +195,7 @@ public class EntityManager implements EntityOperations {
 
 	@Override
 	public List<Entity> readEntities(String ownerId, String communityId,
-			Limit limit) {
+			String appId, Limit limit) {
 		SocialUser owner = null;
 		SocialCommunity communityOwner = null;
 		PageRequest pager = null;
@@ -190,7 +211,6 @@ public class EntityManager implements EntityOperations {
 				pager = new PageRequest(limit.getPage(), limit.getPageSize(),
 						sort);
 			}
-			// pager = new PageRequest(limit.getPage(), limit.getPageSize());
 			if (limit.getFromDate() > 0) {
 				fromDate = limit.getFromDate();
 			}
@@ -210,15 +230,25 @@ public class EntityManager implements EntityOperations {
 			return Collections.<Entity> emptyList();
 		} else {
 			if (pager != null) {
-				return SocialEntity
-						.toEntity(entityRepository
-								.findByOwnerOrCommunityOwnerAndCreationTimeBetween(
-										owner, communityOwner, fromDate,
-										toDate, pager));
+				if (appId == null) {
+					return SocialEntity.toEntity(entityRepository
+							.findMyEntities(owner, communityOwner, fromDate,
+									toDate, pager));
+				} else {
+					return SocialEntity.toEntity(entityRepository
+							.findMyEntitiesByAppId(owner, communityOwner,
+									fromDate, toDate, appId, pager));
+				}
 			} else {
-				return SocialEntity.toEntity(entityRepository
-						.findByOwnerOrCommunityOwnerAndCreationTimeBetween(
-								owner, communityOwner, fromDate, toDate, sort));
+				if (appId == null) {
+					return SocialEntity.toEntity(entityRepository
+							.findMyEntities(owner, communityOwner, fromDate,
+									toDate, sort));
+				} else {
+					return SocialEntity.toEntity(entityRepository
+							.findMyEntitiesByAppId(owner, communityOwner,
+									fromDate, toDate, appId, sort));
+				}
 			}
 		}
 	}

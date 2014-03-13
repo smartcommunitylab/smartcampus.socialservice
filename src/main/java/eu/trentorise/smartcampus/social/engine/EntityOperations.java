@@ -14,12 +14,12 @@ public interface EntityOperations {
 	// read
 
 	public List<Entity> readShared(String actorId, boolean isCommunity,
-			Limit limit);
+			String appId, Limit limit);
 
 	public Entity readShared(String actorId, boolean isCommunity, String uri);
 
 	public List<Entity> readEntities(String ownerId, String communityId,
-			Limit limit);
+			String appId, Limit limit);
 
 	public Entity readEntity(String uri);
 
