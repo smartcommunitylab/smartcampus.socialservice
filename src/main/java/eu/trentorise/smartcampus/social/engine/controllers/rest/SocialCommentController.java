@@ -63,62 +63,150 @@ public class SocialCommentController extends RestController {
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
 			@RequestParam(value = "toDate", required = false) Long toDate,
 			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
-			@RequestParam(value = "sortList", required = false) Set<String> sortList)
+			@RequestParam(value = "sortList", required = false) Set<String> sortList,
+			@RequestParam(value = "findType", required = false) int findType)
 			throws SocialServiceException, IOException {
 		String fromServer = "";
 		Result result = null;
+			
+			// here I have to create an http request to the mongodb rest interface
+			String uri = createUri(mongoRestHost, mongoRestPort, mongoRestDB, mongoRestCollection);
 		
-		// here I have to create an http request to the mongodb rest interface
-		String uri = createUri(mongoRestHost, mongoRestPort, mongoRestDB, mongoRestCollection);
+			// create query
+			String query = "";
+			List<String> parameters = new ArrayList<String>();
+			List<String> values = new ArrayList<String>();
+			List<Integer> types = new ArrayList<Integer>();
+			if(StringUtils.hasLength(author)){
+				parameters.add("author");
+				values.add(author);
+				types.add(QUERY_TYPE_STRING);
+			}
+			if(fromDate != null){
+				parameters.add("creationTime");
+				values.add(fromDate.toString());
+				types.add(QUERY_TYPE_GT);
+			}
+			if(toDate != null){
+				parameters.add("creationTime");
+				values.add(toDate.toString());
+				types.add(QUERY_TYPE_LT);
+			}
+			if(!parameters.isEmpty()){
+				query = composeQuery(parameters, values, types, QUERY_AND_CONDITION);
+			}
 		
-		// create query
-		String query = "";
-		List<String> parameters = new ArrayList<String>();
-		List<String> values = new ArrayList<String>();
-		List<Integer> types = new ArrayList<Integer>();
-		if(StringUtils.hasLength(author)){
-			parameters.add("author");
-			values.add(author);
-			types.add(QUERY_TYPE_STRING);
-		}
-		if(fromDate != null){
-			parameters.add("creationTime");
-			values.add(fromDate.toString());
-			types.add(QUERY_TYPE_GT);
-		}
-		if(toDate != null){
-			parameters.add("creationTime");
-			values.add(toDate.toString());
-			types.add(QUERY_TYPE_LT);
-		}	
-		query = composeQuery(parameters, values, types, QUERY_AND_CONDITION);
+			// sort
+			String sort = "";
+			if(sortList != null && !sortList.isEmpty()){
+				List<String> params = new ArrayList<String>();
+				params.addAll(sortList);
+				if(sortDirection != null){
+					sort = orderResult(params, sortDirection.intValue());
+				} else {
+					sort = orderResult(params, 0);
+				}
+			}
 		
-		// sort
-		String sort = "";
-		if(sortList != null && !sortList.isEmpty()){
+			// set limit
+			String limit = "";
+			String queryCount = "";
+			int totElements = 0;
+			if(pageNum!= null){
+				if(pageSize == null){
+					pageSize = PAGE_SIZE;
+				}
+			
+				// here I have to use "_count" operation but it seems to be not available - OK added to handlers.py
+				queryCount = uri.concat(mongoCount).concat(query);
+			
+				// create and manage the rest call for count operation
+				URL url = new URL(queryCount);
+				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+				connection.setRequestMethod("GET");
+				connection.setRequestProperty("Accept", "application/json");
+			
+				if (connection.getResponseCode() != 200) {
+					throw new RuntimeException("Failed : HTTP error code : " + connection.getResponseCode());
+				}
+	 
+				BufferedReader br = new BufferedReader(new InputStreamReader((connection.getInputStream())));
+	 
+				String output;
+				fromServer = "";
+				while ((output = br.readLine()) != null) {
+					fromServer = fromServer.concat(output);
+				}
+				connection.disconnect();
+			
+				String tot = fromServer.substring(10, fromServer.indexOf(","));	// 10 is the index of the "count" string + size + 1 in the response
+				totElements = Integer.parseInt(tot);
+			
+				// check the max page I can request
+				if(pageNum.intValue()*pageSize.intValue() > totElements){
+					// error in log ad return map available page
+					pageNum = totElements/pageSize.intValue();
+				}
+			
+				limit = setPagination(pageSize, pageNum);		
+			}
+		
+			uri = uri.concat(mongoQuery).concat(query).concat(sort).concat(limit);
+		
+			URL url = new URL(uri);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setRequestProperty("Accept", "application/json");
+		
+			if (connection.getResponseCode() != 200) {
+				throw new RuntimeException("Failed : HTTP error code : " + connection.getResponseCode());
+			}
+ 
+			BufferedReader br = new BufferedReader(new InputStreamReader((connection.getInputStream())));
+ 
+			String output;
+			fromServer = "";
+			while ((output = br.readLine()) != null) {
+				fromServer = fromServer.concat(output);
+			}
+			connection.disconnect();
+		
+			result = new Result(getJSONStringResult(fromServer));
+			
+		return result;
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value = "/user/comment/{commentId}")
+	public @ResponseBody
+	Result getUserComment(@PathVariable String commentId,
+			@RequestParam(value = "findType", required = false) int findType)
+			throws SocialServiceException, IOException {
+		Result result = null;
+		
+		if(findType == 0){
+			// query with mongo driver in manager
+			result = new Result(commentManager.readComment(commentId));
+			
+		} else if(findType == 1){
+			// query with mongo rest interface "sleepy mongoose"
+			String fromServer = "";
+			// here I have to create an http request to the mongodb rest interface
+			String uri = createUri(mongoRestHost, mongoRestPort, mongoRestDB, mongoRestCollection);
+			
+			// create query
+			String objectId = String.format("{\"$oid\":\"%s\"}", commentId);	// wrap id in objectId
 			List<String> params = new ArrayList<String>();
-			params.addAll(sortList);
-			if(sortDirection != null){
-				sort = orderResult(params, sortDirection.intValue());
-			} else {
-				sort = orderResult(params, 0);
-			}
-		}
-		
-		// set limit
-		String limit = "";
-		String queryCount = "";
-		int totElements = 0;
-		if(pageNum!= null){
-			if(pageSize == null){
-				pageSize = PAGE_SIZE;
-			}
+			List<String> values = new ArrayList<String>();
+			List<Integer> types = new ArrayList<Integer>();
+			params.add("_id");
+			values.add(objectId);
+			types.add(QUERY_TYPE_INTOBJ);
+			//String query = createSimpleQuery("_id", objectId, QUERY_TYPE_INTOBJ);
+			String query = composeQuery(params, values, types, QUERY_NO_CONDITION);
+			uri = uri.concat(mongoQuery).concat(query);
 			
-			// here I have to use "_count" operation but it seems to be not available - OK added to handlers.py
-			queryCount = uri.concat(mongoCount).concat(query);
-			
-			// create and manage the rest call for count operation
-			URL url = new URL(queryCount);
+			// create final url and open connection
+			URL url = new URL(uri);
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
 			connection.setRequestProperty("Accept", "application/json");
@@ -130,95 +218,33 @@ public class SocialCommentController extends RestController {
 			BufferedReader br = new BufferedReader(new InputStreamReader((connection.getInputStream())));
 	 
 			String output;
-			fromServer = "";
 			while ((output = br.readLine()) != null) {
 				fromServer = fromServer.concat(output);
 			}
 			connection.disconnect();
 			
-			String tot = fromServer.substring(10, fromServer.indexOf(","));	// 10 is the index of the "count" string + size + 1 in the response
-			totElements = Integer.parseInt(tot);
-			
-			// check the max page I can request
-			if(pageNum.intValue()*pageSize.intValue() > totElements){
-				// error in log ad return map available page
-				pageNum = totElements/pageSize.intValue();
-			}
-			
-			limit = setPagination(pageSize, pageNum);		
+			result = new Result(getJSONStringResult(fromServer));
+		} else if(findType == 2){
+			// query with mongo driver using raw json data
+			result = new Result(commentManager.readComment_JSON(commentId));
 		}
 		
-		uri = uri.concat(mongoQuery).concat(query).concat(sort).concat(limit);
-		
-		URL url = new URL(uri);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("GET");
-		connection.setRequestProperty("Accept", "application/json");
-		
-		if (connection.getResponseCode() != 200) {
-			throw new RuntimeException("Failed : HTTP error code : " + connection.getResponseCode());
-		}
- 
-		BufferedReader br = new BufferedReader(new InputStreamReader((connection.getInputStream())));
- 
-		String output;
-		fromServer = "";
-		while ((output = br.readLine()) != null) {
-			fromServer = fromServer.concat(output);
-		}
-		connection.disconnect();
-		
-		result = new Result(getJSONStringResult(fromServer));
-		return result;
-	}
-	
-	@RequestMapping(method = RequestMethod.GET, value = "/user/comment/{commentId}")
-	public @ResponseBody
-	Result getUserComment(@PathVariable String commentId)
-			throws SocialServiceException, IOException {
-		String fromServer = "";
-		Result result = null;
-		
-		// here I have to create an http request to the mongodb rest interface
-		String uri = createUri(mongoRestHost, mongoRestPort, mongoRestDB, mongoRestCollection);
-		
-		// create query
-		String objectId = String.format("{\"$oid\":\"%s\"}", commentId);	// wrap id in objectId
-		List<String> params = new ArrayList<String>();
-		List<String> values = new ArrayList<String>();
-		List<Integer> types = new ArrayList<Integer>();
-		params.add("_id");
-		values.add(objectId);
-		types.add(QUERY_TYPE_INTOBJ);
-		//String query = createSimpleQuery("_id", objectId, QUERY_TYPE_INTOBJ);
-		String query = composeQuery(params, values, types, QUERY_NO_CONDITION);
-		uri = uri.concat(mongoQuery).concat(query);
-		
-		// create final url and open connection
-		URL url = new URL(uri);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("GET");
-		connection.setRequestProperty("Accept", "application/json");
-		
-		if (connection.getResponseCode() != 200) {
-			throw new RuntimeException("Failed : HTTP error code : " + connection.getResponseCode());
-		}
- 
-		BufferedReader br = new BufferedReader(new InputStreamReader((connection.getInputStream())));
- 
-		String output;
-		while ((output = br.readLine()) != null) {
-			fromServer = fromServer.concat(output);
-		}
-		connection.disconnect();
-		
-		result = new Result(getJSONStringResult(fromServer));
 		return result;
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/user/entity/{entityId}/comment")
 	public @ResponseBody 
-	Result getUserEntityComment(@PathVariable String entityId, @RequestParam(value="author", required=false) String author) throws SocialServiceException, IOException{
+	Result getUserEntityComment(
+			@PathVariable String entityId, 
+			@RequestParam(value= "author", required=false) String author,
+			@RequestParam(value= "commentText", required=false) String commentText,
+			@RequestParam(value = "pageNum", required = false) Integer pageNum,
+			@RequestParam(value = "pageSize", required = false) Integer pageSize,
+			@RequestParam(value = "fromDate", required = false) Long fromDate,
+			@RequestParam(value = "toDate", required = false) Long toDate,
+			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
+			@RequestParam(value = "sortList", required = false) Set<String> sortList,
+			@RequestParam(value = "findType", required = false) int findType) throws SocialServiceException, IOException{
 		String fromServer = "";
 		
 		Result result = null;
@@ -227,52 +253,141 @@ public class SocialCommentController extends RestController {
 			result = new Result(ex, 400);
 			return result;
 		}
+		if(findType == 0){
+			// query with mongo driver in manager
+			if(StringUtils.hasLength(commentText) && StringUtils.hasLength(author)){
+				result = new Result(commentManager.readCommentsByAutorAndTextAndEntity(author, commentText, entityId));
+			} else {
+				result = new Result(commentManager.readCommentsByEntity(entityId, setLimit(pageNum, pageSize, fromDate, toDate, sortDirection, sortList)));
+			}
+		} else if(findType == 1){
+			// query with mongo rest interface "sleepy mongoose"
+			
+			// here I have to create an http request to the mongodb rest interface
+			String uri = createUri(mongoRestHost, mongoRestPort, mongoRestDB, mongoRestCollection);
 		
-		// here I have to create an http request to the mongodb rest interface
-		String uri = createUri(mongoRestHost, mongoRestPort, mongoRestDB, mongoRestCollection);
-		
-		// create query
-		String query = "";
-		List<String> params = new ArrayList<String>();
-		List<String> values = new ArrayList<String>();
-		List<Integer> types = new ArrayList<Integer>();
-		if(StringUtils.hasLength(author)){
-			params.add("author");
-			params.add("entityId");
-			values.add(author);
-			values.add(entityId);
-			types.add(QUERY_TYPE_STRING);
-			types.add(QUERY_TYPE_STRING);
-			//query = createMultipleQuery("author", "entityId", author, entityId, QUERY_TYPE_STRING, QUERY_TYPE_STRING, QUERY_AND_CONDITION);
-			query = composeQuery(params, values, types, QUERY_AND_CONDITION);
-		} else {
+			// create query
+			String query = "";
+			List<String> params = new ArrayList<String>();
+			List<String> values = new ArrayList<String>();
+			List<Integer> types = new ArrayList<Integer>();
+			if(StringUtils.hasLength(commentText)){
+				params.add("commentText");
+				values.add(commentText);
+				types.add(QUERY_TYPE_STRING);
+			}
+			if(StringUtils.hasLength(author)){
+				params.add("author");
+				values.add(author);
+				types.add(QUERY_TYPE_STRING);
+				//query = createMultipleQuery("author", "entityId", author, entityId, QUERY_TYPE_STRING, QUERY_TYPE_STRING, QUERY_AND_CONDITION);
+			} 
 			params.add("entityId");
 			values.add(entityId);
 			types.add(QUERY_TYPE_STRING);
 			//query = createSimpleQuery("entityId", entityId, QUERY_TYPE_STRING);
-			query = composeQuery(params, values, types, QUERY_NO_CONDITION);
-		}
-		uri = uri.concat(mongoQuery).concat(query);
-		
-		// create final url and open connection
-		URL url = new URL(uri);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("GET");
-		connection.setRequestProperty("Accept", "application/json");
+			
+			if(fromDate != null){
+				params.add("creationTime");
+				values.add(fromDate.toString());
+				types.add(QUERY_TYPE_GT);
+			}
+			if(toDate != null){
+				params.add("creationTime");
+				values.add(toDate.toString());
+				types.add(QUERY_TYPE_LT);
+			}
+			if(params.size() == 1){
+				query = composeQuery(params, values, types, QUERY_NO_CONDITION);
+			} else {
+				query = composeQuery(params, values, types, QUERY_AND_CONDITION);
+			}
+			
+			// sort
+			String sort = "";
+			if(sortList != null && !sortList.isEmpty()){
+				List<String> parameters = new ArrayList<String>();
+				parameters.addAll(sortList);
+				if(sortDirection != null){
+					sort = orderResult(parameters, sortDirection.intValue());
+				} else {
+					sort = orderResult(parameters, 0);
+				}
+			}
+			
+			// set limit
+			String limit = "";
+			String queryCount = "";
+			int totElements = 0;
+			if(pageNum!= null){
+				if(pageSize == null){
+					pageSize = PAGE_SIZE;
+				}
+			
+				// here I have to use "_count" operation but it seems to be not available - OK added to handlers.py
+				queryCount = uri.concat(mongoCount).concat(query);
+			
+				// create and manage the rest call for count operation
+				URL url = new URL(queryCount);
+				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+				connection.setRequestMethod("GET");
+				connection.setRequestProperty("Accept", "application/json");
+			
+				if (connection.getResponseCode() != 200) {
+					throw new RuntimeException("Failed : HTTP error code : " + connection.getResponseCode());
+				}
 				
-		if (connection.getResponseCode() != 200) {
-			throw new RuntimeException("Failed : HTTP error code : " + connection.getResponseCode());
-		}
+				BufferedReader br = new BufferedReader(new InputStreamReader((connection.getInputStream())));
+			
+				String output;
+				fromServer = "";
+				while ((output = br.readLine()) != null) {
+					fromServer = fromServer.concat(output);
+				}
+				connection.disconnect();
+						
+				String tot = fromServer.substring(10, fromServer.indexOf(","));	// 10 is the index of the "count" string + size + 1 in the response
+				totElements = Integer.parseInt(tot);
+						
+				// check the max page I can request
+				if(pageNum.intValue()*pageSize.intValue() > totElements){
+					// error in log ad return map available page
+					pageNum = totElements/pageSize.intValue();
+				}
+						
+				limit = setPagination(pageSize, pageNum);		
+			}			
+
+			uri = uri.concat(mongoQuery).concat(query).concat(sort).concat(limit).concat("&batch_size=10000");
+			
+			// create final url and open connection
+			URL url = new URL(uri);
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("GET");
+			connection.setRequestProperty("Accept", "application/json");
+				
+			if (connection.getResponseCode() != 200) {
+				throw new RuntimeException("Failed : HTTP error code : " + connection.getResponseCode());
+			}
 		 
-		BufferedReader br = new BufferedReader(new InputStreamReader((connection.getInputStream())));
+			BufferedReader br = new BufferedReader(new InputStreamReader((connection.getInputStream())));
 		
-		String output;
-		while ((output = br.readLine()) != null) {
-			fromServer = fromServer.concat(output);
+			String output;
+			fromServer = "";
+			while ((output = br.readLine()) != null) {
+				fromServer = fromServer.concat(output);
+			}
+			connection.disconnect();		
+			result = new Result(getJSONStringResult(fromServer));
+		
+		} else if(findType == 2){
+			// query with mongo driver using raw json data
+			if(StringUtils.hasLength(commentText) && StringUtils.hasLength(author)){
+				result = new Result(commentManager.readCommentsByAutorAndTextAndEntity_JSON(author, commentText, entityId));
+			} else {
+				result = new Result(commentManager.readCommentsByEntity_JSON(entityId, setLimit(pageNum, pageSize, fromDate, toDate, sortDirection, sortList)));
+			}
 		}
-		connection.disconnect();
-				
-		result = new Result(getJSONStringResult(fromServer));
 		return result;
 	}
 	
@@ -457,7 +572,7 @@ public class SocialCommentController extends RestController {
 		// limit -> pageSize, skip -> pageNumber
 		String pagination = "&limit=%s&skip=%s";
 		int limit = pageSize.intValue();
-		int skip = (pageNumber.intValue() - 1) * limit;
+		int skip = pageNumber.intValue() * limit;
 		pagination = String.format(pagination, limit, skip);
 		return pagination;
 	}

@@ -1,6 +1,8 @@
 package eu.trentorise.smartcampus.social.engine.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -13,6 +15,7 @@ import eu.trentorise.smartcampus.social.engine.beans.Comment;
 public class SocialComment implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	private static final long TEST_TIME_GAP = 0L;//86400000;	//0L;//-86400000;
 	
 	@Id
 	private String id;
@@ -34,13 +37,13 @@ public class SocialComment implements Serializable {
 	
 	public SocialComment(){
 		this.deleted = false;
-		this.creationTime = System.currentTimeMillis();
+		this.creationTime = System.currentTimeMillis() + TEST_TIME_GAP;
 	}
 	
 	public SocialComment(String text){
 		this.text = text;
 		this.deleted = false;
-		this.creationTime = System.currentTimeMillis();
+		this.creationTime = System.currentTimeMillis()  + TEST_TIME_GAP;
 	}
 	
 	public SocialComment(String text, String author, String entityId){
@@ -48,7 +51,7 @@ public class SocialComment implements Serializable {
 		this.author = author;
 		this.entityId = entityId;
 		this.deleted = false;
-		this.creationTime = System.currentTimeMillis();
+		this.creationTime = System.currentTimeMillis() + TEST_TIME_GAP;
 	}
 
 	public String getId() {
@@ -100,6 +103,16 @@ public class SocialComment implements Serializable {
 		comment.setCreationTime(creationTime);
 		comment.setDeleted(deleted);
 		return comment;
+	}
+	
+	public static List<Comment> toComment(Iterable<SocialComment> comments) {	
+		List<Comment> outputComments = new ArrayList<Comment>();
+		if(comments != null){
+			for (SocialComment comment : comments) {
+				outputComments.add(comment.toComment());
+			}
+		}
+		return outputComments;
 	}
 	
 	public static Long convertId(String id){

@@ -148,5 +148,4 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		.andExpect(content().string(containsString(" has delete the comment")));
 	}
 	
-	
 }
