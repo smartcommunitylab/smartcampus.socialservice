@@ -27,7 +27,7 @@ import eu.trentorise.smartcampus.social.engine.beans.Comment;
 @ContextConfiguration(locations={"classpath:/spring/applicationContext.xml", "classpath:/spring/spring-security.xml"})
 public class CommentsPerformaceTest extends SCControllerTest {
 	
-	private static final String COMMENTID_TEST1 = "5322bb0744aed84bd269d1ec";
+	private static final String COMMENTID_TEST1 = "532327fe44ae6cd4a1720aed";
 	
 	@Autowired
 	private FilterChainProxy springSecurityFilterChain;
@@ -48,7 +48,7 @@ public class CommentsPerformaceTest extends SCControllerTest {
 		String entityId = "1";
 		RequestBuilder request = null;
 		ResultActions response = null;
-		for(int i = 0; i < 100; i++){
+		for(int i = 0; i < 500; i++){
 			// Create and Post comments
 			newComment.setText(String.format("Test comment %s", i));
 			request = setDefaultRequest(post("/user/entity/{entityId}/comment", entityId), Scope.USER).content(convertObjectToJsonString(newComment));
@@ -67,7 +67,7 @@ public class CommentsPerformaceTest extends SCControllerTest {
 		ResultActions response = mockMvc.perform(request);
 		Long endTime = System.currentTimeMillis();
 		System.out.println(String.format("MongoRepo multiple find usage time : '%s' millis", endTime-startTime));
-		setDefaultResult_NoPrint(response);
+		setDefaultResult(response);
 	}
 	
 	@Test
@@ -78,7 +78,7 @@ public class CommentsPerformaceTest extends SCControllerTest {
 		ResultActions response = mockMvc.perform(request);
 		Long endTime = System.currentTimeMillis();
 		System.out.println(String.format("MongoRepo single find usage time : '%s' millis", endTime-startTime));
-		setDefaultResult_NoPrint(response);
+		setDefaultResult(response);
 	}
 	
 	@Test
@@ -89,7 +89,7 @@ public class CommentsPerformaceTest extends SCControllerTest {
 		ResultActions response = mockMvc.perform(request);
 		Long endTime = System.currentTimeMillis();
 		System.out.println(String.format("MongoRepo single find multi params usage time : '%s' millis", endTime-startTime));
-		setDefaultResult_NoPrint(response);
+		setDefaultResult(response);
 	}	
 	
 	@Test
@@ -102,7 +102,7 @@ public class CommentsPerformaceTest extends SCControllerTest {
 		ResultActions response = mockMvc.perform(request);
 		Long endTime = System.currentTimeMillis();
 		System.out.println(String.format("MongoRest multiple find usage time : '%s' millis", endTime-startTime));
-		setDefaultResult_NoPrint(response);
+		setDefaultResult(response);
 	}
 	
 	@Test
@@ -113,7 +113,7 @@ public class CommentsPerformaceTest extends SCControllerTest {
 		ResultActions response = mockMvc.perform(request);
 		Long endTime = System.currentTimeMillis();
 		System.out.println(String.format("MongoRest single find usage time : '%s' millis", endTime-startTime));
-		setDefaultResult_NoPrint(response);
+		setDefaultResult(response);
 	}
 	
 	@Test
@@ -124,7 +124,7 @@ public class CommentsPerformaceTest extends SCControllerTest {
 		ResultActions response = mockMvc.perform(request);
 		Long endTime = System.currentTimeMillis();
 		System.out.println(String.format("MongoRest single find multi params usage time : '%s' millis", endTime-startTime));
-		setDefaultResult_NoPrint(response);
+		setDefaultResult(response);
 	}		
 	
 	@Test
@@ -137,7 +137,7 @@ public class CommentsPerformaceTest extends SCControllerTest {
 		ResultActions response = mockMvc.perform(request);
 		Long endTime = System.currentTimeMillis();
 		System.out.println(String.format("MongoDriver multiple find usage time : '%s' millis", endTime-startTime));
-		setDefaultResult_NoPrint(response);	
+		setDefaultResult(response);	
 	}
 	
 	@Test
@@ -148,7 +148,7 @@ public class CommentsPerformaceTest extends SCControllerTest {
 		ResultActions response = mockMvc.perform(request);
 		Long endTime = System.currentTimeMillis();
 		System.out.println(String.format("MongoDriver single find usage time : '%s' millis", endTime-startTime));
-		setDefaultResult_NoPrint(response);
+		setDefaultResult(response);
 	}
 	
 	@Test
@@ -159,7 +159,7 @@ public class CommentsPerformaceTest extends SCControllerTest {
 		ResultActions response = mockMvc.perform(request);
 		Long endTime = System.currentTimeMillis();
 		System.out.println(String.format("MongoDriver single find multi params usage time : '%s' millis", endTime-startTime));
-		setDefaultResult_NoPrint(response);
+		setDefaultResult(response);
 	}	
 
 }
