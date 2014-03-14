@@ -52,7 +52,12 @@ public class SocialCommentController extends RestController {
 	private static final int QUERY_NO_CONDITION = -1;
 	private static final int QUERY_AND_CONDITION = 0;
 	//private static final int QUERY_OR_CONDITION = 1;
-	private static final int PAGE_SIZE = 5;
+	private static final int PAGE_SIZE = 10;
+	private static final String BATCH_SIZE = "&batch_size=10000";
+	
+	private static final String AUTHOR = "author";
+	private static final String CREATION_TIME = "creationTime";
+	private static final String ENTITY_ID = "entityId";
 	
 	@RequestMapping(method = RequestMethod.GET, value = "/user/comment")
 	public @ResponseBody
@@ -78,17 +83,17 @@ public class SocialCommentController extends RestController {
 			List<String> values = new ArrayList<String>();
 			List<Integer> types = new ArrayList<Integer>();
 			if(StringUtils.hasLength(author)){
-				parameters.add("author");
+				parameters.add(AUTHOR);
 				values.add(author);
 				types.add(QUERY_TYPE_STRING);
 			}
 			if(fromDate != null){
-				parameters.add("creationTime");
+				parameters.add(CREATION_TIME);
 				values.add(fromDate.toString());
 				types.add(QUERY_TYPE_GT);
 			}
 			if(toDate != null){
-				parameters.add("creationTime");
+				parameters.add(CREATION_TIME);
 				values.add(toDate.toString());
 				types.add(QUERY_TYPE_LT);
 			}
@@ -201,7 +206,6 @@ public class SocialCommentController extends RestController {
 			params.add("_id");
 			values.add(objectId);
 			types.add(QUERY_TYPE_INTOBJ);
-			//String query = createSimpleQuery("_id", objectId, QUERY_TYPE_INTOBJ);
 			String query = composeQuery(params, values, types, QUERY_NO_CONDITION);
 			uri = uri.concat(mongoQuery).concat(query);
 			
@@ -263,7 +267,6 @@ public class SocialCommentController extends RestController {
 		} else if(findType == 1){
 			// query with mongo rest interface "sleepy mongoose"
 			
-			// here I have to create an http request to the mongodb rest interface
 			String uri = createUri(mongoRestHost, mongoRestPort, mongoRestDB, mongoRestCollection);
 		
 			// create query
@@ -272,28 +275,26 @@ public class SocialCommentController extends RestController {
 			List<String> values = new ArrayList<String>();
 			List<Integer> types = new ArrayList<Integer>();
 			if(StringUtils.hasLength(commentText)){
-				params.add("commentText");
+				params.add(CREATION_TIME);
 				values.add(commentText);
 				types.add(QUERY_TYPE_STRING);
 			}
 			if(StringUtils.hasLength(author)){
-				params.add("author");
+				params.add(AUTHOR);
 				values.add(author);
 				types.add(QUERY_TYPE_STRING);
-				//query = createMultipleQuery("author", "entityId", author, entityId, QUERY_TYPE_STRING, QUERY_TYPE_STRING, QUERY_AND_CONDITION);
 			} 
-			params.add("entityId");
+			params.add(ENTITY_ID);
 			values.add(entityId);
 			types.add(QUERY_TYPE_STRING);
-			//query = createSimpleQuery("entityId", entityId, QUERY_TYPE_STRING);
 			
 			if(fromDate != null){
-				params.add("creationTime");
+				params.add(CREATION_TIME);
 				values.add(fromDate.toString());
 				types.add(QUERY_TYPE_GT);
 			}
 			if(toDate != null){
-				params.add("creationTime");
+				params.add(CREATION_TIME);
 				values.add(toDate.toString());
 				types.add(QUERY_TYPE_LT);
 			}
@@ -358,7 +359,7 @@ public class SocialCommentController extends RestController {
 				limit = setPagination(pageSize, pageNum);		
 			}			
 
-			uri = uri.concat(mongoQuery).concat(query).concat(sort).concat(limit).concat("&batch_size=10000");
+			uri = uri.concat(mongoQuery).concat(query).concat(sort).concat(limit).concat(BATCH_SIZE);
 			
 			// create final url and open connection
 			URL url = new URL(uri);
@@ -549,6 +550,12 @@ public class SocialCommentController extends RestController {
 		return query;
 	}
 	
+	/**
+	 * Method orderResult: used to order the query response in a specific order by a specific parameter/parameters
+	 * @param params: list of parameters to be consider in the sorting operation
+	 * @param direction: direction of the sorting operation: 0 in asc, 1 in desc
+	 * @return string query: part of query string to be used in the sorting query
+	 */
 	private String orderResult(List<String> params, int direction){
 		String query = "&sort={";
 		if(direction == 1){
@@ -568,6 +575,12 @@ public class SocialCommentController extends RestController {
 		return query;
 	}
 	
+	/**
+	 * Method setPagination: used to add pagination preferences in the actual query.
+	 * @param pageSize: dimension of the page to return
+	 * @param pageNumber: number of the page to return
+	 * @return string query: part of query string to be used in pagination operation
+	 */
 	private String setPagination(Integer pageSize, Integer pageNumber){
 		// limit -> pageSize, skip -> pageNumber
 		String pagination = "&limit=%s&skip=%s";
@@ -577,6 +590,13 @@ public class SocialCommentController extends RestController {
 		return pagination;
 	}
 	
+	/**
+	 * Method getJSONStringResult:used to extract the result JSON from the mongodb rest server
+	 * and to format correctly (without the [])
+	 * @param serverResponse: JSON String to be formatted
+	 * @return string commentList that contains the JSON representation of the comment object
+	 * returned from the query
+	 */
 	private String getJSONStringResult(String serverResponse){
 		String commentList = "";
 		try{

@@ -15,7 +15,7 @@ import eu.trentorise.smartcampus.social.engine.beans.Comment;
 public class SocialComment implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static final long TEST_TIME_GAP = 0L;//86400000;	//0L;//-86400000;
+	private static final long TEST_TIME_GAP = 0L;//86400000;//0L;//-86400000;
 	
 	@Id
 	private String id;
