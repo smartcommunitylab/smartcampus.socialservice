@@ -54,7 +54,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		this.mockMvc = webAppContextSetup(this.wac).addFilter(springSecurityFilterChain).build();
 	}
 	
-	// @Test
+	@Test
 	public void test1_createComments() throws Exception {
 		Comment newComment = new Comment();
 		String entityId = ENTITY_ID;
@@ -101,7 +101,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		.andExpect(content().string(containsString(COMMENT_TEST3)));
 	}
 	
-	// @Test
+	@Test
 	public void test11_createCommentNoText() throws Exception {
 		Comment newComment = new Comment();
 		String entityId = ENTITY_ID;
