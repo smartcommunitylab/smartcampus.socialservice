@@ -34,7 +34,7 @@ import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 		"classpath:/spring/spring-security.xml" })
 public class SocialCommunityControllerTest extends SCControllerTest {
 
-	private static final String APPID = "testCom";
+	private static final String APPID = "space1";
 
 	@Autowired
 	private FilterChainProxy springSecurityFilterChain;
