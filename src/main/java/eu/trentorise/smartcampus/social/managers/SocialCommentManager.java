@@ -206,7 +206,6 @@ public class SocialCommentManager {
      	if(limit != null){
      		BasicDBObject sort = null;
      		List<String> properties = new ArrayList<String>();
-     		
      		// date limit
      		if(limit.getFromDate() > 0 && limit.getToDate() > 0){
      			query.append("creationTime", new BasicDBObject("$gt", limit.getFromDate()).append("$lt", limit.getToDate()));
@@ -215,7 +214,6 @@ public class SocialCommentManager {
      		} else if(limit.getFromDate() == 0 && limit.getToDate() > 0){
      			query = query.append("creationTime", new BasicDBObject("$lt", limit.getToDate()));
      		}
-     		
      		// sort
      		if(!limit.getSortList().isEmpty()){
      			for(String param: limit.getSortList()){
@@ -223,7 +221,6 @@ public class SocialCommentManager {
      			}
      			sort = createSortObject(properties, limit.getDirection());
      		}
-     		
      		// pagination
      		if((limit.getPageSize() != 0) && (limit.getPage() >= 0)){
      			int skipPages = limit.getPage() * limit.getPageSize();
@@ -235,20 +232,9 @@ public class SocialCommentManager {
      		}
      	} else {
      		cursor = coll.find(query);
-     	}
-        
-        result = convertResult(cursor);	// not performed: cicle to all the elements
-        
-        //CustomConversions custom = new CustomConversions(Arrays.asList(new DBObjetctToStringConverter()));
-        //MongoTemplate temp = new MongoTemplate(mongoClient, MONGO_DB);
-
-        //Query query2 = new Query(where("entityId").is(entityId));
-        
-        //List<String> results = temp.find(query2, String.class);
-        
-        //for(String res:results){
-        //	result = result.concat(res);
-        //}
+     	} 
+        result = convertResult(cursor);	// not performed: cycle to all the elements
+        cursor.close();
         
 		return result;
 	}
@@ -307,18 +293,29 @@ public class SocialCommentManager {
 		return true;
 	}
 	
+	/**
+	 * Method convertResult: used to convert a DBCursor object in a JSON string
+	 * @param cursor: DBCursor object with the result of a query
+	 * @return string 'json' with the JSON conversion of the DBCursor object
+	 */
 	private String convertResult(DBCursor cursor){
     	String json = "";
 		try{
         	while(cursor.hasNext()) {
         	       json = json + cursor.next().toString();
         	   }
-        } finally{
-        	cursor.close();
+        } catch (Exception ex){
+        	logger.error(String.format("Error in parsing cursor to json. %s", ex.getMessage()));
         }
 		return json;
     }
 	
+	/**
+	 * Method createSortObject: used to create a BasicDBObject with the sort configuration
+	 * @param params: list of String with sorting parameters;
+	 * @param direction: direction of the sorting operation: if 0 asc order, if 1 desc order
+	 * @return BasicDBObject with sorting configuration
+	 */
 	private BasicDBObject createSortObject(List<String> params, int direction){
 		BasicDBObject sort = null;
 		if(direction == 1){
