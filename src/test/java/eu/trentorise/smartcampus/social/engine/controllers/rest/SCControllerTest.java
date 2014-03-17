@@ -21,7 +21,7 @@ public class SCControllerTest {
 		USER, CLIENT
 	};
 
-	private static final String USER_AUTH_TOKEN = "2c76f027-4c77-4ab2-af6f-d4d6275f2da3";
+	private static final String USER_AUTH_TOKEN = "";
 	private static final String CLIENT_AUTH_TOKEN = "";
 
 	/** Controller utilities **/
@@ -99,6 +99,12 @@ public class SCControllerTest {
 			throws Exception {
 		return result.andDo(print()).andExpect(status().isOk())
 				.andExpect(jsonPath("$.data").value("null"));
+	}
+	
+	protected ResultActions setVoidResult(ResultActions result)
+			throws Exception {
+		return result.andDo(print()).andExpect(status().isOk())
+				.andExpect(jsonPath("$.data").value("[]"));
 	}
 
 	protected ResultActions setForbiddenExceptionResult(ResultActions result)

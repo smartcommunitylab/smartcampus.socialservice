@@ -46,9 +46,6 @@ public class SocialCommentManager {
 	CommentRepository commentRepository;
 	
 	public Comment create(String text, String user, String entityId){
-		if(!StringUtils.hasLength(text)){
-			throw new IllegalArgumentException("param 'text' should be valid");
-		}
 		if(!StringUtils.hasLength(user)){
 			throw new IllegalArgumentException("param 'user' should be valid");
 		}
@@ -129,7 +126,7 @@ public class SocialCommentManager {
 		if(!StringUtils.hasLength(entityId)){
 			logger.error("param 'entityId' is not valid");
 			//throw new IllegalArgumentException("param 'entityId' should be valid");
-			return null;
+			return new ArrayList<Comment>();
 		}
 		Pageable pageable = null;
 		
@@ -179,6 +176,7 @@ public class SocialCommentManager {
 		return result != null ? SocialComment.toComment(result) : null;
 	}
 	
+	// Used in performance test
 	public String readCommentsByEntity_JSON(String entityId, Limit limit){
 		String result = "";
 		if(!StringUtils.hasLength(entityId)){
@@ -248,20 +246,22 @@ public class SocialCommentManager {
 		}
 		
 		SocialComment comment = commentRepository.findOne(commentId);
-		comment.setDeleted(true);
-		comment.setText(String.format(deleteComment, user));
-		return commentRepository.save(comment).toComment();
+		if(comment != null){
+			comment.setDeleted(true);
+			comment.setText(String.format(deleteComment, user));
+			return commentRepository.save(comment).toComment();
+		} else {
+			logger.warn(String.format("comment with id '%s' not exists", commentId));
+			return null;
+		}
 	}
 	
-	public boolean remove(String commentId, String user){
+	public boolean remove(String commentId){
 		if(!StringUtils.hasLength(commentId)){
 			logger.error("param 'commentId' should be valid");
 			return true;
 		}
-		if(!StringUtils.hasLength(user)){
-			logger.error("param 'author' should be valid");
-			return true;
-		}
+		
 		try{
 			commentRepository.delete(commentId);
 		} catch(Exception ex){

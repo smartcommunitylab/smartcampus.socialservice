@@ -53,7 +53,6 @@ public class SocialCommentController extends RestController {
 	private static final int QUERY_NO_CONDITION = -1;
 	private static final int QUERY_AND_CONDITION = 0;
 	//private static final int QUERY_OR_CONDITION = 1;
-	private static final int PAGE_SIZE = 10;
 	private static final String BATCH_SIZE = "&batch_size=10000";
 	// comment fields
 	private static final String AUTHOR = "author";
@@ -71,7 +70,7 @@ public class SocialCommentController extends RestController {
 			@RequestParam(value = "toDate", required = false) Long toDate,
 			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
 			@RequestParam(value = "sortList", required = false) Set<String> sortList,
-			@RequestParam(value = "findType", required = false) int findType)
+			@RequestParam(value = "findType", required = false) Integer findType)
 			throws SocialServiceException, IOException {
 		String fromServer = "";
 		Result result = null;
@@ -118,7 +117,7 @@ public class SocialCommentController extends RestController {
 		int totElements = 0;
 		if(pageNum!= null){
 			if(pageSize == null){
-				pageSize = PAGE_SIZE;
+				pageSize = INIT_PAGE_SIZE;
 			}
 		
 			queryCount = uri.concat(mongoCount).concat(query);
@@ -146,7 +145,7 @@ public class SocialCommentController extends RestController {
 		
 			// check the max page I can request
 			if(pageNum.intValue()*pageSize.intValue() > totElements){
-				logger.error(String.format("The requested page %s exceded the available pages %s",pageNum.intValue(), totElements/pageSize.intValue()));
+				logger.error(String.format("The requested page %s exceded the max available page %s",pageNum.intValue(), totElements/pageSize.intValue()));
 				pageNum = totElements/pageSize.intValue();
 			}
 			limit = setPagination(pageSize, pageNum);		
@@ -318,7 +317,7 @@ public class SocialCommentController extends RestController {
 			int totElements = 0;
 			if(pageNum!= null){
 				if(pageSize == null){
-					pageSize = PAGE_SIZE;
+					pageSize = INIT_PAGE_SIZE;
 				}
 				queryCount = uri.concat(mongoCount).concat(query);
 			
@@ -390,7 +389,7 @@ public class SocialCommentController extends RestController {
 	Result createUserEntityComment(@RequestBody Comment commentInRequest, @PathVariable String entityId) throws SocialServiceException, IOException{
 		String userId = getUserId();
 		String user = concatNameAndSurname(getUserObject(userId).getName(),getUserObject(userId).getSurname());
-		
+
 		Result result = null;
 		try{
 			result = new Result(commentManager.create(commentInRequest.getText(), user, entityId));
@@ -407,12 +406,17 @@ public class SocialCommentController extends RestController {
 		
 		return result;
 	}
-	
-	@RequestMapping(method = RequestMethod.DELETE, value = "/user/entity/{entityId}/comment/{commentId}")
+
+	//@RequestMapping(method = RequestMethod.DELETE, value = "/user/entity/{entityId}/comment/{commentId}")
+	@RequestMapping(method = RequestMethod.DELETE, value = "/user/comment/{commentId}")
 	public @ResponseBody 
-	Result deleteUserEntityComment(@PathVariable String entityId, @PathVariable String commentId) throws SocialServiceException, IOException{
+	Result deleteUserEntityComment(/*@PathVariable String entityId,*/ @PathVariable String commentId) throws SocialServiceException, IOException{
 		String userId = getUserId();
 		String user = concatNameAndSurname(getUserObject(userId).getName(),getUserObject(userId).getSurname());
+		
+		if(!StringUtils.hasLength(commentId)){
+			throw new IllegalArgumentException("param 'commentId' should be valid");
+		}
 		
 		// check permission
 		if(!permissionManager.checkCommentPermission(commentId, user)){
@@ -450,7 +454,7 @@ public class SocialCommentController extends RestController {
 		
 		Result result = null;
 		try{
-			result = new Result(commentManager.remove(commentId, user));
+			result = new Result(commentManager.remove(commentId));
 		} catch (JsonGenerationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

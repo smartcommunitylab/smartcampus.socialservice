@@ -97,6 +97,11 @@ public class PermissionManager {
 	public boolean checkCommentPermission(String commentId, String author) {
 		try {
 			SocialComment comment = commentRepo.findById(commentId);
+			if (comment == null) {
+				return true; // if the comment not exist the permission check
+								// return true to manage correctly the effective
+								// result
+			}
 			return (comment != null)
 					&& (comment.getAuthor().compareToIgnoreCase(author) == 0);
 		} catch (Exception ex) {
