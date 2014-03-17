@@ -45,7 +45,7 @@ public class RestController extends SCController {
 	}
 	
 	private static final int INIT_PAGE = 0;
-	private static final int INIT_PAGE_SIZE = 10;
+	protected static final int INIT_PAGE_SIZE = 10;
 	
 
 	private static final int QUERY_NO_CONDITION = -1;
@@ -246,12 +246,14 @@ public class RestController extends SCController {
 			// here I have to read the content of rows in json output
 			JSONObject jsonResult = new JSONObject(serverResponse);
 			commentList = jsonResult.getString("results");
-			commentList = commentList.substring(commentList.indexOf("[")+1, commentList.indexOf("]"));
+			//commentList = commentList.substring(commentList.indexOf("[")+1, commentList.indexOf("]"));
+			//if(commentList.compareTo("") == 0){
+			//	commentList = "null";
+			//}
 		} catch (JSONException ex){
 			ex.printStackTrace();
 		}
 		return commentList;
-		
 	}
 	
 

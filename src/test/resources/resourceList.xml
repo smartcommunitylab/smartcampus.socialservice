@@ -131,6 +131,8 @@
         pathPattern="/user/comment/{cid}" method="GET"/>
     <resourceMapping uri="socialservice.user.entities.write" 
         pathPattern="/user/entity/{eid}/comment/{cid}" method="PUT,DELETE"/>
+    <resourceMapping uri="socialservice.user.entities.write" 
+        pathPattern="/user/comment/{cid}" method="PUT,DELETE"/>
     
 </service>
 
