@@ -9,6 +9,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,11 +21,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.context.WebApplicationContext;
 
 import eu.trentorise.smartcampus.social.engine.beans.Comment;
+import eu.trentorise.smartcampus.social.managers.SocialCommentManager;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -35,14 +40,16 @@ public class SocialCommentControllerTest extends SCControllerTest {
 	@Autowired
 	private WebApplicationContext wac;
 	
+	@Autowired
+	private SocialCommentManager commentManager;
+	
 	private MockMvc mockMvc;
 	
 	private String COMMENT_TEST1 = "Comment test 1";
 	private String COMMENT_TEST2 = "Comment test 2";
 	private String COMMENT_TEST3 = "Comment test 3";
-	private static final String COMMENTID_TEST1 = "5327152d44ae86e52a18bbbf";
-	private static final String COMMENTID_TEST2 = "5327155544ae0ed53c379f95";
-	private static final String COMMENTID_TEST3 = "53271c0644ae8d37069ea225";
+	private String COMMENTID_TEST1 = "";
+	private String COMMENTID_TEST2 = "";
 	private static final String COMMENTID_TESTNE = "111122223333aaaabbbbcccc";
 	private static final String NAME_SURNAME = "name surname";
 	private static final String NAME_SURNAME_NE = "aa bb";
@@ -52,18 +59,20 @@ public class SocialCommentControllerTest extends SCControllerTest {
 	@Before
 	public void setup() throws Exception {
 		this.mockMvc = webAppContextSetup(this.wac).addFilter(springSecurityFilterChain).build();
+		createComments();
 	}
 	
-	@Test
-	public void test1_createComments() throws Exception {
+	public void createComments() throws Exception {
 		Comment newComment = new Comment();
 		String entityId = ENTITY_ID;
 		// Create and Post first comment
 		newComment.setText(COMMENT_TEST1);
 		RequestBuilder request = setDefaultRequest(post("/user/entity/{entityId}/comment", entityId), Scope.USER).content(convertObjectToJsonString(newComment));
 		ResultActions response = mockMvc.perform(request);
-		setDefaultResult(response)
-		.andExpect(content().string(containsString(COMMENT_TEST1)));
+		MvcResult result = setDefaultResult(response)
+		.andExpect(content().string(containsString(COMMENT_TEST1))).andReturn();
+		String content = result.getResponse().getContentAsString();
+		COMMENTID_TEST1 = extractCommentIdFromResult(content);
 		
 		// Create and Post second comment
 		newComment.setText(COMMENT_TEST2);
@@ -79,30 +88,33 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		setDefaultResult(response)
 		.andExpect(content().string(containsString(COMMENT_TEST3)));
 		
-		// Create and Post 4 comment
+		// Create and Post comment 4
 		newComment.setText(COMMENT_TEST1);
 		request = setDefaultRequest(post("/user/entity/{entityId}/comment", entityId), Scope.USER).content(convertObjectToJsonString(newComment));
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString(COMMENT_TEST1)));
 				
-		// Create and Post 5 comment
+		// Create and Post comment 5
 		newComment.setText(COMMENT_TEST2);
 		request = setDefaultRequest(post("/user/entity/{entityId}/comment", entityId), Scope.USER).content(convertObjectToJsonString(newComment));
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
 		.andExpect(content().string(containsString(COMMENT_TEST2)));
 		
-		// Create and Post 6 comment
-		newComment.setText(COMMENT_TEST2);
+		// Create and Post comment 6
+		newComment.setText(COMMENT_TEST3);
 		request = setDefaultRequest(post("/user/entity/{entityId}/comment", entityId), Scope.USER).content(convertObjectToJsonString(newComment));
 		response = mockMvc.perform(request);
-		setDefaultResult(response)
-		.andExpect(content().string(containsString(COMMENT_TEST3)));
+		result = setDefaultResult(response)
+		.andExpect(content().string(containsString(COMMENT_TEST3))).andReturn();
+		content = result.getResponse().getContentAsString();
+		COMMENTID_TEST2 = extractCommentIdFromResult(content);
+		
 	}
 	
 	@Test
-	public void test11_createCommentNoText() throws Exception {
+	public void createCommentNoText() throws Exception {
 		Comment newComment = new Comment();
 		String entityId = ENTITY_ID;
 		// Create and Post first comment
@@ -114,7 +126,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 	}
 	
 	@Test
-	public void test12_createCommentNoEntityId() throws Exception {
+	public void createCommentNoEntityId() throws Exception {
 		Comment newComment = new Comment();
 		String entityId = "";
 		// Create and Post first comment
@@ -125,7 +137,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 	}
 	
 	@Test
-	public void test2_readComments() throws Exception {
+	public void readComments() throws Exception {
 		RequestBuilder request = setDefaultRequest(get("/user/comment"), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
@@ -136,12 +148,12 @@ public class SocialCommentControllerTest extends SCControllerTest {
 	 * NB: retrieve ad existing 'comment id' from db before launching the test 
 	 */
 	@Test
-	public void test21_readCommentById() throws Exception {
+	public void readCommentById() throws Exception {
 		String id = COMMENTID_TEST1;
 		RequestBuilder request = setDefaultRequest(get("/user/comment/{commentId}", id), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(content().string(containsString(COMMENT_TEST2)));
+		.andExpect(content().string(containsString(COMMENT_TEST1)));
 		
 		// null passed
 		id = null;
@@ -151,7 +163,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 	}
 	
 	@Test
-	public void test22_readCommentsByEntity() throws Exception {
+	public void readCommentsByEntity() throws Exception {
 		String entityId = ENTITY_ID;
 		RequestBuilder request = setDefaultRequest(get("/user/entity/{entityId}/comment", entityId), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
@@ -171,7 +183,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 	}
 	
 	@Test
-	public void test221_readCommentsByEntityNoParamPassed() throws Exception {
+	public void readCommentsByEntityNoParamPassed() throws Exception {
 		String entityId = null;
 		RequestBuilder request = setDefaultRequest(get("/user/entity/{entityId}/comment", entityId), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
@@ -179,7 +191,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 	}	
 	
 	@Test
-	public void test23_readCommentsByAuthor() throws Exception {
+	public void readCommentsByAuthor() throws Exception {
 		RequestBuilder request = setDefaultRequest(get("/user/comment"), Scope.USER).param("author", NAME_SURNAME);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response)
@@ -195,7 +207,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		request = setDefaultRequest(get("/user/comment"), Scope.USER).param("author", NAME_SURNAME).param("pageNum","1").param("pageSize","5").param("sortList", "creationTime").param("sortDirection", "-1");
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(content().string(allOf(containsString(COMMENT_TEST1), containsString(COMMENT_TEST2), containsString(COMMENT_TEST3))));
+		.andExpect(content().string(anyOf(containsString(COMMENT_TEST1), containsString(COMMENT_TEST2), containsString(COMMENT_TEST3))));
 		
 		// add time limit
 		Long now = System.currentTimeMillis();
@@ -204,7 +216,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		request = setDefaultRequest(get("/user/comment"), Scope.USER).param("author", NAME_SURNAME).param("fromDate", yesterday.toString()).param("toDate", tomorrow.toString());
 		response = mockMvc.perform(request);
 		setDefaultResult(response)
-		.andExpect(content().string(allOf(containsString(COMMENT_TEST1), containsString(COMMENT_TEST2), containsString(COMMENT_TEST3))));
+		.andExpect(content().string(anyOf(containsString(COMMENT_TEST1), containsString(COMMENT_TEST2), containsString(COMMENT_TEST3))));
 	
 		// author not exists
 		request = setDefaultRequest(get("/user/comment"), Scope.USER).param("author", NAME_SURNAME_NE);
@@ -219,7 +231,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 	}
 	
 	@Test
-	public void test22_readCommentsByEntityAndAuthor() throws Exception {
+	public void readCommentsByEntityAndAuthor() throws Exception {
 		String entityId = ENTITY_ID;
 		RequestBuilder request = setDefaultRequest(get("/user/entity/{entityId}/comment", entityId), Scope.USER).param("author", NAME_SURNAME);
 		ResultActions response = mockMvc.perform(request);
@@ -253,7 +265,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 	 * NB: retrieve ad existing 'comment id' from db before launching the test 
 	 */
 	@Test
-	public void test3_deleteComment() throws Exception {
+	public void deleteComment() throws Exception {
 		String commentId = COMMENTID_TEST2;
 		RequestBuilder request = setDefaultRequest(delete("/user/comment/{commentId}", commentId), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
@@ -262,7 +274,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 	}
 	
 	@Test
-	public void test31_deleteCommentNoCommentId() throws Exception {
+	public void deleteCommentNoCommentId() throws Exception {
 		String commentId = null;
 		RequestBuilder request = setDefaultRequest(delete("/user/comment/{commentId}", commentId), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
@@ -270,7 +282,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 	}
 	
 //	@Test
-//	public void test32_deleteCommentNoEntityId() throws Exception {
+//	public void deleteCommentNoEntityId() throws Exception {
 //		String entityId = null;
 //		String commentId = COMMENTID_TEST2;
 //		RequestBuilder request = setDefaultRequest(delete("/user/comment/{commentId}", entityId, commentId), Scope.USER);
@@ -282,20 +294,47 @@ public class SocialCommentControllerTest extends SCControllerTest {
 	 * NB: retrieve ad existing 'comment id' from db before launching the test 
 	 */
 	@Test
-	public void test33_deleteCommentNotPermitted() throws Exception {
-		String commentId = COMMENTID_TEST3;
+	public void deleteCommentNotPermitted() throws Exception {
+		// here the manager is used to create a comment from another user
+		Comment comment = commentManager.create("Comment Text other user", "pinco pallo", ENTITY_ID);
+		String commentId = comment.getId();
 		RequestBuilder request = setDefaultRequest(delete("/user/comment/{commentId}", commentId), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setIllegalArgumentExceptionResult(response);
 	}
 	
 	@Test
-	public void test34_deleteNotExistingComment() throws Exception {
+	public void deleteNotExistingComment() throws Exception {
 		String entityId = ENTITY_ID;
 		String commentId = COMMENTID_TESTNE;
 		RequestBuilder request = setDefaultRequest(delete("/user/comment/{commentId}", entityId, commentId), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setNullResult(response);
+	}
+	
+	@After
+	public void removeComments() throws Exception {
+		String entityId = ENTITY_ID;
+		RequestBuilder request = setDefaultRequest(delete("/user/entity/{entityId}/comment", entityId), Scope.USER);
+		ResultActions response = mockMvc.perform(request);
+		setDefaultResult(response).andExpect(content().string(containsString("true")));
+	}
+	
+	private String extractCommentIdFromResult(String result){
+		String commentId = "";
+		
+		JSONObject jsonOb;
+		try {
+			jsonOb = new JSONObject(result);
+			String data = jsonOb.getString("data");
+			JSONObject dataOb = new JSONObject(data);
+			commentId = dataOb.getString("id");
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return commentId;
 	}
 	
 	

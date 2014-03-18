@@ -122,7 +122,7 @@
     
 	    <!-- user entities comments -->
     <resourceMapping uri="socialservice.user.entities.write" 
-        pathPattern="/user/entity/{eid}/comment" method="POST,GET"/>
+        pathPattern="/user/entity/{eid}/comment" method="POST,GET,DELETE"/>
     <resourceMapping uri="socialservice.user.entities.read" 
         pathPattern="/user/entity/{eid}/comment/{cid}" method="GET"/>
      <resourceMapping uri="socialservice.user.entities.read" 
