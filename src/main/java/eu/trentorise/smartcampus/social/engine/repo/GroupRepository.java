@@ -8,7 +8,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 import eu.trentorise.smartcampus.social.engine.model.SocialGroup;
 
-//CrudRepository<SocialGroup, Long>
 public interface GroupRepository extends
 		PagingAndSortingRepository<SocialGroup, Long> {
 
