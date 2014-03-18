@@ -26,37 +26,32 @@ import eu.trentorise.smartcampus.social.model.User;
 
 /**
  * @author raman
- *
+ * 
  */
 public class MockAuthServices implements AuthServices {
 
 	@Override
 	public String loadResourceAuthorityByResourceUri(String resourceUri) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ClientDetails loadClientByClientId(String clientId) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public User loadUserByUserId(String userId) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public User loadUserBySocialId(String socialId) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public List<ResourceParameter> loadResourceParameterByUserId(String userId) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
