@@ -134,6 +134,9 @@
     <resourceMapping uri="socialservice.user.entities.write" 
         pathPattern="/user/comment/{cid}" method="PUT,DELETE"/>
     
+    <!-- rating -->
+     <resourceMapping uri="socialservice.user.rating" 
+        pathPattern="/user/{appId}/rating/{localId}" method="GET,POST,DELETE"/>
 </service>
 
 
