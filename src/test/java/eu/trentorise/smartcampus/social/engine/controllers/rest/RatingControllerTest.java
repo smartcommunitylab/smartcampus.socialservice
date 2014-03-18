@@ -63,7 +63,6 @@ public class RatingControllerTest extends SCControllerTest {
 		entity.setName("entity share");
 		entity.setType(type.getId());
 		entity.setOwner("234");
-		entity.setVisibility(new Visibility(true));
 		entity = entityManager.saveOrUpdate(APPID, entity);
 		Assert.assertEquals(0d, entity.getRating());
 
@@ -71,6 +70,15 @@ public class RatingControllerTest extends SCControllerTest {
 				post("/user/{appId}/rating/{localId}", APPID, "3455"),
 				Scope.USER).content("{\"rating\":2}");
 		ResultActions response = mockMvc.perform(request);
+		setForbiddenExceptionResult(response);
+
+		entity.setVisibility(new Visibility(true));
+		entity = entityManager.saveOrUpdate(APPID, entity);
+
+		request = setDefaultRequest(
+				post("/user/{appId}/rating/{localId}", APPID, "3455"),
+				Scope.USER).content("{\"rating\":2}");
+		response = mockMvc.perform(request);
 		setDefaultResult(response);
 
 		request = setDefaultRequest(
@@ -82,11 +90,5 @@ public class RatingControllerTest extends SCControllerTest {
 		Result data = convertJsonToObject(json, Result.class);
 		Rating rating = convertObject(data.getData(), Rating.class);
 		Assert.assertEquals(2d, rating.getRating());
-		// TODO test after merge
-		// RequestBuilder request = setDefaultRequest(
-		// get("/user/{appId}/rating/{localId}", APPID, "3455"),
-		// Scope.USER).content("{\"rating\":2}");
-		// ResultActions response = mockMvc.perform(request);
-		// setForbiddenExceptionResult(response);
 	}
 }
