@@ -400,6 +400,11 @@ public class SocialGroupManager implements GroupOperations {
 		return true;
 	}
 
+	public boolean deleteAll() {
+		groupRepository.deleteAll();
+		return true;
+	}
+
 	private SocialGroup retrieveGroup(String groupId)
 			throws IllegalArgumentException {
 		if (!StringUtils.hasLength(groupId)) {

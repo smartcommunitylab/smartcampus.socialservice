@@ -173,11 +173,24 @@ public class SocialGroupController extends RestController {
 							userId, groupId));
 		}
 
-		Set<String> mySortList = new HashSet<String>();
-		if (sortList == null || sortList.isEmpty()) {
-			mySortList.add(groupManager.getMembersort());
+		// sort the list
+		Set<String> mySortList = null;
+		if(sortList != null){
+			if(sortList.size() != 1){
+				throw new IllegalArgumentException(String.format(
+						"To many arguments passed in group member sorting. Use '%s' instead", groupManager.getMembersort()));
+			}
+			for(String param:sortList){
+				if(param.compareTo(groupManager.getMembersort())!= 0){
+					throw new IllegalArgumentException(String.format(
+							"Parameter '%s' not exist for group member. Use '%s' instead",
+							param, groupManager.getMembersort()));
+				}
+			}
+			mySortList = new HashSet<String>();
 		} else {
-			mySortList.addAll(sortList);
+			mySortList = new HashSet<String>();
+			sortDirection = new Integer(0);
 		}
 		Result result = new Result(groupManager.readMembersAsString(
 				groupId,

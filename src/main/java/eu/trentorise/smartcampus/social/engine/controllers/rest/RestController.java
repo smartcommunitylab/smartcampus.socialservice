@@ -80,7 +80,7 @@ public class RestController extends SCController {
 			if(sortDirection != null){
 				limit.setDirection(sortDirection.intValue());
 			}
-			if(sortList != null && !sortList.isEmpty()){
+			if(sortList != null){ //&& !sortList.isEmpty()){
 				List<String> sortParams = new ArrayList<String>();
 				for(String param : sortList){
 					sortParams.add(param);

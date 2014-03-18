@@ -10,6 +10,8 @@ import java.io.IOException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
@@ -66,6 +68,29 @@ public class SCControllerTest {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	/**
+	 * Method extractIdFromResult: used to get the object id
+	 * from the rest response of social service test.
+	 * @param result: rest response from social service server;
+	 * @return String object Id read from the response.
+	 */
+	protected String extractIdFromResult(String result){
+		String commentId = "";
+		
+		JSONObject jsonOb;
+		try {
+			jsonOb = new JSONObject(result);
+			String data = jsonOb.getString("data");
+			JSONObject dataOb = new JSONObject(data);
+			commentId = dataOb.getString("id");
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return commentId;
 	}
 
 	protected MockHttpServletRequestBuilder setDefaultRequest(

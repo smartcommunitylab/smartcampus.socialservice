@@ -11,8 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,7 +72,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		MvcResult result = setDefaultResult(response)
 		.andExpect(content().string(containsString(COMMENT_TEST1))).andReturn();
 		String content = result.getResponse().getContentAsString();
-		COMMENTID_TEST1 = extractCommentIdFromResult(content);
+		COMMENTID_TEST1 = extractIdFromResult(content);
 		
 		// Create and Post second comment
 		newComment.setText(COMMENT_TEST2);
@@ -111,7 +109,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		result = setDefaultResult(response)
 		.andExpect(content().string(containsString(COMMENT_TEST3))).andReturn();
 		content = result.getResponse().getContentAsString();
-		COMMENTID_TEST2 = extractCommentIdFromResult(content);
+		COMMENTID_TEST2 = extractIdFromResult(content);
 		
 	}
 	
@@ -146,9 +144,6 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		.andExpect(content().string(allOf(containsString(COMMENT_TEST1), containsString(COMMENT_TEST2), containsString(COMMENT_TEST3))));
 	}
 	
-	/*
-	 * NB: retrieve ad existing 'comment id' from db before launching the test 
-	 */
 	@Test
 	public void readCommentById() throws Exception {
 		String id = COMMENTID_TEST1;
@@ -263,9 +258,6 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		setForbiddenException(response);
 	}
 	
-	/*
-	 * NB: retrieve ad existing 'comment id' from db before launching the test 
-	 */
 	@Test
 	public void deleteComment() throws Exception {
 		String commentId = COMMENTID_TEST2;
@@ -292,9 +284,6 @@ public class SocialCommentControllerTest extends SCControllerTest {
 //		setForbiddenExceptionResult(response);
 //	}
 	
-	/*
-	 * NB: retrieve ad existing 'comment id' from db before launching the test 
-	 */
 	@Test
 	public void deleteCommentNotPermitted() throws Exception {
 		// here the manager is used to create a comment from another user
@@ -320,29 +309,6 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		RequestBuilder request = setDefaultRequest(delete("/user/entity/{entityId}/comment", entityId), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(content().string(containsString("true")));
-	}
-	
-	/**
-	 * Method extractCommentIdFromResult: used to get the comment id
-	 * from the rest response from the mongo rest api.
-	 * @param result: rest response from mongo rest api server;
-	 * @return String commentId readed from the response.
-	 */
-	private String extractCommentIdFromResult(String result){
-		String commentId = "";
-		
-		JSONObject jsonOb;
-		try {
-			jsonOb = new JSONObject(result);
-			String data = jsonOb.getString("data");
-			JSONObject dataOb = new JSONObject(data);
-			commentId = dataOb.getString("id");
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return commentId;
 	}
 	
 	// Used in this tests. I can not intercept the exception because it is launched from
