@@ -54,6 +54,11 @@ public class EntityManager implements EntityOperations {
 	public Entity saveOrUpdate(String namespace, Entity entity) {
 		SocialEntity persistedEntity = null;
 
+		if (entity == null) {
+			logger.error("Try to create/update a null entity");
+			throw new IllegalArgumentException("entity cannot be null");
+		}
+
 		if (StringUtils.hasLength(entity.getUri())) {
 			persistedEntity = entityRepository.findOne(entity.getUri());
 		}
@@ -63,6 +68,7 @@ public class EntityManager implements EntityOperations {
 
 		// entity doesn't exist -> create it
 		if (persistedEntity == null) {
+			logger.info(String.format("Created entity with uri %s", uri));
 			persistedEntity = new SocialEntity();
 			persistedEntity.setNamespace(namespace);
 			persistedEntity.setUri(uri);
@@ -76,10 +82,16 @@ public class EntityManager implements EntityOperations {
 					persistedEntity.setType(typeRepository.findOne(new Long(
 							entity.getType())));
 				} catch (NumberFormatException e) {
+					logger.error(String.format(
+							"Entity with uri %s, type not valid number %s",
+							uri, entity.getType()));
 					throw new IllegalArgumentException(
 							"type should be a number");
 				}
 			} else {
+				logger.error(String.format(
+						"Entity with uri %s, type not valid %s", uri,
+						entity.getType()));
 				throw new IllegalArgumentException("type should be valid");
 			}
 
@@ -101,6 +113,7 @@ public class EntityManager implements EntityOperations {
 						"owner or communityOwner should be valid");
 			}
 		} else {
+			logger.info(String.format("Updated entity with uri %s", uri));
 			persistedEntity.setLastModifiedTime(System.currentTimeMillis());
 		}
 
@@ -267,9 +280,11 @@ public class EntityManager implements EntityOperations {
 	public String defineUri(String namespace, String localId)
 			throws IllegalArgumentException {
 		if (!StringUtils.hasText(namespace)) {
+			logger.error("namespace should be valid in uri definition");
 			throw new IllegalArgumentException("namespace should be valid");
 		}
 		if (!StringUtils.hasText(localId)) {
+			logger.error("localId should be valid in uri definition");
 			throw new IllegalArgumentException("localId should be valid");
 		}
 
