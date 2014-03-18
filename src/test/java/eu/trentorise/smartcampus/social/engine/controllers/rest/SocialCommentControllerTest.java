@@ -6,7 +6,9 @@ import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 import org.json.JSONException;
@@ -133,7 +135,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		newComment.setText(COMMENT_TEST1);
 		RequestBuilder request = setDefaultRequest(post("/user/entity/{entityId}/comment", entityId), Scope.USER).content(convertObjectToJsonString(newComment));
 		ResultActions response = mockMvc.perform(request);
-		setForbiddenExceptionResult(response);
+		setForbiddenException(response);
 	}
 	
 	@Test
@@ -179,7 +181,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		String nullEntityId = null;
 		request = setDefaultRequest(get("/user/entity/{entityId}/comment", nullEntityId), Scope.USER);
 		response = mockMvc.perform(request);
-		setForbiddenExceptionResult(response);	
+		setForbiddenException(response);	
 	}
 	
 	@Test
@@ -187,7 +189,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		String entityId = null;
 		RequestBuilder request = setDefaultRequest(get("/user/entity/{entityId}/comment", entityId), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
-		setForbiddenExceptionResult(response);
+		setForbiddenException(response);
 	}	
 	
 	@Test
@@ -258,7 +260,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		String nullEntityId = null;
 		request = setDefaultRequest(get("/user/entity/{entityId}/comment", nullEntityId), Scope.USER).param("author", NAME_SURNAME);
 		response = mockMvc.perform(request);
-		setForbiddenExceptionResult(response);
+		setForbiddenException(response);
 	}
 	
 	/*
@@ -278,7 +280,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		String commentId = null;
 		RequestBuilder request = setDefaultRequest(delete("/user/comment/{commentId}", commentId), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
-		setForbiddenExceptionResult(response);
+		setForbiddenException(response);
 	}
 	
 //	@Test
@@ -320,6 +322,12 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		setDefaultResult(response).andExpect(content().string(containsString("true")));
 	}
 	
+	/**
+	 * Method extractCommentIdFromResult: used to get the comment id
+	 * from the rest response from the mongo rest api.
+	 * @param result: rest response from mongo rest api server;
+	 * @return String commentId readed from the response.
+	 */
 	private String extractCommentIdFromResult(String result){
 		String commentId = "";
 		
@@ -335,6 +343,15 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		}
 		
 		return commentId;
+	}
+	
+	// Used in this tests. I can not intercept the exception because it is launched from
+	// permission manager. So I check only the response http status (403)
+	protected ResultActions setForbiddenException(ResultActions result)
+			throws Exception {
+		return result
+				.andDo(print())
+				.andExpect(status().isForbidden());
 	}
 	
 	
