@@ -96,7 +96,6 @@ public class SocialCommunityManagerTest {
 			}
 		};
 
-		new HashSet<String>(Arrays.asList("1"));
 		// get members
 		Assert.assertEquals(0, communityManager
 				.readMembers("30000000000", null).size());
@@ -119,6 +118,8 @@ public class SocialCommunityManagerTest {
 		Assert.assertEquals(2, community.getTotalMembers());
 		Assert.assertFalse(community.getMemberIds().contains("1"));
 		Assert.assertTrue(community.getMemberIds().contains("5"));
+		Assert.assertTrue(communityManager.addMembers(community.getId(),
+				unsubscribed));
 	}
 
 	/**

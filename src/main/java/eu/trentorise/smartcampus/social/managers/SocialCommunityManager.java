@@ -32,6 +32,9 @@ public class SocialCommunityManager implements CommunityOperations {
 	@Autowired
 	CommunityRepository communityRepository;
 
+	@Autowired
+	SocialUserManager userManager;
+
 	@Override
 	public Community create(String name, String appId)
 			throws IllegalArgumentException {
@@ -116,7 +119,7 @@ public class SocialCommunityManager implements CommunityOperations {
 			Set<SocialUser> users = new HashSet<SocialUser>();
 			if (members != null) {
 				for (String member : members) {
-					users.add(new SocialUser(member));
+					users.add(userManager.defineSocialUser(member));
 				}
 			}
 			result = community.getMembers().addAll(users);
@@ -134,7 +137,7 @@ public class SocialCommunityManager implements CommunityOperations {
 			Set<SocialUser> users = new HashSet<SocialUser>();
 			if (members != null) {
 				for (String member : members) {
-					users.add(new SocialUser(member));
+					users.add(userManager.defineSocialUser(member));
 				}
 			}
 			result = community.getMembers().removeAll(users);
