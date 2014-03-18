@@ -41,16 +41,20 @@ public class SocialCommunityManager implements CommunityOperations {
 		name = RepositoryUtils.normalizeString(name);
 		appId = RepositoryUtils.normalizeString(appId);
 		if (!StringUtils.hasLength(name)) {
+			logger.error("community name should be valid");
 			throw new IllegalArgumentException("name should be valid");
 		}
 
 		if (!StringUtils.hasLength(appId)) {
+			logger.error("community appId should be valid");
 			throw new IllegalArgumentException("appId should be valid");
 		}
 
 		if (communityRepository.findByNameIgnoreCase(name) != null) {
-			throw new IllegalArgumentException(String.format(
-					"community name %s already present", name));
+			String msg = String.format("community name %s already present",
+					name);
+			logger.error(msg);
+			throw new IllegalArgumentException(msg);
 		}
 		logger.info(String.format("Created community %s from app %s", name,
 				appId));
@@ -73,7 +77,6 @@ public class SocialCommunityManager implements CommunityOperations {
 			if (limit.getPage() >= 0 && limit.getPageSize() > 0) {
 				page = new PageRequest(limit.getPage(), limit.getPageSize(),
 						sort);
-				sort = null;
 			}
 
 			if (limit.getFromDate() > 0 || limit.getToDate() > 0) {
@@ -153,7 +156,6 @@ public class SocialCommunityManager implements CommunityOperations {
 		return true;
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Set<String> readMembers(String communityId, Limit limit) {
 		Community community = readCommunity(communityId);
