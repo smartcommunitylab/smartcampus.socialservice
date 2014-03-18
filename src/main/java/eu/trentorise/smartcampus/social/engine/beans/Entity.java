@@ -8,6 +8,8 @@ public class Entity {
 	private String localId;
 	private String externalUri;
 	private String type;
+	private double rating;
+	private int totalVoters;
 	private Visibility visibility;
 
 	public String getOwner() {
@@ -72,6 +74,22 @@ public class Entity {
 
 	public void setExternalUri(String externalUri) {
 		this.externalUri = externalUri;
+	}
+
+	public double getRating() {
+		return rating;
+	}
+
+	public void setRating(double rating) {
+		this.rating = rating;
+	}
+
+	public int getTotalVoters() {
+		return totalVoters;
+	}
+
+	public void setTotalVoters(int totalVoters) {
+		this.totalVoters = totalVoters;
 	}
 
 }

@@ -6,11 +6,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import eu.trentorise.smartcampus.social.engine.beans.Group;
-import eu.trentorise.smartcampus.social.engine.beans.Limit;
+import eu.trentorise.smartcampus.social.engine.model.SocialComment;
 import eu.trentorise.smartcampus.social.engine.model.SocialCommunity;
 import eu.trentorise.smartcampus.social.engine.model.SocialEntity;
+import eu.trentorise.smartcampus.social.engine.model.SocialRating;
 import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.EntityRepository;
+import eu.trentorise.smartcampus.social.engine.repo.RatingRepository;
+import eu.trentorise.smartcampus.social.engine.repo.mongo.CommentRepository;
 import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
 @Component
@@ -20,12 +23,19 @@ public class PermissionManager {
 	SocialGroupManager groupManager;
 
 	@Autowired
+	EntityManager entityManager;
+
+	@Autowired
 	CommunityRepository communityRepo;
 
 	@Autowired
 	EntityRepository entityRepo;
 
-	Limit limit = null;
+	@Autowired
+	CommentRepository commentRepo;
+
+	@Autowired
+	RatingRepository ratingRepo;
 
 	private static final Logger logger = Logger
 			.getLogger(PermissionManager.class);
@@ -82,5 +92,37 @@ public class PermissionManager {
 		} else {
 			return entity == null || entity.getOwner().getId().equals(ownerId);
 		}
+	}
+
+	public boolean checkCommentPermission(String commentId, String author) {
+		try {
+			SocialComment comment = commentRepo.findById(commentId);
+			if (comment == null) {
+				return true; // if the comment not exist the permission check
+								// return true to manage correctly the effective
+								// result
+			}
+			return (comment != null)
+					&& (comment.getAuthor().compareToIgnoreCase(author) == 0);
+		} catch (Exception ex) {
+			logger.error(String.format(
+					"Error in checking permission for comment '%s'", commentId));
+			return false;
+		}
+	}
+
+	public boolean checkSharingPermission(String uri, String userId) {
+		if (uri == null || userId == null) {
+			return false;
+		}
+		return entityManager.readShared(userId, false, uri) != null;
+	}
+
+	public boolean checkRatingPermission(String uri, String userId) {
+		if (uri == null || userId == null) {
+			return false;
+		}
+		SocialRating rating = ratingRepo.findByUserAndEntity(userId, uri);
+		return rating != null;
 	}
 }

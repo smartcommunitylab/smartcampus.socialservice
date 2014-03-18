@@ -55,6 +55,8 @@ public class SocialEntity implements Serializable {
 
 	private long creationTime;
 	private long lastModifiedTime;
+	private int totalVoters;
+	private double rating;
 
 	public String getName() {
 		return name;
@@ -164,6 +166,8 @@ public class SocialEntity implements Serializable {
 		entity.setUri(uri);
 		entity.setName(name);
 		entity.setExternalUri(externalUri);
+		entity.setRating(rating);
+		entity.setTotalVoters(totalVoters);
 		if (showVisibility) {
 			entity.setVisibility(EntityManager.getVisibility(this));
 		}
@@ -204,6 +208,22 @@ public class SocialEntity implements Serializable {
 
 	public void setLastModifiedTime(long lastModifiedTime) {
 		this.lastModifiedTime = lastModifiedTime;
+	}
+
+	public int getTotalVoters() {
+		return totalVoters;
+	}
+
+	public void setTotalVoters(int totalVoter) {
+		this.totalVoters = totalVoter;
+	}
+
+	public double getRating() {
+		return rating;
+	}
+
+	public void setRating(double rating) {
+		this.rating = rating;
 	}
 
 }

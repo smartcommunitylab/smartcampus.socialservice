@@ -88,6 +88,12 @@ public class SCControllerTest {
 				.andExpect(content().contentType(CONTENT_TYPE));
 	}
 
+	protected ResultActions setDefaultResult_NoPrint(ResultActions result)
+			throws Exception {
+		return result.andExpect(status().isOk()).andExpect(
+				content().contentType(CONTENT_TYPE));
+	}
+
 	protected ResultActions setIllegalArgumentExceptionResult(
 			ResultActions result) throws Exception {
 		return result.andDo(print()).andExpect(status().isBadRequest());
@@ -97,6 +103,12 @@ public class SCControllerTest {
 			throws Exception {
 		return result.andDo(print()).andExpect(status().isOk())
 				.andExpect(jsonPath("$.data").doesNotExist());
+	}
+
+	protected ResultActions setVoidResult(ResultActions result)
+			throws Exception {
+		return result.andDo(print()).andExpect(status().isOk())
+				.andExpect(jsonPath("$.data").value("[]"));
 	}
 
 	protected ResultActions setForbiddenExceptionResult(ResultActions result)
