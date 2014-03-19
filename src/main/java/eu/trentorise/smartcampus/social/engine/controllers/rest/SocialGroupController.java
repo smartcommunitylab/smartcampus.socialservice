@@ -133,27 +133,6 @@ public class SocialGroupController extends RestController {
 		return result;
 	}
 
-	// ------------------------------------------------------------------------------------------------------------------
-	// | Used Only in tests. Added a specific line in resourceList.xml (line
-	// 26-27) REMOVE IT before final distribution |
-	// ------------------------------------------------------------------------------------------------------------------
-	@RequestMapping(method = RequestMethod.PUT, value = "/user/group/{groupId}/test")
-	public @ResponseBody
-	Result updateGroupTest(@PathVariable("groupId") String groupId,
-			@RequestParam Long updateTime) throws SocialServiceException {
-		String userId = getUserId();
-
-		if (!permissionManager.checkGroupPermission(userId, groupId)) {
-			throw new SecurityException(String.format(
-					"User '%s' has not permission to update group '%s'",
-					userId, groupId));
-		}
-
-		Result result = new Result(groupManager.update(groupId, updateTime));
-
-		return result;
-	}
-
 	@SuppressWarnings("static-access")
 	@RequestMapping(method = RequestMethod.GET, value = "/user/group/{groupId}/members")
 	public @ResponseBody

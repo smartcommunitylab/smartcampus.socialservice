@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.context.WebApplicationContext;
 
 import eu.trentorise.smartcampus.social.engine.beans.Group;
+import eu.trentorise.smartcampus.social.managers.SocialGroupManager;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -36,6 +37,9 @@ public class SocialGroupControllerTest extends SCControllerTest {
 
 	@Autowired
 	private WebApplicationContext wac;
+	
+	@Autowired
+	private SocialGroupManager groupManager;
 
 	private MockMvc mockMvc;
 
@@ -702,42 +706,24 @@ public class SocialGroupControllerTest extends SCControllerTest {
 		boolean updated = true;
 		long now = System.currentTimeMillis();
 
-		RequestBuilder request = setDefaultRequest(
-				put("/user/group/{id}/test", GROUP_ID_1), Scope.USER).param(
-				"updateTime",
-				String.valueOf(now - THREE_MONTHS));
-		ResultActions response = mockMvc.perform(request);
-		setDefaultResult(response);
+		groupManager.update(Long.toString(GROUP_ID_1), now - THREE_MONTHS);
+		groupManager.update(Long.toString(GROUP_ID_2), now - TWO_MONTHS);
+		groupManager.update(Long.toString(GROUP_ID_3), now - ONE_MONTH);
+		groupManager.update(Long.toString(GROUP_ID_9), now + ONE_MONTH);
+		groupManager.update(Long.toString(GROUP_ID_10), now + TWO_MONTHS);
+		groupManager.update(Long.toString(GROUP_ID_11), now + THREE_MONTHS);
 
-		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_2),
-				Scope.USER).param("updateTime",
-				String.valueOf(now - TWO_MONTHS));
-		response = mockMvc.perform(request);
-		setDefaultResult(response);
-
-		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_3),
-				Scope.USER).param("updateTime",
-				String.valueOf(now - ONE_MONTH));
-		response = mockMvc.perform(request);
-		setDefaultResult(response);
-
-		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_9),
-				Scope.USER).param("updateTime",
-				String.valueOf(now + ONE_MONTH));
-		response = mockMvc.perform(request);
-		setDefaultResult(response);
-
-		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_10),
-				Scope.USER).param("updateTime",
-				String.valueOf(now + TWO_MONTHS));
-		response = mockMvc.perform(request);
-		setDefaultResult(response);
-
-		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_11),
-				Scope.USER).param("updateTime",
-				String.valueOf(now + THREE_MONTHS));
-		response = mockMvc.perform(request);
-		setDefaultResult(response);
+//		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_10),
+//				Scope.USER).param("updateTime",
+//				String.valueOf(now + TWO_MONTHS));
+//		response = mockMvc.perform(request);
+//		setDefaultResult(response);
+//
+//		request = setDefaultRequest(put("/user/group/{id}/test", GROUP_ID_11),
+//				Scope.USER).param("updateTime",
+//				String.valueOf(now + THREE_MONTHS));
+//		response = mockMvc.perform(request);
+//		setDefaultResult(response);
 
 		return updated;
 	}
