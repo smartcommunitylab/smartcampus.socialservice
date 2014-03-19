@@ -333,6 +333,12 @@ public class SocialTypeManager implements EntityTypeOperations {
 		}
 		return true;
 	}
+	
+	// Used in tests
+	public boolean deleteAll(){
+		typeRepository.deleteAll();
+		return true;
+	}
 
 	/**
 	 * Method checkMimeType: used to verify if a new mimeType is contained in

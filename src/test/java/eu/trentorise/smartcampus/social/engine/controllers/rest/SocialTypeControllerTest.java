@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 import org.hamcrest.Matchers;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,9 +19,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.context.WebApplicationContext;
+
+import eu.trentorise.smartcampus.social.managers.SocialTypeManager;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -33,6 +37,9 @@ public class SocialTypeControllerTest extends SCControllerTest {
 
 	@Autowired
 	private WebApplicationContext wac;
+	
+	@Autowired
+	private SocialTypeManager typeManager;
 
 	private MockMvc mockMvc;
 
@@ -56,77 +63,102 @@ public class SocialTypeControllerTest extends SCControllerTest {
 	private static final String MIME_TYPE_ERR = "audio/mpx";
 
 	private static final String NEXT_TYPE_ID = "123456";
-
+	private String TYPE_ID_1 = "1";
+	private String TYPE_ID_2 = "2";
+	private String TYPE_ID_3 = "3";
+	private String TYPE_ID_4 = "4";
+	private String TYPE_ID_5 = "5";
+	private String TYPE_ID_6 = "6";
+	private String TYPE_ID_7 = "7";
+	private String TYPE_ID_8 = "8";
+	
 	@Before
 	public void setup() throws Exception {
 		this.mockMvc = webAppContextSetup(this.wac).addFilter(
 				springSecurityFilterChain).build();
+		setTypes();
 	}
-
-	@Test
-	public void getTypesVoidDB() throws Exception {
-		RequestBuilder request = setDefaultRequest(get("/user/type"),
-				Scope.USER);
-		ResultActions response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				jsonPath("$.data", Matchers.hasSize(0))); // empty
-		// list
-	}
-
-	@Test
+	
 	public void setTypes() throws Exception {
 		RequestBuilder request = setDefaultRequest(post("/app/type"),
 				Scope.USER).param("name", NEWTYPE_1).param("mimeType",
 				MIME_TYPE_1);
 		ResultActions response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				content().string(containsString(NEWTYPE_1)));
+		MvcResult result = setDefaultResult(response).andExpect(
+				content().string(containsString(NEWTYPE_1))).andReturn();
+		String content = result.getResponse().getContentAsString();
+		TYPE_ID_1 = extractIdFromResult(content);
 
 		request = setDefaultRequest(post("/app/type"), Scope.USER).param(
 				"name", NEWTYPE_2).param("mimeType", MIME_TYPE_2);
 		response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				content().string(containsString(NEWTYPE_2)));
+		result = setDefaultResult(response).andExpect(
+				content().string(containsString(NEWTYPE_2))).andReturn();
+		content = result.getResponse().getContentAsString();
+		TYPE_ID_2 = extractIdFromResult(content);
 
 		request = setDefaultRequest(post("/app/type"), Scope.USER).param(
 				"name", NEWTYPE_3).param("mimeType", MIME_TYPE_3);
 		response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				content().string(containsString(NEWTYPE_3)));
+		result = setDefaultResult(response).andExpect(
+				content().string(containsString(NEWTYPE_3))).andReturn();
+		content = result.getResponse().getContentAsString();
+		TYPE_ID_3 = extractIdFromResult(content);
 
 		request = setDefaultRequest(post("/app/type"), Scope.USER).param(
 				"name", NEWTYPE_4).param("mimeType", MIME_TYPE_4);
 		response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				content().string(containsString(NEWTYPE_4)));
+		result = setDefaultResult(response).andExpect(
+				content().string(containsString(NEWTYPE_4))).andReturn();
+		content = result.getResponse().getContentAsString();
+		TYPE_ID_4 = extractIdFromResult(content);
 
 		request = setDefaultRequest(post("/app/type"), Scope.USER).param(
 				"name", NEWTYPE_5).param("mimeType", MIME_TYPE_5);
 		response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				content().string(containsString(NEWTYPE_5)));
+		result = setDefaultResult(response).andExpect(
+				content().string(containsString(NEWTYPE_5))).andReturn();
+		content = result.getResponse().getContentAsString();
+		TYPE_ID_5 = extractIdFromResult(content);
 
 		request = setDefaultRequest(post("/app/type"), Scope.USER).param(
 				"name", NEWTYPE_6).param("mimeType", MIME_TYPE_6);
 		response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				content().string(containsString(NEWTYPE_6)));
+		result = setDefaultResult(response).andExpect(
+				content().string(containsString(NEWTYPE_6))).andReturn();
+		content = result.getResponse().getContentAsString();
+		TYPE_ID_6 = extractIdFromResult(content);
 
 		request = setDefaultRequest(post("/app/type"), Scope.USER).param(
 				"name", NEWTYPE_7).param("mimeType", MIME_TYPE_7);
 		response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				content().string(containsString(NEWTYPE_7)));
+		result = setDefaultResult(response).andExpect(
+				content().string(containsString(NEWTYPE_7))).andReturn();
+		content = result.getResponse().getContentAsString();
+		TYPE_ID_7 = extractIdFromResult(content);
 
 		request = setDefaultRequest(post("/app/type"), Scope.USER).param(
 				"name", NEWTYPE_8).param("mimeType", MIME_TYPE_8);
 		response = mockMvc.perform(request);
+		result = setDefaultResult(response).andExpect(
+				content().string(containsString(NEWTYPE_8))).andReturn();
+		content = result.getResponse().getContentAsString();
+		TYPE_ID_8 = extractIdFromResult(content);
+	}
+
+	@Test
+	public void getTypesVoidDB() throws Exception {
+		removeTypes();
+		RequestBuilder request = setDefaultRequest(get("/user/type"),
+				Scope.USER);
+		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
-				content().string(containsString(NEWTYPE_8)));
+				jsonPath("$.data", Matchers.hasSize(0))); // empty list
 	}
 
 	@Test
 	public void setTypesSpecialCases() throws Exception {
+		
 		// try to create an already exist type
 		RequestBuilder request = setDefaultRequest(post("/app/type"),
 				Scope.USER).param("name", NEWTYPE_1).param("mimeType",
@@ -176,8 +208,10 @@ public class SocialTypeControllerTest extends SCControllerTest {
 		request = setDefaultRequest(post("/app/type"), Scope.USER).param(
 				"name", my_newType).param("mimeType", MIME_TYPE_1);
 		response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				content().string(containsString(my_newType)));
+		MvcResult result = setDefaultResult(response).andExpect(
+				content().string(containsString(my_newType))).andReturn();
+		String content = result.getResponse().getContentAsString();
+		String typeID_9 = extractIdFromResult(content);
 
 		request = setDefaultRequest(get("/user/type"), Scope.USER).param(
 				"mimeType", MIME_TYPE_1);
@@ -231,17 +265,26 @@ public class SocialTypeControllerTest extends SCControllerTest {
 				.param("sortDirection", "1").param("sortList", "nameMime");
 		response = mockMvc.perform(request);
 		setIllegalArgumentExceptionResult(response);
+		
+		// remove the new type9 created
+		typeManager.deleteType(typeID_9);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void getSingleType() throws Exception {
-		String typeId = "3";
+		String typeId;
 		RequestBuilder request = setDefaultRequest(
-				get("/user/type/{typeId}", typeId), Scope.USER);
+				get("/user/type/{typeId}", TYPE_ID_3), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
 				content().string(containsString(NEWTYPE_3)));
+		
+		request = setDefaultRequest(
+				get("/user/type/{typeId}", TYPE_ID_6), Scope.USER);
+		response = mockMvc.perform(request);
+		setDefaultResult(response).andExpect(
+				content().string(containsString(NEWTYPE_6)));
 
 		// null parameters
 		typeId = null;
@@ -264,6 +307,18 @@ public class SocialTypeControllerTest extends SCControllerTest {
 				Scope.USER);
 		response = mockMvc.perform(request);
 		setNullResult(response);
+	}
+	
+	@After
+	public void removeTypes() throws Exception {
+		typeManager.deleteType(TYPE_ID_1);
+		typeManager.deleteType(TYPE_ID_2);
+		typeManager.deleteType(TYPE_ID_3);
+		typeManager.deleteType(TYPE_ID_4);
+		typeManager.deleteType(TYPE_ID_5);
+		typeManager.deleteType(TYPE_ID_6);
+		typeManager.deleteType(TYPE_ID_7);
+		typeManager.deleteType(TYPE_ID_8);
 	}
 
 }
