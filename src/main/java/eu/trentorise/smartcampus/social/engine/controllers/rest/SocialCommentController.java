@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.trentorise.smartcampus.social.engine.beans.Comment;
 import eu.trentorise.smartcampus.social.engine.beans.Result;
+import eu.trentorise.smartcampus.social.managers.EntityManager;
 import eu.trentorise.smartcampus.social.managers.PermissionManager;
 import eu.trentorise.smartcampus.social.managers.SocialCommentManager;
 import eu.trentorise.smartcampus.social.managers.SocialServiceException;
@@ -31,6 +32,9 @@ public class SocialCommentController extends RestController {
 
 	@Autowired
 	SocialCommentManager commentManager;
+
+	@Autowired
+	EntityManager entityManager;
 
 	@Autowired
 	private PermissionManager permissionManager;
@@ -262,10 +266,11 @@ public class SocialCommentController extends RestController {
 		return result;
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "/user/entity/{entityId}/comment")
+	@RequestMapping(method = RequestMethod.GET, value = "/user/{appId}/comment/{localId}")
 	public @ResponseBody
 	Result getUserEntityComment(
-			@PathVariable String entityId,
+			@PathVariable String appId,
+			@PathVariable String localId,
 			@RequestParam(value = "author", required = false) String author,
 			@RequestParam(value = "commentText", required = false) String commentText,
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
@@ -278,13 +283,9 @@ public class SocialCommentController extends RestController {
 			throws SocialServiceException, IOException {
 		String fromServer = "";
 
+		String entityURI = entityManager.defineUri(appId, localId);
 		Result result = null;
-		if (!StringUtils.hasLength(entityId)) {
-			Exception ex = new IllegalArgumentException(
-					String.format("param 'entityId' should be valid"));
-			result = new Result(ex, 400);
-			return result;
-		}
+
 		if (findType == null) { // force the usage of api rest mongodb server
 			findType = 1;
 		}
@@ -294,10 +295,10 @@ public class SocialCommentController extends RestController {
 					&& StringUtils.hasLength(author)) {
 				result = new Result(
 						commentManager.readCommentsByAutorAndTextAndEntity(
-								author, commentText, entityId));
+								author, commentText, entityURI));
 			} else {
 				result = new Result(commentManager.readCommentsByEntity(
-						entityId,
+						entityURI,
 						setLimit(pageNum, pageSize, fromDate, toDate,
 								sortDirection, sortList)));
 			}
@@ -322,7 +323,7 @@ public class SocialCommentController extends RestController {
 				types.add(QUERY_TYPE_STRING);
 			}
 			params.add(ENTITY_ID);
-			values.add(entityId);
+			values.add(entityURI);
 			types.add(QUERY_TYPE_STRING);
 
 			if (fromDate != null) {
@@ -444,10 +445,10 @@ public class SocialCommentController extends RestController {
 				result = new Result(
 						commentManager
 								.readCommentsByAutorAndTextAndEntity_JSON(
-										author, commentText, entityId));
+										author, commentText, entityURI));
 			} else {
 				result = new Result(commentManager.readCommentsByEntity_JSON(
-						entityId,
+						entityURI,
 						setLimit(pageNum, pageSize, fromDate, toDate,
 								sortDirection, sortList)));
 			}
@@ -455,26 +456,24 @@ public class SocialCommentController extends RestController {
 		return result;
 	}
 
-	@RequestMapping(method = RequestMethod.POST, value = "/user/entity/{entityId}/comment")
+	@RequestMapping(method = RequestMethod.POST, value = "/user/{appId}/comment/{localId}")
 	public @ResponseBody
 	Result createUserEntityComment(@RequestBody Comment commentInRequest,
-			@PathVariable String entityId) throws SocialServiceException,
-			IOException {
+			@PathVariable String localId, @PathVariable String appId)
+			throws SocialServiceException, IOException {
 		String userId = getUserId();
+		String entityURI = entityManager.defineUri(appId, localId);
 		String user = concatNameAndSurname(getUserObject(userId).getName(),
 				getUserObject(userId).getSurname());
 
 		return new Result(commentManager.create(commentInRequest.getText(),
-				user, entityId));
+				user, entityURI));
 
 	}
 
-	// @RequestMapping(method = RequestMethod.DELETE, value =
-	// "/user/entity/{entityId}/comment/{commentId}")
 	@RequestMapping(method = RequestMethod.DELETE, value = "/user/comment/{commentId}")
 	public @ResponseBody
-	Result deleteUserEntityComment(
-	/* @PathVariable String entityId, */@PathVariable String commentId)
+	Result deleteUserEntityComment(@PathVariable String commentId)
 			throws SocialServiceException, IOException {
 		String userId = getUserId();
 		String user = concatNameAndSurname(getUserObject(userId).getName(),
@@ -499,9 +498,8 @@ public class SocialCommentController extends RestController {
 	// Used for tests
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/entity/{entityId}/comment/{commentId}")
 	public @ResponseBody
-	Result removeUserEntityComment(@PathVariable String entityId,
-			@PathVariable String commentId) throws SocialServiceException,
-			IOException {
+	Result removeUserEntityComment(@PathVariable String commentId)
+			throws SocialServiceException, IOException {
 		String userId = getUserId();
 		String user = concatNameAndSurname(getUserObject(userId).getName(),
 				getUserObject(userId).getSurname());
@@ -515,12 +513,14 @@ public class SocialCommentController extends RestController {
 		return new Result(commentManager.remove(commentId));
 	}
 
-	@RequestMapping(method = RequestMethod.DELETE, value = "/user/entity/{entityId}/comment")
+	@RequestMapping(method = RequestMethod.DELETE, value = "/user/{appId}/comment/{localId}")
 	public @ResponseBody
-	Result removeEntityComments(@PathVariable String entityId)
-			throws SocialServiceException, IOException {
+	Result removeEntityComments(@PathVariable String appId,
+			@PathVariable String localId) throws SocialServiceException,
+			IOException {
 
-		return new Result(commentManager.removeByEntity(entityId));
+		return new Result(commentManager.removeByEntity(entityManager
+				.defineUri(appId, localId)));
 	}
 
 	private String concatNameAndSurname(String name, String surname) {

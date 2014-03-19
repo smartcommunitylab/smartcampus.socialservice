@@ -7,20 +7,27 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import eu.trentorise.smartcampus.social.engine.model.SocialComment;
 
-public interface CommentRepository extends MongoRepository<SocialComment, String>{
-	
+public interface CommentRepository extends
+		MongoRepository<SocialComment, String> {
+
 	public SocialComment findById(String id);
-	
-	public SocialComment findByAuthorIgnoreCaseAndEntityId(String author, String entityId);
-	
-	public SocialComment findByAuthorIgnoreCaseAndTextIgnoreCaseAndEntityId(String author, String text, String entityId);
-	
-	public List<SocialComment> findByEntityId(String entityId, Pageable pageable);
-	
-	public List<SocialComment> findByEntityIdAndCreationTimeBetween(String entityId, Long startTime, Long endTime, Pageable pageable);
-	
-	public List<SocialComment> findByEntityIdAndCreationTimeGreaterThan(String entityId, Long beginTime, Pageable pageable);
-	
-	public List<SocialComment> findByEntityIdAndCreationTimeLessThan(String entityId, Long endTime, Pageable pageable);
-	
+
+	public SocialComment findByAuthorIgnoreCaseAndEntityURI(String author,
+			String entityURI);
+
+	public SocialComment findByAuthorIgnoreCaseAndTextIgnoreCaseAndEntityURI(
+			String author, String text, String entityURI);
+
+	public List<SocialComment> findByEntityURI(String entityURI,
+			Pageable pageable);
+
+	public List<SocialComment> findByEntityURIAndCreationTimeBetween(
+			String entityURI, Long startTime, Long endTime, Pageable pageable);
+
+	public List<SocialComment> findByEntityURIAndCreationTimeGreaterThan(
+			String entityURI, Long beginTime, Pageable pageable);
+
+	public List<SocialComment> findByEntityURIAndCreationTimeLessThan(
+			String entityURI, Long endTime, Pageable pageable);
+
 }

@@ -10,48 +10,46 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import eu.trentorise.smartcampus.social.engine.beans.Comment;
 
-
 @Document(collection = "comment")
 public class SocialComment implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private static final long TEST_TIME_GAP = 0L;//86400000;//0L;//-86400000;
-	
+
 	@Id
 	private String id;
-	
+
 	@Field("commentText")
 	private String text;
-	
-	@Field("entityId")
-	private String entityId;
+
+	@Field("entityURI")
+	private String entityURI;
 
 	@Field("author")
 	private String author;
-	
+
 	@Field("creationTime")
 	private Long creationTime;
-	
+
 	@Field("deleted")
 	private boolean deleted;
-	
-	public SocialComment(){
+
+	public SocialComment() {
 		this.deleted = false;
-		this.creationTime = System.currentTimeMillis() + TEST_TIME_GAP;
+		this.creationTime = System.currentTimeMillis();
 	}
-	
-	public SocialComment(String text){
+
+	public SocialComment(String text) {
 		this.text = text;
 		this.deleted = false;
-		this.creationTime = System.currentTimeMillis()  + TEST_TIME_GAP;
+		this.creationTime = System.currentTimeMillis();
 	}
-	
-	public SocialComment(String text, String author, String entityId){
+
+	public SocialComment(String text, String author, String entityId) {
 		this.text = text;
 		this.author = author;
-		this.entityId = entityId;
+		this.entityURI = entityId;
 		this.deleted = false;
-		this.creationTime = System.currentTimeMillis() + TEST_TIME_GAP;
+		this.creationTime = System.currentTimeMillis();
 	}
 
 	public String getId() {
@@ -62,8 +60,8 @@ public class SocialComment implements Serializable {
 		return text;
 	}
 
-	public String getEntityId() {
-		return entityId;
+	public String getEntityURI() {
+		return entityURI;
 	}
 
 	public String getAuthor() {
@@ -82,8 +80,8 @@ public class SocialComment implements Serializable {
 		this.text = text;
 	}
 
-	public void setEntityId(String entityId) {
-		this.entityId = entityId;
+	public void setEntityURI(String entityURI) {
+		this.entityURI = entityURI;
 	}
 
 	public void setAuthor(String author) {
@@ -94,34 +92,33 @@ public class SocialComment implements Serializable {
 		this.deleted = deleted;
 	}
 
-	public Comment toComment(){
+	public Comment toComment() {
 		Comment comment = new Comment();
 		comment.setId(id);
 		comment.setText(text);
-		comment.setEntityId(entityId);
+		comment.setEntityURI(entityURI);
 		comment.setAuthor(author);
 		comment.setCreationTime(creationTime);
 		comment.setDeleted(deleted);
 		return comment;
 	}
-	
-	public static List<Comment> toComment(Iterable<SocialComment> comments) {	
+
+	public static List<Comment> toComment(Iterable<SocialComment> comments) {
 		List<Comment> outputComments = new ArrayList<Comment>();
-		if(comments != null){
+		if (comments != null) {
 			for (SocialComment comment : comments) {
 				outputComments.add(comment.toComment());
 			}
 		}
 		return outputComments;
 	}
-	
-	public static Long convertId(String id){
+
+	public static Long convertId(String id) {
 		try {
 			return Long.valueOf(id);
 		} catch (NumberFormatException e) {
 			throw new IllegalArgumentException(id + " not valid");
 		}
 	}
-	
-}
 
+}

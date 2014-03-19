@@ -2,18 +2,18 @@ package eu.trentorise.smartcampus.social.engine.beans;
 
 import java.io.Serializable;
 
-public class Comment implements Serializable{
-	
+public class Comment implements Serializable {
+
 	private static final long serialVersionUID = 1L;
 
 	private String id;
-	
+
 	private String text;
-	private String entityId;
+	private String entityURI;
 	private String author;
-	
+
 	private Long creationTime;
-	
+
 	private boolean deleted;
 
 	public String getId() {
@@ -24,8 +24,8 @@ public class Comment implements Serializable{
 		return text;
 	}
 
-	public String getEntityId() {
-		return entityId;
+	public String getEntityURI() {
+		return entityURI;
 	}
 
 	public String getAuthor() {
@@ -44,8 +44,8 @@ public class Comment implements Serializable{
 		this.text = text;
 	}
 
-	public void setEntityId(String entityId) {
-		this.entityId = entityId;
+	public void setEntityURI(String entityURI) {
+		this.entityURI = entityURI;
 	}
 
 	public void setAuthor(String author) {
@@ -63,6 +63,5 @@ public class Comment implements Serializable{
 	public void setCreationTime(Long creationTime) {
 		this.creationTime = creationTime;
 	}
-	
-	
+
 }
