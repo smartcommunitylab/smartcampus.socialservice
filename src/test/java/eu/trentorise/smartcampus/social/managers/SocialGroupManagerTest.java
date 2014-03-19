@@ -272,8 +272,15 @@ public class SocialGroupManagerTest {
 		limit.setPage(0);
 		limit.setPageSize(5);
 
-		// add members
+		// test add/remove/add same user
 		Set<String> members = new HashSet<String>();
+		members.add(MEMBER_ID_1);
+		Assert.assertTrue(groupManager.addMembers(group.getId(), members));
+		Assert.assertTrue(groupManager.removeMembers(group.getId(), members));
+		Assert.assertTrue(groupManager.addMembers(group.getId(), members));
+
+		// add members
+		members.clear();
 		members.add(MEMBER_ID_1);
 		members.add(MEMBER_ID_2);
 		members.add(MEMBER_ID_3);
