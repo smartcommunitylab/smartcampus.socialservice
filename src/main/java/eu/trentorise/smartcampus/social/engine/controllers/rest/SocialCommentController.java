@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,10 +43,16 @@ public class SocialCommentController extends RestController {
 	private static final Logger logger = Logger
 			.getLogger(SocialCommentController.class);
 	// mongodb connection
-	private static String mongoRestDB = "commentDb";
-	private static String mongoRestCollection = "comment";
-	private static String mongoRestPort = "27080";
-	private static String mongoRestHost = "localhost";
+	@Value("${smartcampus.vas.web.mongo.host}")
+	private String mongoRestHost;
+	@Value("${mongo.rest.port}")
+	private String mongoRestPort;
+
+	@Value("${mongo.comment.db}")
+	private String mongoRestDB;
+	@Value("${mongo.comment.collection}")
+	private String mongoRestCollection;
+
 	private static final String mongoQuery = "_find";
 	private static final String mongoCount = "_count";
 	// mongodb query configuration
@@ -60,7 +67,7 @@ public class SocialCommentController extends RestController {
 	// comment fields
 	private static final String AUTHOR = "author";
 	private static final String CREATION_TIME = "creationTime";
-	private static final String ENTITY_ID = "entityId";
+	private static final String ENTITY_URI = "entityURI";
 	private static final String COMMENT_TEXT = "commentText";
 
 	@RequestMapping(method = RequestMethod.GET, value = "/user/comment")
@@ -322,7 +329,7 @@ public class SocialCommentController extends RestController {
 				values.add(author);
 				types.add(QUERY_TYPE_STRING);
 			}
-			params.add(ENTITY_ID);
+			params.add(ENTITY_URI);
 			values.add(entityURI);
 			types.add(QUERY_TYPE_STRING);
 

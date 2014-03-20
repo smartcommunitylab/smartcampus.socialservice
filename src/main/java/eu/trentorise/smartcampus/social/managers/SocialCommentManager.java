@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -38,10 +39,14 @@ public class SocialCommentManager {
 	private static final int DEF_PAGE_NUMBER = 0;
 	private static final int DEF_PAGE_SIZE = 10000;
 
-	private static final String MONGO_HOST = "localhost";
-	private static final int MONGO_PORT = 27017;
-	private static final String MONGO_DB = "commentDb";
-	private static final String MONGO_COLL = "comment";
+	@Value("${smartcampus.vas.web.mongo.host}")
+	private String MONGO_HOST;
+	@Value("${smartcampus.vas.web.mongo.port}")
+	private int MONGO_PORT;
+	@Value("${mongo.comment.db}")
+	private String MONGO_DB;
+	@Value("${mongo.comment.collection}")
+	private String MONGO_COLLECTION;
 
 	@Autowired
 	CommentRepository commentRepository;
@@ -88,7 +93,7 @@ public class SocialCommentManager {
 			logger.error(ex.getMessage());
 		}
 		DB db = mongoClient.getDB(MONGO_DB);
-		DBCollection coll = db.getCollection(MONGO_COLL);
+		DBCollection coll = db.getCollection(MONGO_COLLECTION);
 
 		// query with entityURI
 		BasicDBObject query = new BasicDBObject();
@@ -122,7 +127,7 @@ public class SocialCommentManager {
 			logger.error(ex.getMessage());
 		}
 		DB db = mongoClient.getDB(MONGO_DB);
-		DBCollection coll = db.getCollection(MONGO_COLL);
+		DBCollection coll = db.getCollection(MONGO_COLLECTION);
 
 		// query with entityURI
 		BasicDBObject query = new BasicDBObject("author", author).append(
@@ -213,7 +218,7 @@ public class SocialCommentManager {
 			logger.error(ex.getMessage());
 		}
 		DB db = mongoClient.getDB(MONGO_DB);
-		DBCollection coll = db.getCollection(MONGO_COLL);
+		DBCollection coll = db.getCollection(MONGO_COLLECTION);
 
 		// query with entityURI
 		BasicDBObject query = new BasicDBObject("entityURI", entityURI);
