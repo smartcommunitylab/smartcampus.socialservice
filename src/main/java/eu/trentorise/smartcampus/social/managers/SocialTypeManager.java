@@ -43,9 +43,6 @@ public class SocialTypeManager implements EntityTypeOperations {
 	@Autowired
 	SocialTypeRepository typeRepository;
 
-	@Autowired
-	private EntityManager entityManager;
-
 	private static final Logger logger = Logger
 			.getLogger(SocialGroupManager.class);
 
@@ -333,9 +330,9 @@ public class SocialTypeManager implements EntityTypeOperations {
 		}
 		return true;
 	}
-	
+
 	// Used in tests
-	public boolean deleteAll(){
+	public boolean deleteAll() {
 		typeRepository.deleteAll();
 		return true;
 	}
