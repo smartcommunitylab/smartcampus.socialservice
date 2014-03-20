@@ -20,7 +20,8 @@ import eu.trentorise.smartcampus.social.engine.beans.Visibility;
 import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("/spring/applicationContext.xml")
+@ContextConfiguration(locations = { "classpath:/spring/applicationContext.xml",
+		"classpath:/spring/spring-security.xml" })
 public class SocialTypeManagerTest {
 
 	@Autowired

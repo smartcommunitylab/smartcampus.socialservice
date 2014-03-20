@@ -25,24 +25,24 @@
 	<mvc:annotation-driven />
 
 	<context:property-placeholder location="classpath:socialservice.properties" />
-	
+
 	<!-- Scan controllers in this package -->
 	<context:component-scan base-package="eu.trentorise.smartcampus.social" />
 
 	<!-- Activates various annotations to be detected in bean classes -->
 	<context:annotation-config />
-	
-		<import resource="datalayer.xml"/>
-	
-    <bean id="authServices" class="eu.trentorise.smartcampus.social.managers.MockAuthServices"/>	
-    
-    <!-- Mongo configuration -->
-    <mongo:repositories base-package="eu.trentorise.smartcampus.social.engine.repo.mongo"></mongo:repositories>    
 
-    <mongo:mongo id="mongo" host="${smartcampus.vas.web.mongo.host}" port="${smartcampus.vas.web.mongo.port}"/>
-        <bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
-        	<constructor-arg ref="mongo"/>
-       		<constructor-arg name="databaseName" value="${mongo.comment.db}"/>
-        </bean>    
-    
+	<import resource="datalayer.xml" />
+
+	<!-- Mongo configuration -->
+	<mongo:repositories
+		base-package="eu.trentorise.smartcampus.social.engine.repo.mongo"></mongo:repositories>
+
+	<mongo:mongo id="mongo" host="${smartcampus.vas.web.mongo.host}"
+		port="${smartcampus.vas.web.mongo.port}" />
+	<bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+		<constructor-arg ref="mongo" />
+		<constructor-arg name="databaseName" value="${mongo.comment.db}" />
+	</bean>
+
 </beans>
