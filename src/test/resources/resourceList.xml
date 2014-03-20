@@ -87,17 +87,13 @@
     <resourceMapping uri="socialservice.type.all" 
         pathPattern="/concept" method="GET"/>
     
-	    <!-- user entities comments -->
+	<!-- user entities comments -->
      <resourceMapping uri="socialservice.user.comment" 
         pathPattern="/user/comment" method="GET"/>
      <resourceMapping uri="socialservice.user.comment" 
         pathPattern="/user/comment/{commentId}" method="GET,PUT,DELETE"/>
     <resourceMapping uri="socialservice.user.comment" 
         pathPattern="/user/{appId}/comment/{localId}" method="POST,GET,DELETE"/>
-    
-    <!-- TEST MODE..MUST BE REMOVED -->
-    <resourceMapping uri="socialservice.user.comment" 
-        pathPattern="/user/entity/{eid}/comment/{commentId}" method="PUT"/>
     
     <!-- rating -->
      <resourceMapping uri="socialservice.user.rating" 
