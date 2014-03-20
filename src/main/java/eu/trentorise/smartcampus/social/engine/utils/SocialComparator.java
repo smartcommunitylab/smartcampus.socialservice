@@ -8,6 +8,16 @@ import java.util.List;
 import org.apache.commons.lang.ClassUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 
+/**
+ * Uses Apache CompareToBuilder to compare class instances on multiple fields.
+ * If Class to compare is a wrapper of primitive types or a String, pass an
+ * empty array of fields to sort.
+ * 
+ * If you pass a null field array comparator will not sort class istances.
+ * 
+ * @author mirko perillo
+ * 
+ */
 public class SocialComparator<T> implements Comparator<T> {
 
 	private List<String> fields;
