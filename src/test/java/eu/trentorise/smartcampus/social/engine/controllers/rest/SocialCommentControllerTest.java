@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -365,7 +366,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 		setNullResult(response);
 	}
 
-	// @After
+	@After
 	public void removeComments() throws Exception {
 		RequestBuilder request = setDefaultRequest(
 				delete("/user/{appId}/comment/{localId}", APPID, LOCALID),
