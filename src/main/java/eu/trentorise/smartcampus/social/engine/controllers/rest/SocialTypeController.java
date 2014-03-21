@@ -5,12 +5,14 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.trentorise.smartcampus.social.engine.beans.Result;
+import eu.trentorise.smartcampus.social.engine.model.SocialType;
 import eu.trentorise.smartcampus.social.managers.SocialServiceException;
 import eu.trentorise.smartcampus.social.managers.SocialTypeManager;
 
@@ -20,19 +22,18 @@ public class SocialTypeController extends RestController {
 	@Autowired
 	private SocialTypeManager typeManager;
 
-	@RequestMapping(method = RequestMethod.POST, value = "/app/type")
+	@RequestMapping(method = RequestMethod.POST, value = "/type")
 	public @ResponseBody
-	Result createEntityType(
-			@RequestParam(value = "name", required = true) String name,
-			@RequestParam(value = "mimeType", required = true) String mimeType)
+	Result createEntityType(@RequestBody SocialType entityType)
 			throws SocialServiceException {
 
-		Result result = new Result(typeManager.create(name, mimeType));
+		Result result = new Result(typeManager.create(entityType.getName(),
+				entityType.getMimeType()));
 
 		return result;
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "/user/type/{typeId}")
+	@RequestMapping(method = RequestMethod.GET, value = "/type/{typeId}")
 	public @ResponseBody
 	Result getEntityTypeById(@PathVariable String typeId)
 			throws SocialServiceException {
@@ -41,7 +42,7 @@ public class SocialTypeController extends RestController {
 		return result;
 	}
 
-	@RequestMapping(method = RequestMethod.GET, value = "/user/type")
+	@RequestMapping(method = RequestMethod.GET, value = "/type")
 	public @ResponseBody
 	Result getEntityTypeBySuggestions(
 			@RequestParam(value = "mimeType", required = false) String mimeType,
