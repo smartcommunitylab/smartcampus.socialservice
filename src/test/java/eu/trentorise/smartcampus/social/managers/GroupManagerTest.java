@@ -17,7 +17,6 @@
 package eu.trentorise.smartcampus.social.managers;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,6 +27,7 @@ import java.util.Set;
 import junit.framework.Assert;
 
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,12 +84,16 @@ public class GroupManagerTest {
 	private static final String GROUP_RENAME_2 = "players";
 
 	private static final String GROUP_NEX_ID = "123456";
+	private static final long THREE_MONTHS = 7889231490L;
+	private static final long TWO_MONTHS = 5259487660L;
+	private static final long ONE_MONTH = 2629743830L;
 
 	private Group group, group2, group3, group4, group5, group6, group7,
 			group8, group9, group10, group11, group21, group22;
 	private Limit limit = null;
 	private Group readedGroup = null;
 	List<Group> readedGroups = null;
+	private long now = 0L;
 
 	private boolean checkGroupCreation(String name, Group group) {
 
@@ -100,26 +104,23 @@ public class GroupManagerTest {
 	}
 
 	public void changeCreationTime() {
-		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-		try {
-			group = groupManager.update(group.getId(),
-					formatter.parse("01-01-2013").getTime());
-			group2 = groupManager.update(group2.getId(),
-					formatter.parse("01-02-2013").getTime());
-			group3 = groupManager.update(group3.getId(),
-					formatter.parse("01-03-2013").getTime());
-			group9 = groupManager.update(group9.getId(),
-					formatter.parse("01-05-2014").getTime());
-			group10 = groupManager.update(group10.getId(),
-					formatter.parse("01-06-2014").getTime());
-			group11 = groupManager.update(group11.getId(),
-					formatter.parse("01-07-2014").getTime());
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
+		group = groupManager.update(group.getId(),
+				now - THREE_MONTHS);
+		group2 = groupManager.update(group2.getId(),
+				now - TWO_MONTHS);
+		group3 = groupManager.update(group3.getId(),
+				now - ONE_MONTH);
+		group9 = groupManager.update(group9.getId(),
+				now + ONE_MONTH);
+		group10 = groupManager.update(group10.getId(),
+				now + TWO_MONTHS);
+		group11 = groupManager.update(group11.getId(),
+				now + THREE_MONTHS);
 	}
 
-	private void createAll() {
+	@Before
+	public void createAll() {
+		now = System.currentTimeMillis();
 		group = groupManager.create(USER_ID, GROUP_NAME_1);
 		group2 = groupManager.create(USER_ID, GROUP_NAME_3);
 		group3 = groupManager.create(USER_ID, GROUP_NAME_2);
@@ -135,37 +136,32 @@ public class GroupManagerTest {
 		group21 = groupManager.create(USER_ID_2, GROUP_NAME_21);
 		group22 = groupManager.create(USER_ID_2, GROUP_NAME_22);
 	}
+	
+	@After
+	public void cleanup() {
+		groupRepository.deleteAll();
+		// userRepository.deleteAll();
+	}	
 
-	private void initDateFilterAndSortEnv() {
-		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+	private void createSame() {
+		long now = System.currentTimeMillis();
+		Group g = groupManager.create(USER_ID, "group1");
+		groupManager.update(g.getId(), now - TWO_MONTHS);
 
-		try {
-			Group g = groupManager.create(USER_ID, "group1");
-			groupManager.update(g.getId(), formatter.parse("01-03-2014")
-					.getTime());
+		g = groupManager.create(USER_ID, "group2");
+		groupManager.update(g.getId(), now - ONE_MONTH);
 
-			g = groupManager.create(USER_ID, "group2");
-			groupManager.update(g.getId(), formatter.parse("04-03-2014")
-					.getTime());
+		g = groupManager.create(USER_ID, "group3");
+		groupManager.update(g.getId(), now - ONE_MONTH);
 
-			g = groupManager.create(USER_ID, "group3");
-			groupManager.update(g.getId(), formatter.parse("08-03-2014")
-					.getTime());
+		g = groupManager.create(USER_ID, "group4");
 
-			g = groupManager.create(USER_ID, "group4");
-			groupManager.update(g.getId(), formatter.parse("06-03-2014")
-					.getTime());
-			g = groupManager.create(USER_ID, "group5");
-			groupManager.update(g.getId(), formatter.parse("09-07-2014")
-					.getTime());
-		} catch (ParseException e) {
-			Assert.fail("parse date exception");
-		}
+		g = groupManager.create(USER_ID, "group5");
+		groupManager.update(g.getId(), now + TWO_MONTHS);
 	}
 
 	@Test
 	public void createGroup() {
-		createAll();
 		// create
 		Assert.assertTrue(checkGroupCreation(GROUP_NAME_1, group));
 		Assert.assertTrue(checkGroupCreation(GROUP_NAME_3, group2));
@@ -183,15 +179,10 @@ public class GroupManagerTest {
 		Assert.assertTrue(checkGroupCreation(GROUP_NAME_22, group22));
 	}
 
-	@After
-	public void cleanup() {
-		groupRepository.deleteAll();
-		userRepository.deleteAll();
-	}
-
 	@Test
 	public void readGroups() throws ParseException {
-		initDateFilterAndSortEnv();
+		cleanup();
+		createSame();
 
 		limit = new Limit();
 		limit.setPage(0);
@@ -205,29 +196,25 @@ public class GroupManagerTest {
 		Assert.assertEquals(1, readedGroups.size());
 		Assert.assertEquals("group5", readedGroups.get(0).getName());
 
-		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
-
 		limit = new Limit();
 		limit.setPage(1);
 		limit.setPageSize(2);
-		limit.setFromDate(formatter.parse("4-03-2014").getTime());
-		limit.setToDate(formatter.parse("10-03-2014").getTime());
-
+		limit.setFromDate(now - ONE_MONTH);
+		limit.setToDate(now + ONE_MONTH);
 		readedGroups = groupManager.readGroups(USER_ID, limit);
 		Assert.assertEquals(1, readedGroups.size());
 
 		limit = new Limit();
 		limit.setPage(0);
 		limit.setPageSize(5);
-		limit.setFromDate(formatter.parse("05-03-2014").getTime());
-
+		limit.setFromDate(now);
 		readedGroups = groupManager.readGroups(USER_ID, limit);
-		Assert.assertEquals(3, readedGroups.size());
+		Assert.assertEquals(2, readedGroups.size());
 
 		limit = new Limit();
 		limit.setPage(0);
 		limit.setPageSize(3);
-		limit.setToDate(formatter.parse("07-03-2014").getTime());
+		limit.setToDate(now + ONE_MONTH);
 		readedGroups = groupManager.readGroups(USER_ID, limit);
 		Assert.assertEquals(3, readedGroups.size());
 
@@ -235,56 +222,53 @@ public class GroupManagerTest {
 
 	@Test
 	public void readGroupsSort() throws ParseException {
-		initDateFilterAndSortEnv();
+		changeCreationTime();
 		limit = new Limit();
 		// with sort (by name and creation time asc)
 		limit.setDirection(0);
 		limit.setSortList(Arrays.asList("name", "creationTime"));
 
 		readedGroups = groupManager.readGroups(USER_ID, limit);
-		Assert.assertEquals(5, readedGroups.size());
-		Assert.assertEquals("group1", readedGroups.get(0).getName());
+		Assert.assertEquals(11, readedGroups.size());
+		Assert.assertEquals("collaborators", readedGroups.get(0).getName());
 
 		limit = new Limit();
-		limit.setPageSize(2);
+		limit.setPageSize(5);
 		limit.setPage(2);
 		limit.setDirection(1);
 		limit.setSortList(Arrays.asList("name", "creationTime"));
 		readedGroups = groupManager.readGroups(USER_ID, limit);
 		Assert.assertEquals(1, readedGroups.size());
-		Assert.assertEquals("group1", readedGroups.get(0).getName());
-
-		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
+		Assert.assertEquals("collaborators", readedGroups.get(0).getName());
 
 		limit = new Limit();
 		limit.setPageSize(5);
-		limit.setPage(0);
-		limit.setFromDate(formatter.parse("01-03-2014").getTime());
-		limit.setToDate(formatter.parse("01-07-2014").getTime());
+		limit.setPage(1);
+		limit.setFromDate(now);
+		limit.setToDate(now + THREE_MONTHS);
 		// with sort (by name desc)
 		limit.setDirection(1);
 		limit.setSortList(Arrays.asList("name"));
 
 		readedGroups = groupManager.readGroups(USER_ID, limit);
-		Assert.assertEquals(4, readedGroups.size());
+		Assert.assertEquals(3, readedGroups.size());
 		Assert.assertEquals("group4", readedGroups.get(0).getName());
 
 		limit = new Limit();
 		limit.setPageSize(5);
 		limit.setPage(0);
-		limit.setToDate(formatter.parse("7-03-2014").getTime());
+		limit.setToDate(now);
 		// with sort (by creationTime desc)
 		limit.setDirection(1);
 		limit.setSortList(Arrays.asList("creationTime"));
 
 		readedGroups = groupManager.readGroups(USER_ID, limit);
 		Assert.assertEquals(3, readedGroups.size());
-		Assert.assertEquals("group4", readedGroups.get(0).getName());
+		Assert.assertEquals("group2", readedGroups.get(0).getName());
 	}
 
 	@Test
 	public void groupMembers() {
-		createAll();
 		limit = new Limit();
 		limit.setPage(0);
 		limit.setPageSize(5);
@@ -379,7 +363,6 @@ public class GroupManagerTest {
 
 	@Test(expected = java.lang.IllegalArgumentException.class)
 	public void groupMembersSortErrParam() {
-		createAll();
 		// set the limit error
 		limit = new Limit();
 		limit.setPage(0);
@@ -403,7 +386,6 @@ public class GroupManagerTest {
 
 	@Test
 	public void updateGroups() {
-		createAll();
 		// update
 		readedGroup = groupManager.update(group.getId(), GROUP_RENAME);
 		Assert.assertTrue(checkGroupCreation(GROUP_RENAME, readedGroup));
@@ -415,21 +397,18 @@ public class GroupManagerTest {
 
 	@Test(expected = java.lang.IllegalArgumentException.class)
 	public void updateGroupsSameNameException() {
-		createAll();
 		// update a group with the same name of another group of the same user
 		readedGroup = groupManager.update(group2.getId(), GROUP_NAME_1);
 	}
 
 	@Test(expected = java.lang.IllegalArgumentException.class)
 	public void createGroupAlreadyExistException() {
-		createAll();
 		// Create a group that already exist
 		readedGroup = groupManager.create(USER_ID, GROUP_NAME_1);
 	}
 
 	@Test
 	public void updateGroupNotExist() {
-		createAll();
 		// Update a group that not exists
 		readedGroup = groupManager.update(GROUP_NEX_ID, GROUP_NAME_2);
 		Assert.assertTrue(readedGroup == null);
@@ -437,14 +416,12 @@ public class GroupManagerTest {
 
 	@Test
 	public void deleteGroupNotExist() {
-		createAll();
 		// Delete a not existing group
 		Assert.assertTrue(groupManager.delete(GROUP_NEX_ID));
 	}
 
 	@Test
 	public void addMemberToGroupNotExist() {
-		createAll();
 		Set<String> add_members = new HashSet<String>();
 		add_members.add(MEMBER_ID_1);
 		// Add a member to a not existing group
@@ -454,7 +431,6 @@ public class GroupManagerTest {
 
 	@Test
 	public void removeMemberToGroupNotExist() {
-		createAll();
 		Set<String> rem_members = new HashSet<String>();
 		rem_members.add(MEMBER_ID_1);
 		// Remove a member from a not existing group
@@ -463,7 +439,6 @@ public class GroupManagerTest {
 
 	@Test
 	public void extremeCases() {
-		createAll();
 		limit = new Limit();
 		limit.setPage(0);
 		limit.setPageSize(5);
@@ -521,27 +496,23 @@ public class GroupManagerTest {
 
 	@Test(expected = java.lang.IllegalArgumentException.class)
 	public void createGroupErrParamsException() {
-		createAll();
 		readedGroup = groupManager.create(null, "");
 	}
 
 	@Test
 	public void readGroupErrParams() {
-		createAll();
 		readedGroup = groupManager.readGroup(null);
 		Assert.assertTrue(readedGroup == null);
 	}
 
 	@Test
 	public void readGroupsErrParams() {
-		createAll();
 		readedGroups = groupManager.readGroups("", limit);
 		Assert.assertTrue(readedGroups.isEmpty());
 	}
 
 	@Test
 	public void readGroupMembersErrParams() {
-		createAll();
 		List<User> members = null;
 		members = groupManager.readMembers(null, limit);
 		Assert.assertTrue(members.isEmpty());
@@ -549,7 +520,6 @@ public class GroupManagerTest {
 
 	@Test
 	public void readGroupMembersAsStringErrParams() {
-		createAll();
 		List<String> members = null;
 		members = groupManager.readMembersAsString("", limit);
 		Assert.assertTrue(members.isEmpty());
@@ -557,26 +527,22 @@ public class GroupManagerTest {
 
 	@Test(expected = java.lang.IllegalArgumentException.class)
 	public void updateGroupErrParamsException() {
-		createAll();
 		groupManager.update(null, "");
 	}
 
 	@Test
 	public void addGroupMembersErrParams() {
-		createAll();
 		Set<String> addMembers = new HashSet<String>();
 		Assert.assertTrue(groupManager.addMembers(null, addMembers));
 	}
 
 	@Test
 	public void removeGroupMembersErrParamsException() {
-		createAll();
 		Assert.assertTrue(groupManager.removeMembers("", null));
 	}
 
 	@Test
 	public void deleteGroupErrParamsException() {
-		createAll();
 		Assert.assertTrue(groupManager.delete(null));
 	}
 
