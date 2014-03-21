@@ -23,7 +23,14 @@ public class SCControllerTest {
 		USER, CLIENT
 	};
 
+	/**
+	 * INSERT A VALID USER TOKEN
+	 */
 	private static final String USER_AUTH_TOKEN = "";
+
+	/**
+	 * INSERT A VALID CLIENT TOKEN
+	 */
 	private static final String CLIENT_AUTH_TOKEN = "";
 
 	/** Controller utilities **/
@@ -69,16 +76,18 @@ public class SCControllerTest {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Method extractIdFromResult: used to get the object id
-	 * from the rest response of social service test.
-	 * @param result: rest response from social service server;
+	 * Method extractIdFromResult: used to get the object id from the rest
+	 * response of social service test.
+	 * 
+	 * @param result
+	 *            : rest response from social service server;
 	 * @return String object Id read from the response.
 	 */
-	protected String extractIdFromResult(String result){
+	protected String extractIdFromResult(String result) {
 		String commentId = "";
-		
+
 		JSONObject jsonOb;
 		try {
 			jsonOb = new JSONObject(result);
@@ -89,7 +98,7 @@ public class SCControllerTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		return commentId;
 	}
 

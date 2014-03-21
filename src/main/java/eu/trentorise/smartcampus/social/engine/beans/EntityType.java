@@ -4,10 +4,20 @@ import java.io.Serializable;
 
 public class EntityType implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -4985212556248448954L;
+
 	private String id;
 	private String name;
 	private String mimeType;
+
+	public EntityType() {
+
+	}
+
+	public EntityType(String name, String mimeType) {
+		this.name = name;
+		this.mimeType = mimeType;
+	}
 
 	public String getId() {
 		return id;
