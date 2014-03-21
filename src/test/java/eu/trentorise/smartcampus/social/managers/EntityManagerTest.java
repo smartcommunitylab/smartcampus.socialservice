@@ -21,12 +21,12 @@ import eu.trentorise.smartcampus.social.engine.beans.Entity;
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
 import eu.trentorise.smartcampus.social.engine.beans.Visibility;
 import eu.trentorise.smartcampus.social.engine.model.SocialEntity;
-import eu.trentorise.smartcampus.social.engine.model.SocialType;
+import eu.trentorise.smartcampus.social.engine.model.SocialEntityType;
 import eu.trentorise.smartcampus.social.engine.model.SocialUser;
 import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.EntityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.GroupRepository;
-import eu.trentorise.smartcampus.social.engine.repo.SocialTypeRepository;
+import eu.trentorise.smartcampus.social.engine.repo.EntityTypeRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/spring/applicationContext.xml",
@@ -37,19 +37,19 @@ public class EntityManagerTest {
 	private EntityManager manager;
 
 	@Autowired
-	private SocialTypeManager typeManager;
+	private EntityTypeManager typeManager;
 
 	@Autowired
-	private SocialGroupManager groupManager;
+	private GroupManager groupManager;
 
 	@Autowired
-	private SocialCommunityManager communityManager;
+	private CommunityManager communityManager;
 
 	@Autowired
 	EntityRepository entityRepo;
 
 	@Autowired
-	SocialTypeRepository typeRepo;
+	EntityTypeRepository typeRepo;
 
 	@Autowired
 	CommunityRepository communityRepo;
@@ -98,7 +98,7 @@ public class EntityManagerTest {
 	private void initFilterCaseDb() throws Exception {
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
-		SocialType type = new SocialType("image", "image/png");
+		SocialEntityType type = new SocialEntityType("image", "image/png");
 		type = typeRepo.save(type);
 
 		SocialEntity entity = new SocialEntity();

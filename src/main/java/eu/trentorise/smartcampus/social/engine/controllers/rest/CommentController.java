@@ -23,16 +23,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.trentorise.smartcampus.social.engine.beans.Comment;
 import eu.trentorise.smartcampus.social.engine.beans.Result;
+import eu.trentorise.smartcampus.social.managers.CommentManager;
 import eu.trentorise.smartcampus.social.managers.EntityManager;
 import eu.trentorise.smartcampus.social.managers.PermissionManager;
-import eu.trentorise.smartcampus.social.managers.SocialCommentManager;
-import eu.trentorise.smartcampus.social.managers.SocialServiceException;
 
 @Controller("commentController")
-public class SocialCommentController extends RestController {
+public class CommentController extends RestController {
 
 	@Autowired
-	SocialCommentManager commentManager;
+	CommentManager commentManager;
 
 	@Autowired
 	EntityManager entityManager;
@@ -41,7 +40,7 @@ public class SocialCommentController extends RestController {
 	private PermissionManager permissionManager;
 
 	private static final Logger logger = Logger
-			.getLogger(SocialCommentController.class);
+			.getLogger(CommentController.class);
 	// mongodb connection
 	@Value("${smartcampus.vas.web.mongo.host}")
 	private String mongoRestHost;
@@ -81,7 +80,7 @@ public class SocialCommentController extends RestController {
 			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
 			@RequestParam(value = "sortList", required = false) Set<String> sortList,
 			@RequestParam(value = "findType", required = false) Integer findType)
-			throws SocialServiceException, IOException {
+			throws IOException {
 		String fromServer = "";
 		Result result = null;
 
@@ -211,7 +210,7 @@ public class SocialCommentController extends RestController {
 	public @ResponseBody
 	Result getUserComment(@PathVariable String commentId,
 			@RequestParam(value = "findType", required = false) Integer findType)
-			throws SocialServiceException, IOException {
+			throws IOException {
 		Result result = null;
 		if (findType == null) { // force the usage of api rest mongodb server
 			findType = 1;
@@ -287,7 +286,7 @@ public class SocialCommentController extends RestController {
 			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
 			@RequestParam(value = "sortList", required = false) Set<String> sortList,
 			@RequestParam(value = "findType", required = false) Integer findType)
-			throws SocialServiceException, IOException {
+			throws IOException {
 		String fromServer = "";
 
 		String entityURI = entityManager.defineUri(appId, localId);
@@ -467,7 +466,7 @@ public class SocialCommentController extends RestController {
 	public @ResponseBody
 	Result createUserEntityComment(@RequestBody Comment commentInRequest,
 			@PathVariable String localId, @PathVariable String appId)
-			throws SocialServiceException, IOException {
+			throws IOException {
 		String userId = getUserId();
 		String entityURI = entityManager.defineUri(appId, localId);
 		String user = concatNameAndSurname(getUserObject(userId).getName(),
@@ -480,8 +479,7 @@ public class SocialCommentController extends RestController {
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/user/comment/{commentId}")
 	public @ResponseBody
-	Result deleteUserEntityComment(@PathVariable String commentId)
-			throws SocialServiceException, IOException {
+	Result deleteUserEntityComment(@PathVariable String commentId) {
 		String userId = getUserId();
 		String user = concatNameAndSurname(getUserObject(userId).getName(),
 				getUserObject(userId).getSurname());
@@ -505,8 +503,7 @@ public class SocialCommentController extends RestController {
 	// Used for tests
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/entity/{entityId}/comment/{commentId}")
 	public @ResponseBody
-	Result removeUserEntityComment(@PathVariable String commentId)
-			throws SocialServiceException, IOException {
+	Result removeUserEntityComment(@PathVariable String commentId) {
 		String userId = getUserId();
 		String user = concatNameAndSurname(getUserObject(userId).getName(),
 				getUserObject(userId).getSurname());
@@ -523,8 +520,7 @@ public class SocialCommentController extends RestController {
 	@RequestMapping(method = RequestMethod.DELETE, value = "/user/{appId}/comment/{localId}")
 	public @ResponseBody
 	Result removeEntityComments(@PathVariable String appId,
-			@PathVariable String localId) throws SocialServiceException,
-			IOException {
+			@PathVariable String localId) {
 
 		return new Result(commentManager.removeByEntity(entityManager
 				.defineUri(appId, localId)));

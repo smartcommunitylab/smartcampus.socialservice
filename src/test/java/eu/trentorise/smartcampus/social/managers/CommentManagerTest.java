@@ -17,10 +17,10 @@ import eu.trentorise.smartcampus.social.engine.beans.Comment;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/spring/applicationContext.xml",
 		"classpath:/spring/spring-security.xml" })
-public class SocialCommentManagerTest {
+public class CommentManagerTest {
 
 	@Autowired
-	SocialCommentManager manager;
+	CommentManager manager;
 
 	private Comment comment = null;
 	private Comment comment1, comment2, comment3, comment4;

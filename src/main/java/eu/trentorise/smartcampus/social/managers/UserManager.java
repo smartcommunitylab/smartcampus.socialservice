@@ -11,7 +11,7 @@ import eu.trentorise.smartcampus.social.engine.repo.UserRepository;
 
 @Component
 @Transactional
-public class SocialUserManager implements UserOperations {
+public class UserManager implements UserOperations {
 
 	@Autowired
 	UserRepository userRepository;

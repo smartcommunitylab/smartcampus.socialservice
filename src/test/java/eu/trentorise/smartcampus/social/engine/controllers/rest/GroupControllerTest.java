@@ -24,13 +24,13 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.context.WebApplicationContext;
 
 import eu.trentorise.smartcampus.social.engine.beans.Group;
-import eu.trentorise.smartcampus.social.managers.SocialGroupManager;
+import eu.trentorise.smartcampus.social.managers.GroupManager;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(locations = { "classpath:/spring/applicationContext.xml",
 		"classpath:/spring/spring-security.xml" })
-public class SocialGroupControllerTest extends SCControllerTest {
+public class GroupControllerTest extends SCControllerTest {
 
 	@Autowired
 	private FilterChainProxy springSecurityFilterChain;
@@ -39,7 +39,7 @@ public class SocialGroupControllerTest extends SCControllerTest {
 	private WebApplicationContext wac;
 	
 	@Autowired
-	private SocialGroupManager groupManager;
+	private GroupManager groupManager;
 
 	private MockMvc mockMvc;
 

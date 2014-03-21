@@ -15,16 +15,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import eu.trentorise.smartcampus.social.engine.beans.Community;
 import eu.trentorise.smartcampus.social.engine.beans.Result;
 import eu.trentorise.smartcampus.social.managers.PermissionManager;
-import eu.trentorise.smartcampus.social.managers.SocialCommunityManager;
+import eu.trentorise.smartcampus.social.managers.CommunityManager;
 
 @Controller
-public class SocialCommunityController extends RestController {
+public class CommunityController extends RestController {
 
 	@Autowired
 	PermissionManager permissionManager;
 
 	@Autowired
-	SocialCommunityManager communityManager;
+	CommunityManager communityManager;
 
 	@RequestMapping(method = RequestMethod.GET, value = "/community")
 	public @ResponseBody

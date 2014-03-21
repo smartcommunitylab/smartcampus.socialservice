@@ -13,19 +13,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.trentorise.smartcampus.social.engine.beans.EntityType;
 import eu.trentorise.smartcampus.social.engine.beans.Result;
-import eu.trentorise.smartcampus.social.managers.SocialServiceException;
-import eu.trentorise.smartcampus.social.managers.SocialTypeManager;
+import eu.trentorise.smartcampus.social.managers.EntityTypeManager;
 
 @Controller("typeController")
-public class SocialTypeController extends RestController {
+public class EntityTypeController extends RestController {
 
 	@Autowired
-	private SocialTypeManager typeManager;
+	private EntityTypeManager typeManager;
 
 	@RequestMapping(method = RequestMethod.POST, value = "/type")
 	public @ResponseBody
-	Result createEntityType(@RequestBody EntityType entityType)
-			throws SocialServiceException {
+	Result createEntityType(@RequestBody EntityType entityType) {
 
 		Result result = new Result(typeManager.create(entityType.getName(),
 				entityType.getMimeType()));
@@ -35,8 +33,7 @@ public class SocialTypeController extends RestController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/type/{typeId}")
 	public @ResponseBody
-	Result getEntityTypeById(@PathVariable String typeId)
-			throws SocialServiceException {
+	Result getEntityTypeById(@PathVariable String typeId) {
 
 		Result result = new Result(typeManager.readType(typeId));
 		return result;
@@ -51,8 +48,7 @@ public class SocialTypeController extends RestController {
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
 			@RequestParam(value = "toDate", required = false) Long toDate,
 			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
-			@RequestParam(value = "sortList", required = false) Set<String> sortList)
-			throws SocialServiceException {
+			@RequestParam(value = "sortList", required = false) Set<String> sortList) {
 
 		Result result = null;
 		if (mimeType != null) {

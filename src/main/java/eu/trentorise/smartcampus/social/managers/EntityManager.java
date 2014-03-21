@@ -26,7 +26,7 @@ import eu.trentorise.smartcampus.social.engine.model.SocialUser;
 import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.EntityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.GroupRepository;
-import eu.trentorise.smartcampus.social.engine.repo.SocialTypeRepository;
+import eu.trentorise.smartcampus.social.engine.repo.EntityTypeRepository;
 import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
 @Component
@@ -42,13 +42,13 @@ public class EntityManager implements EntityOperations {
 	CommunityRepository communityRepository;
 
 	@Autowired
-	SocialTypeRepository typeRepository;
+	EntityTypeRepository typeRepository;
 
 	@Autowired
 	GroupRepository groupRepository;
 
 	@Autowired
-	SocialUserManager userManager;
+	UserManager userManager;
 
 	@Override
 	public Entity saveOrUpdate(String namespace, Entity entity) {

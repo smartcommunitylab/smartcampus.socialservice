@@ -15,7 +15,6 @@
  ******************************************************************************/
 package eu.trentorise.smartcampus.social.engine.controllers.rest;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,15 +30,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import eu.trentorise.smartcampus.social.engine.beans.Group;
 import eu.trentorise.smartcampus.social.engine.beans.Result;
+import eu.trentorise.smartcampus.social.managers.GroupManager;
 import eu.trentorise.smartcampus.social.managers.PermissionManager;
-import eu.trentorise.smartcampus.social.managers.SocialGroupManager;
-import eu.trentorise.smartcampus.social.managers.SocialServiceException;
 
 @Controller("groupController")
-public class SocialGroupController extends RestController {
+public class GroupController extends RestController {
 
 	@Autowired
-	private SocialGroupManager groupManager;
+	private GroupManager groupManager;
 
 	@Autowired
 	private PermissionManager permissionManager;
@@ -52,8 +50,7 @@ public class SocialGroupController extends RestController {
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
 			@RequestParam(value = "toDate", required = false) Long toDate,
 			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
-			@RequestParam(value = "sortList", required = false) Set<String> sortList)
-			throws SocialServiceException {
+			@RequestParam(value = "sortList", required = false) Set<String> sortList) {
 		String userId = getUserId();
 
 		Result result = new Result(groupManager.readGroups(
@@ -66,8 +63,7 @@ public class SocialGroupController extends RestController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/user/group/{groupId}")
 	public @ResponseBody
-	Result getUserGroup(@PathVariable String groupId)
-			throws SocialServiceException {
+	Result getUserGroup(@PathVariable String groupId) {
 		String userId = getUserId();
 
 		if (!permissionManager.checkGroupPermission(userId, groupId)) {
@@ -82,8 +78,7 @@ public class SocialGroupController extends RestController {
 
 	@RequestMapping(method = RequestMethod.POST, value = "/user/group")
 	public @ResponseBody
-	Result createUserGroup(@RequestBody Group groupInRequest)
-			throws SocialServiceException, IOException {
+	Result createUserGroup(@RequestBody Group groupInRequest) {
 		String userId = getUserId();
 
 		Result result = null;
@@ -95,8 +90,7 @@ public class SocialGroupController extends RestController {
 
 	@RequestMapping(method = RequestMethod.DELETE, value = "/user/group/{groupId}")
 	public @ResponseBody
-	Result deleteGroup(@PathVariable String groupId)
-			throws SocialServiceException {
+	Result deleteGroup(@PathVariable String groupId) {
 		String userId = getUserId();
 
 		if (!permissionManager.checkGroupPermission(userId, groupId)) {
@@ -113,7 +107,7 @@ public class SocialGroupController extends RestController {
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/group/{groupId}")
 	public @ResponseBody
 	Result updateGroup(@PathVariable("groupId") String groupId,
-			@RequestBody Group groupInRequest) throws SocialServiceException {
+			@RequestBody Group groupInRequest) {
 		String userId = getUserId();
 
 		if (!StringUtils.hasLength(groupId)) {
@@ -141,8 +135,7 @@ public class SocialGroupController extends RestController {
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
 			@RequestParam(value = "pageSize", required = false) Integer pageSize,
 			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
-			@RequestParam(value = "sortList", required = false) Set<String> sortList)
-			throws SocialServiceException {
+			@RequestParam(value = "sortList", required = false) Set<String> sortList) {
 		String userId = getUserId();
 
 		if (!permissionManager.checkGroupPermission(userId, groupId)) {
@@ -154,16 +147,19 @@ public class SocialGroupController extends RestController {
 
 		// sort the list
 		Set<String> mySortList = null;
-		if(sortList != null){
-			if(sortList.size() != 1){
-				throw new IllegalArgumentException(String.format(
-						"To many arguments passed in group member sorting. Use '%s' instead", groupManager.getMembersort()));
+		if (sortList != null) {
+			if (sortList.size() != 1) {
+				throw new IllegalArgumentException(
+						String.format(
+								"To many arguments passed in group member sorting. Use '%s' instead",
+								groupManager.getMembersort()));
 			}
-			for(String param:sortList){
-				if(param.compareTo(groupManager.getMembersort())!= 0){
-					throw new IllegalArgumentException(String.format(
-							"Parameter '%s' not exist for group member. Use '%s' instead",
-							param, groupManager.getMembersort()));
+			for (String param : sortList) {
+				if (param.compareTo(groupManager.getMembersort()) != 0) {
+					throw new IllegalArgumentException(
+							String.format(
+									"Parameter '%s' not exist for group member. Use '%s' instead",
+									param, groupManager.getMembersort()));
 				}
 			}
 			mySortList = new HashSet<String>();
@@ -182,8 +178,7 @@ public class SocialGroupController extends RestController {
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/group/{groupId}/members")
 	public @ResponseBody
 	Result addMembers(@PathVariable("groupId") String groupId,
-			@RequestParam("userIds") Set<String> userIds)
-			throws SocialServiceException {
+			@RequestParam("userIds") Set<String> userIds) {
 		String userId = getUserId();
 
 		if (!permissionManager.checkGroupPermission(userId, groupId)) {
@@ -200,8 +195,7 @@ public class SocialGroupController extends RestController {
 	@RequestMapping(method = RequestMethod.DELETE, value = "/user/group/{groupId}/members")
 	public @ResponseBody
 	Result removeMembers(@PathVariable("groupId") String groupId,
-			@RequestParam("userIds") Set<String> userIds)
-			throws SocialServiceException {
+			@RequestParam("userIds") Set<String> userIds) {
 		String userId = getUserId();
 
 		if (!permissionManager.checkGroupPermission(userId, groupId)) {

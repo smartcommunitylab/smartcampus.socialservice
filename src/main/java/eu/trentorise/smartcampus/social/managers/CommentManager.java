@@ -30,10 +30,10 @@ import eu.trentorise.smartcampus.social.engine.repo.mongo.CommentRepository;
 
 @Component
 @Transactional
-public class SocialCommentManager {
+public class CommentManager {
 
 	private static final Logger logger = Logger
-			.getLogger(SocialCommentManager.class);
+			.getLogger(CommentManager.class);
 	private static final String deleteComment = "User '%s' has delete the comment.";
 
 	private static final int DEF_PAGE_NUMBER = 0;

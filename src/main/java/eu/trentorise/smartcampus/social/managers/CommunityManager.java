@@ -25,15 +25,15 @@ import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
 @Component
 @Transactional
-public class SocialCommunityManager implements CommunityOperations {
+public class CommunityManager implements CommunityOperations {
 
 	private static final Logger logger = Logger
-			.getLogger(SocialCommunityManager.class);
+			.getLogger(CommunityManager.class);
 	@Autowired
 	CommunityRepository communityRepository;
 
 	@Autowired
-	SocialUserManager userManager;
+	UserManager userManager;
 
 	@Override
 	public Community create(String name, String appId)

@@ -13,7 +13,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import eu.trentorise.smartcampus.social.engine.beans.Result;
 
 @ControllerAdvice
-public class SocialControllerExceptionHandler {
+public class ControllerExceptionHandler {
 	
 	// IllegalArgument
     @ExceptionHandler(IllegalArgumentException.class)

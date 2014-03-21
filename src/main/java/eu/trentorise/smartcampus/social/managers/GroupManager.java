@@ -23,20 +23,20 @@ import eu.trentorise.smartcampus.social.engine.model.SocialGroup;
 import eu.trentorise.smartcampus.social.engine.model.SocialUser;
 import eu.trentorise.smartcampus.social.engine.repo.GroupRepository;
 import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
+import eu.trentorise.smartcampus.social.managers.UserManager;
 
 @Component
 @Transactional
-public class SocialGroupManager implements GroupOperations {
+public class GroupManager implements GroupOperations {
 
 	@Autowired
 	GroupRepository groupRepository;
 
 	@Autowired
-	SocialUserManager userManager;
+	UserManager userManager;
 
 	private static final String memberSort = "userId";
-	private static final Logger logger = Logger
-			.getLogger(SocialGroupManager.class);
+	private static final Logger logger = Logger.getLogger(GroupManager.class);
 	private static final String[] SORTEABLE_PARAMS = { "id", "name",
 			"creationTime", "lastModifiedTime", "creatorId" };
 

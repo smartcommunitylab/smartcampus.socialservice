@@ -22,7 +22,7 @@ public class RatingManagerTest {
 	@Autowired
 	EntityManager entityManager;
 	@Autowired
-	SocialTypeManager typeManager;
+	EntityTypeManager typeManager;
 
 	@Test
 	public void rate() {

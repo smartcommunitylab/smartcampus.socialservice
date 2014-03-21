@@ -13,7 +13,7 @@ import eu.trentorise.smartcampus.social.engine.beans.Group;
 import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
 @Entity
-public class SocialType implements Serializable {
+public class SocialEntityType implements Serializable {
 
 	private static final long serialVersionUID = -5778857034813496173L;
 
@@ -25,10 +25,10 @@ public class SocialType implements Serializable {
 
 	private String mimeType;
 	
-	public SocialType(){
+	public SocialEntityType(){
 	}
 	
-	public SocialType(String name, String mimeType){
+	public SocialEntityType(String name, String mimeType){
 		this.name = name;
 		this.mimeType = mimeType;
 	}
@@ -73,10 +73,10 @@ public class SocialType implements Serializable {
 		return outputGroups;
 	}
 	
-	public static List<EntityType> toEntityType(Iterable<SocialType> types){
+	public static List<EntityType> toEntityType(Iterable<SocialEntityType> types){
 		List<EntityType> outputTypes = new ArrayList<EntityType>();
 		if(types!= null){
-			for(SocialType socialType : types){
+			for(SocialEntityType socialType : types){
 				outputTypes.add(socialType.toEntityType());
 			}
 		}

@@ -28,9 +28,9 @@ import eu.trentorise.smartcampus.social.engine.beans.Result;
 import eu.trentorise.smartcampus.social.engine.beans.Visibility;
 import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.EntityRepository;
-import eu.trentorise.smartcampus.social.engine.repo.SocialTypeRepository;
-import eu.trentorise.smartcampus.social.managers.SocialCommunityManager;
-import eu.trentorise.smartcampus.social.managers.SocialTypeManager;
+import eu.trentorise.smartcampus.social.engine.repo.EntityTypeRepository;
+import eu.trentorise.smartcampus.social.managers.CommunityManager;
+import eu.trentorise.smartcampus.social.managers.EntityTypeManager;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -50,13 +50,13 @@ public class EntityControllerTest extends SCControllerTest {
 	private MockMvc mockMvc;
 
 	@Autowired
-	SocialTypeManager typeManager;
+	EntityTypeManager typeManager;
 
 	@Autowired
-	SocialCommunityManager communityManager;
+	CommunityManager communityManager;
 
 	@Autowired
-	SocialTypeRepository typeRepo;
+	EntityTypeRepository typeRepo;
 
 	@Autowired
 	EntityRepository entityRepo;

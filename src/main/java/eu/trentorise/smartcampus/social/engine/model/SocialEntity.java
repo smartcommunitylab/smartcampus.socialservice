@@ -36,7 +36,7 @@ public class SocialEntity implements Serializable {
 	private SocialCommunity communityOwner;
 
 	@OneToOne
-	private SocialType type;
+	private SocialEntityType type;
 
 	@ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST,
 			CascadeType.MERGE })
@@ -90,11 +90,11 @@ public class SocialEntity implements Serializable {
 		this.groupsSharedWith = groupsSharedWith;
 	}
 
-	public SocialType getType() {
+	public SocialEntityType getType() {
 		return type;
 	}
 
-	public void setType(SocialType type) {
+	public void setType(SocialEntityType type) {
 		this.type = type;
 	}
 

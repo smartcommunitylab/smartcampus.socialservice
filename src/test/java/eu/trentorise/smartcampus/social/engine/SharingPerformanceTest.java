@@ -17,9 +17,9 @@ import eu.trentorise.smartcampus.social.engine.beans.EntityType;
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
 import eu.trentorise.smartcampus.social.engine.beans.Visibility;
 import eu.trentorise.smartcampus.social.managers.EntityManager;
-import eu.trentorise.smartcampus.social.managers.SocialCommunityManager;
-import eu.trentorise.smartcampus.social.managers.SocialGroupManager;
-import eu.trentorise.smartcampus.social.managers.SocialTypeManager;
+import eu.trentorise.smartcampus.social.managers.CommunityManager;
+import eu.trentorise.smartcampus.social.managers.GroupManager;
+import eu.trentorise.smartcampus.social.managers.EntityTypeManager;
 
 /**
  * Test to emulate sharing performance in a realist environment
@@ -44,9 +44,9 @@ public class SharingPerformanceTest {
 	private static int userIndex = 0;
 
 	private static EntityManager entityManager;
-	private static SocialTypeManager typeManager;
-	private static SocialGroupManager groupManager;
-	private static SocialCommunityManager communityManager;
+	private static EntityTypeManager typeManager;
+	private static GroupManager groupManager;
+	private static CommunityManager communityManager;
 
 	private static Random rand = new Random();
 
@@ -58,9 +58,9 @@ public class SharingPerformanceTest {
 		ClassPathXmlApplicationContext ctx = new ClassPathXmlApplicationContext(
 				"spring/applicationContext.xml");
 		entityManager = ctx.getBean(EntityManager.class);
-		typeManager = ctx.getBean(SocialTypeManager.class);
-		groupManager = ctx.getBean(SocialGroupManager.class);
-		communityManager = ctx.getBean(SocialCommunityManager.class);
+		typeManager = ctx.getBean(EntityTypeManager.class);
+		groupManager = ctx.getBean(GroupManager.class);
+		communityManager = ctx.getBean(CommunityManager.class);
 
 		// init users in env
 		for (int i = 0; i < USERS.length; i++) {

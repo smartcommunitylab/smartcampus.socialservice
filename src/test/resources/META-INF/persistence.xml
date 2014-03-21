@@ -8,7 +8,7 @@
 	    <class>eu.trentorise.smartcampus.social.engine.model.SocialCommunity</class>
 	    <class>eu.trentorise.smartcampus.social.engine.model.SocialGroup</class>
 	    <class>eu.trentorise.smartcampus.social.engine.model.SocialEntity</class>
-	    <class>eu.trentorise.smartcampus.social.engine.model.SocialType</class>
+	    <class>eu.trentorise.smartcampus.social.engine.model.SocialEntityType</class>
 	    <class>eu.trentorise.smartcampus.social.engine.model.SocialRating</class>
 		<properties>
 			<property name="hibernate.ejb.naming_strategy" value="org.hibernate.cfg.ImprovedNamingStrategy" />

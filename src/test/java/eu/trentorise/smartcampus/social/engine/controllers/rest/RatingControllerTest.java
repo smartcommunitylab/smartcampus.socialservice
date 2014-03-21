@@ -25,7 +25,7 @@ import eu.trentorise.smartcampus.social.engine.beans.Rating;
 import eu.trentorise.smartcampus.social.engine.beans.Result;
 import eu.trentorise.smartcampus.social.engine.beans.Visibility;
 import eu.trentorise.smartcampus.social.managers.EntityManager;
-import eu.trentorise.smartcampus.social.managers.SocialTypeManager;
+import eu.trentorise.smartcampus.social.managers.EntityTypeManager;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -42,7 +42,7 @@ public class RatingControllerTest extends SCControllerTest {
 	private MockMvc mockMvc;
 
 	@Autowired
-	private SocialTypeManager typeManager;
+	private EntityTypeManager typeManager;
 
 	@Autowired
 	private EntityManager entityManager;

@@ -32,7 +32,7 @@ import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 @WebAppConfiguration
 @ContextConfiguration(locations = { "classpath:/spring/applicationContext.xml",
 		"classpath:/spring/spring-security.xml" })
-public class SocialCommunityControllerTest extends SCControllerTest {
+public class CommunityControllerTest extends SCControllerTest {
 
 	private static final String APPID = "space1";
 

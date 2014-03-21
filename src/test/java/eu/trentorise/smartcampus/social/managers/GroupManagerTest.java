@@ -28,10 +28,10 @@ import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/spring/applicationContext.xml",
 		"classpath:/spring/spring-security.xml" })
-public class SocialGroupManagerTest {
+public class GroupManagerTest {
 
 	@Autowired
-	SocialGroupManager groupManager;
+	GroupManager groupManager;
 
 	@Autowired
 	GroupRepository groupRepository;

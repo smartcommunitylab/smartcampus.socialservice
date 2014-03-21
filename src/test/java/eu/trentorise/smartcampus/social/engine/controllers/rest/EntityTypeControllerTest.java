@@ -25,13 +25,13 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.context.WebApplicationContext;
 
 import eu.trentorise.smartcampus.social.engine.beans.EntityType;
-import eu.trentorise.smartcampus.social.managers.SocialTypeManager;
+import eu.trentorise.smartcampus.social.managers.EntityTypeManager;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(locations = { "classpath:/spring/applicationContext.xml",
 		"classpath:/spring/spring-security.xml" })
-public class SocialTypeControllerTest extends SCControllerTest {
+public class EntityTypeControllerTest extends SCControllerTest {
 
 	@Autowired
 	private FilterChainProxy springSecurityFilterChain;
@@ -40,7 +40,7 @@ public class SocialTypeControllerTest extends SCControllerTest {
 	private WebApplicationContext wac;
 
 	@Autowired
-	private SocialTypeManager typeManager;
+	private EntityTypeManager typeManager;
 
 	private MockMvc mockMvc;
 

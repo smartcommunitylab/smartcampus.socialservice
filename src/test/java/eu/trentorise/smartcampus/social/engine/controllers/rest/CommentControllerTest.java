@@ -28,13 +28,13 @@ import org.springframework.web.context.WebApplicationContext;
 
 import eu.trentorise.smartcampus.social.engine.beans.Comment;
 import eu.trentorise.smartcampus.social.managers.EntityManager;
-import eu.trentorise.smartcampus.social.managers.SocialCommentManager;
+import eu.trentorise.smartcampus.social.managers.CommentManager;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(locations = { "classpath:/spring/applicationContext.xml",
 		"classpath:/spring/spring-security.xml" })
-public class SocialCommentControllerTest extends SCControllerTest {
+public class CommentControllerTest extends SCControllerTest {
 
 	@Autowired
 	private FilterChainProxy springSecurityFilterChain;
@@ -43,7 +43,7 @@ public class SocialCommentControllerTest extends SCControllerTest {
 	private WebApplicationContext wac;
 
 	@Autowired
-	private SocialCommentManager commentManager;
+	private CommentManager commentManager;
 
 	@Autowired
 	private EntityManager entityManager;

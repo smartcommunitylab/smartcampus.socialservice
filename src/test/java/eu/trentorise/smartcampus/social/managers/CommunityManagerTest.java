@@ -26,10 +26,10 @@ import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/spring/applicationContext.xml",
 		"classpath:/spring/spring-security.xml" })
-public class SocialCommunityManagerTest {
+public class CommunityManagerTest {
 
 	@Autowired
-	private SocialCommunityManager communityManager;
+	private CommunityManager communityManager;
 
 	@Autowired
 	private CommunityRepository repository;

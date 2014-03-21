@@ -20,7 +20,7 @@ import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 public class PermissionManager {
 
 	@Autowired
-	SocialGroupManager groupManager;
+	GroupManager groupManager;
 
 	@Autowired
 	EntityManager entityManager;

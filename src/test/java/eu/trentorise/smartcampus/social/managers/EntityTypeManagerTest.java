@@ -22,10 +22,10 @@ import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/spring/applicationContext.xml",
 		"classpath:/spring/spring-security.xml" })
-public class SocialTypeManagerTest {
+public class EntityTypeManagerTest {
 
 	@Autowired
-	SocialTypeManager entityTypeManager;
+	EntityTypeManager entityTypeManager;
 
 	@Autowired
 	EntityManager entityManager;

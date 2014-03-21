@@ -17,14 +17,14 @@ import org.springframework.util.StringUtils;
 import eu.trentorise.smartcampus.social.engine.EntityTypeOperations;
 import eu.trentorise.smartcampus.social.engine.beans.EntityType;
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
-import eu.trentorise.smartcampus.social.engine.model.SocialType;
-import eu.trentorise.smartcampus.social.engine.repo.SocialTypeRepository;
+import eu.trentorise.smartcampus.social.engine.model.SocialEntityType;
+import eu.trentorise.smartcampus.social.engine.repo.EntityTypeRepository;
 import eu.trentorise.smartcampus.social.engine.utils.CustomStringList;
 import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
 @Component
 @Transactional
-public class SocialTypeManager implements EntityTypeOperations {
+public class EntityTypeManager implements EntityTypeOperations {
 
 	private static final ArrayList<String> allowedMimeType = new CustomStringList(
 			Arrays.asList("image/jpg", "image/gif", "image/tif", "image/png",
@@ -41,14 +41,14 @@ public class SocialTypeManager implements EntityTypeOperations {
 					"text/pdf"));
 	private static final String[] SORTEABLE_PARAMS = { "id", "name", "mimeType" };
 	@Autowired
-	SocialTypeRepository typeRepository;
+	EntityTypeRepository typeRepository;
 
 	private static final Logger logger = Logger
-			.getLogger(SocialGroupManager.class);
+			.getLogger(GroupManager.class);
 
 	@Override
 	public EntityType create(String name, String mimeType) {
-		SocialType newType = null;
+		SocialEntityType newType = null;
 		EntityType createdType = null;
 		if (!StringUtils.hasLength(name)) {
 			throw new IllegalArgumentException(
@@ -63,14 +63,14 @@ public class SocialTypeManager implements EntityTypeOperations {
 		String normalizedName = RepositoryUtils.normalizeString(name);
 		String normalizedMimeType = RepositoryUtils
 				.normalizeStringLowerCase(mimeType);
-		List<SocialType> findedTypes = typeRepository
+		List<SocialEntityType> findedTypes = typeRepository
 				.findByNameIgnoreCaseAndMimeType(normalizedName,
 						normalizedMimeType);
 		if (findedTypes == null || findedTypes.size() == 0) { // If there is not
 																// a type like
 																// the "newType"
 																// i create it
-			newType = new SocialType(normalizedName, normalizedMimeType);
+			newType = new SocialEntityType(normalizedName, normalizedMimeType);
 			if (checkMimeType(mimeType)) {
 				createdType = typeRepository.save(newType).toEntityType();
 				if (createdType != null) {
@@ -99,7 +99,7 @@ public class SocialTypeManager implements EntityTypeOperations {
 	@Override
 	public EntityType readType(String entityTypeId) {
 		if (StringUtils.hasLength(entityTypeId)) {
-			SocialType readedType = typeRepository.findOne(RepositoryUtils
+			SocialEntityType readedType = typeRepository.findOne(RepositoryUtils
 					.convertId(entityTypeId));
 			if (readedType != null) {
 				return readedType.toEntityType();
@@ -128,10 +128,10 @@ public class SocialTypeManager implements EntityTypeOperations {
 					"MimeType '%s'exception. Not allowed.", mimeType));
 		}
 
-		SocialType updatedType = null;
+		SocialEntityType updatedType = null;
 		String normalizedMimeType = RepositoryUtils
 				.normalizeStringLowerCase(mimeType);
-		SocialType readedType = typeRepository.findOne(RepositoryUtils
+		SocialEntityType readedType = typeRepository.findOne(RepositoryUtils
 				.convertId(entityTypeId));
 		if (readedType != null) {
 			String name = readedType.getName();
@@ -157,9 +157,9 @@ public class SocialTypeManager implements EntityTypeOperations {
 		List<EntityType> readedTypes = null;
 		if (StringUtils.hasLength(name) && StringUtils.hasLength(mimeType)) {
 			String normalizedName = RepositoryUtils.normalizeString(name);
-			List<SocialType> findedTypes = typeRepository
+			List<SocialEntityType> findedTypes = typeRepository
 					.findByNameIgnoreCaseAndMimeType(normalizedName, mimeType);
-			SocialType readedType = null;
+			SocialEntityType readedType = null;
 			if (findedTypes != null && findedTypes.size() > 0) {
 				readedType = findedTypes.get(0);
 				return readedType.toEntityType();
@@ -187,7 +187,7 @@ public class SocialTypeManager implements EntityTypeOperations {
 	public List<EntityType> readTypes(Limit limit) {
 		PageRequest page = null;
 		Sort sort = null;
-		Iterable<SocialType> readedTypes = null;
+		Iterable<SocialEntityType> readedTypes = null;
 		if (limit != null) {
 			if (limit.getSortList() != null && !limit.getSortList().isEmpty()) {
 				sort = new Sort(limit.getDirection() == 0 ? Direction.ASC
@@ -218,13 +218,13 @@ public class SocialTypeManager implements EntityTypeOperations {
 			logger.warn("No entityType found in db");
 			return null;
 		}
-		return SocialType.toEntityType(readedTypes);
+		return SocialEntityType.toEntityType(readedTypes);
 	}
 
 	@Override
 	public List<EntityType> readTypesByName(String name, Limit limit) {
 		PageRequest page = null;
-		List<SocialType> readedTypes = null;
+		List<SocialEntityType> readedTypes = null;
 		if (StringUtils.hasLength(name)) {
 			String normalizedName = RepositoryUtils.normalizeString(name);
 			if (limit != null) {
@@ -262,14 +262,14 @@ public class SocialTypeManager implements EntityTypeOperations {
 		} else {
 			logger.error("Void type 'name' passed to the function.");
 		}
-		return SocialType.toEntityType(readedTypes);
+		return SocialEntityType.toEntityType(readedTypes);
 
 	}
 
 	@Override
 	public List<EntityType> readTypesByMimeType(String mimeType, Limit limit) {
 		PageRequest page = null;
-		List<SocialType> readedTypes = null;
+		List<SocialEntityType> readedTypes = null;
 		if (StringUtils.hasLength(mimeType)) {
 			if (limit != null) {
 				if (limit.getPage() >= 0 && limit.getPageSize() > 0) {
@@ -305,14 +305,14 @@ public class SocialTypeManager implements EntityTypeOperations {
 		} else {
 			logger.error("Void type 'mimeType' passed to the function.");
 		}
-		return SocialType.toEntityType(readedTypes);
+		return SocialEntityType.toEntityType(readedTypes);
 	}
 
 	// Only for tests
 	@Override
 	public boolean deleteType(String entityTypeId) {
 		if (StringUtils.hasLength(entityTypeId)) {
-			SocialType type = typeRepository.findOne(RepositoryUtils
+			SocialEntityType type = typeRepository.findOne(RepositoryUtils
 					.convertId(entityTypeId));
 			if (type != null) {
 				// here I have to check if the type is used in a specific entity

@@ -24,7 +24,7 @@ public class RatingManager implements RatingOperations {
 	RatingRepository ratingRepo;
 
 	@Autowired
-	SocialUserManager userManager;
+	UserManager userManager;
 
 	@Override
 	public boolean delete(String entityURI, String userId) {
