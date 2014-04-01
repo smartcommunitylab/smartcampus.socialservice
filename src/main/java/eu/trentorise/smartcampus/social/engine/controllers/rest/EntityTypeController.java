@@ -57,7 +57,7 @@ public class EntityTypeController extends RestController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/type")
 	public @ResponseBody
-	Result getEntityTypeBySuggestions(
+	Result getEntityTypes(
 			@RequestParam(value = "mimeType", required = false) String mimeType,
 			@RequestParam(value = "pageNum", required = false) Integer pageNum,
 			@RequestParam(value = "pageSize", required = false) Integer pageSize,
