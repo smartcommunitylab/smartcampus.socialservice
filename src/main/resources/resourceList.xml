@@ -13,6 +13,8 @@
 	<resource id="commentId" />
 	<resource id="entityId" />
 	<resource id="appId" />
+	<resource id="userId" />
+	<resource id="uri" />
 
 	<!-- user groups -->
 	<resourceMapping uri="socialservice.user.group.read"
@@ -50,32 +52,59 @@
 
 
 	<!-- sharing -->
-	<resourceMapping uri="socialservice.user.entities.write"
-		pathPattern="/user/{appId}/entity" method="POST" />
+	
+	<!-- creation entity -->
+	<resourceMapping uri="socialservice.user.{appId}.entities.write"
+		pathPattern="/app/{appId}/{userId}/entity/create" method="POST" />
+	
+	<!-- update entity -->
+	<resourceMapping uri="socialservice.user.{appId}.entities.manage"
+		pathPattern="/app/{appId}/{userId}/entity/update" method="PUT" />
+	
+	<resourceMapping uri="socialservice.user.{appId}.entities.manage"
+		pathPattern="/user/{appId}/entity/update" method="PUT" />
+	
+	
 	<resourceMapping uri="socialservice.community.{appId}.entities.write"
 		pathPattern="/app/{appId}/community/{communityId}/entity" method="POST" />
+	
 	<resourceMapping uri="socialservice.user.entities.read"
 		pathPattern="/user/entity" method="GET" />
+	
 	<resourceMapping uri="socialservice.user.{appId}.entities.read"
 		pathPattern="/user/{appId}/entity" method="GET" />
+	
 	<resourceMapping uri="socialservice.user.entities.read"
 		pathPattern="/user/{appId}/entity/{entityId}" method="GET" />
+	
 	<resourceMapping uri="socialservice.community.{appId}.entities.read"
 		pathPattern="/app/{appId}/community/{communityId}/entity" method="GET" />
+	
 	<resourceMapping uri="socialservice.community.{appId}.entities.read"
 		pathPattern="/app/{appId}/community/{communityId}/entity/{entityId}"
 		method="GET" />
+	
 	<resourceMapping uri="socialservice.user.{appId}.shared.read"
 		pathPattern="/user/{appId}/shared" method="GET" />
+	
 	<resourceMapping uri="socialservice.user.shared.read"
 		pathPattern="/user/shared" method="GET" />
+	
 	<resourceMapping uri="socialservice.user.shared.read"
 		pathPattern="/user/{appId}/shared/{entityId}" method="GET" />
+	
 	<resourceMapping uri="socialservice.community.{appId}.shared.read"
 		pathPattern="/app/{appId}/community/{communityId}/shared" method="GET" />
+	
 	<resourceMapping uri="socialservice.community.{appId}.shared.read"
 		pathPattern="/app/{appId}/community/{communityId}/shared/{entityId}"
 		method="GET" />
+	
+	
+	<resourceMapping uri="socialservice.app.entity.info"
+		pathPattern="/app/entity/{uri}/info"
+		method="GET" />
+	
 
 	<!-- resource types -->
 	<resourceMapping uri="socialservice.type.all"

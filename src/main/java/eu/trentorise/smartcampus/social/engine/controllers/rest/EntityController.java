@@ -42,17 +42,55 @@ public class EntityController extends RestController {
 	@Autowired
 	EntityManager entityManager;
 
-	@RequestMapping(method = RequestMethod.POST, value = "/user/{appId}/entity")
+	@RequestMapping(method = RequestMethod.POST, value = "/app/{appId}/{userId}/entity/create")
 	public @ResponseBody
-	Result createOrUpdate(@PathVariable String appId, @RequestBody Entity entity) {
+	Result createOrUpdate(@PathVariable String appId,
+			@PathVariable String userId, @RequestBody Entity entity) {
 
-		if (!permissionManager.checkEntityPermission(getUserId(),
+		if (!permissionManager.checkEntityPermission(userId,
 				StringUtils.hasText(entity.getUri()) ? entity.getUri()
 						: entityManager.defineUri(appId, entity), false)) {
 			throw new SecurityException();
 		}
 		// set owner
-		entity.setOwner(getUserId());
+		entity.setOwner(userId);
+		return new Result(entityManager.saveOrUpdate(appId, entity));
+	}
+
+	@RequestMapping(method = RequestMethod.PUT, value = "/app/{appId}/{userId}/entity/update")
+	public @ResponseBody
+	Result updateByApp(@PathVariable String appId, @PathVariable String userId,
+			@RequestBody Entity entity) {
+
+		String uri = StringUtils.hasText(entity.getUri()) ? entity.getUri()
+				: entityManager.defineUri(appId, entity);
+
+		if (!permissionManager.checkEntityPermission(userId, uri, false)) {
+			throw new SecurityException("Invalid access to entity");
+		}
+
+		if (entityManager.readEntity(uri) == null) {
+			throw new IllegalArgumentException("Entity not exist");
+		}
+
+		return new Result(entityManager.saveOrUpdate(appId, entity));
+	}
+
+	@RequestMapping(method = RequestMethod.PUT, value = "/user/{appId}/entity/update")
+	public @ResponseBody
+	Result updateByUser(@PathVariable String appId, @RequestBody Entity entity) {
+
+		String uri = StringUtils.hasText(entity.getUri()) ? entity.getUri()
+				: entityManager.defineUri(appId, entity);
+
+		if (!permissionManager.checkEntityPermission(getUserId(), uri, false)) {
+			throw new SecurityException("Invalid access to entity");
+		}
+
+		if (entityManager.readEntity(uri) == null) {
+			throw new IllegalArgumentException("Entity not exist");
+		}
+
 		return new Result(entityManager.saveOrUpdate(appId, entity));
 	}
 
@@ -71,6 +109,13 @@ public class EntityController extends RestController {
 		// set owner
 		entity.setCommunityOwner(communityId);
 		return new Result(entityManager.saveOrUpdate(appId, entity));
+	}
+
+	@RequestMapping(method = RequestMethod.GET, value = "/app/entity/{uri}/info")
+	public @ResponseBody
+	Result gigaMethod(@PathVariable String uri) {
+		Entity entity = entityManager.readEntity(uri);
+		return new Result(entity == null ? null : entity.toEntityInfo());
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/user/entity")
@@ -168,8 +213,12 @@ public class EntityController extends RestController {
 			@RequestParam(value = "toDate", required = false) Long toDate,
 			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
 			@RequestParam(value = "sortList", required = false) Set<String> sortList) {
-		return new Result(entityManager.readShared(getUserId(), false, null,
-				setLimit(pageNum, pageSize, fromDate, toDate, sortDirection, sortList)));
+		return new Result(entityManager.readShared(
+				getUserId(),
+				false,
+				null,
+				setLimit(pageNum, pageSize, fromDate, toDate, sortDirection,
+						sortList)));
 
 	}
 

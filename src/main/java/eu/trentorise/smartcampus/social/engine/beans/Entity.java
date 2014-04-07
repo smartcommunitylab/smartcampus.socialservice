@@ -108,4 +108,18 @@ public class Entity {
 		this.totalVoters = totalVoters;
 	}
 
+	public EntityInfo toEntityInfo() {
+		EntityInfo info = new EntityInfo();
+		info.setUri(uri);
+		info.setLocalId(localId);
+		try {
+			info.setAppId(uri != null ? uri.substring(0, uri.indexOf("."))
+					: null);
+		} catch (IndexOutOfBoundsException e) {
+			info.setAppId(null);
+		}
+		info.setUserOwner(owner);
+		info.setCommunityOwner(communityOwner);
+		return info;
+	}
 }
