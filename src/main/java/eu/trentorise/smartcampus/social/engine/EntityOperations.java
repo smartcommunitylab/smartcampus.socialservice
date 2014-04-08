@@ -39,4 +39,8 @@ public interface EntityOperations {
 
 	public Entity readEntity(String uri);
 
+	// manage
+
+	public boolean deleteEntity(String uri);
+
 }

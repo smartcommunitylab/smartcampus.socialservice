@@ -11,7 +11,7 @@
 
 	<resource id="communityId" />
 	<resource id="commentId" />
-	<resource id="entityId" />
+	<resource id="localId" />
 	<resource id="appId" />
 	<resource id="userId" />
 	<resource id="uri" />
@@ -64,6 +64,12 @@
 	<resourceMapping uri="socialservice.user.{appId}.entities.manage"
 		pathPattern="/user/{appId}/entity/update" method="PUT" />
 	
+	<!-- delete entity -->
+	<resourceMapping uri="socialservice.app.{appId}.entities.manage"
+		pathPattern="/app/{appId}/entity/{localId}" method="DELETE" />
+	
+	<resourceMapping uri="socialservice.user.{appId}.entities.manage"
+		pathPattern="/user/{appId}/entity/{localId}" method="DELETE" />
 	
 	<resourceMapping uri="socialservice.community.{appId}.entities.write"
 		pathPattern="/app/{appId}/community/{communityId}/entity" method="POST" />
@@ -75,13 +81,13 @@
 		pathPattern="/user/{appId}/entity" method="GET" />
 	
 	<resourceMapping uri="socialservice.user.entities.read"
-		pathPattern="/user/{appId}/entity/{entityId}" method="GET" />
+		pathPattern="/user/{appId}/entity/{localId}" method="GET" />
 	
 	<resourceMapping uri="socialservice.community.{appId}.entities.read"
 		pathPattern="/app/{appId}/community/{communityId}/entity" method="GET" />
 	
 	<resourceMapping uri="socialservice.community.{appId}.entities.read"
-		pathPattern="/app/{appId}/community/{communityId}/entity/{entityId}"
+		pathPattern="/app/{appId}/community/{communityId}/entity/{localId}"
 		method="GET" />
 	
 	<resourceMapping uri="socialservice.user.{appId}.shared.read"
@@ -91,13 +97,13 @@
 		pathPattern="/user/shared" method="GET" />
 	
 	<resourceMapping uri="socialservice.user.shared.read"
-		pathPattern="/user/{appId}/shared/{entityId}" method="GET" />
+		pathPattern="/user/{appId}/shared/{localId}" method="GET" />
 	
 	<resourceMapping uri="socialservice.community.{appId}.shared.read"
 		pathPattern="/app/{appId}/community/{communityId}/shared" method="GET" />
 	
 	<resourceMapping uri="socialservice.community.{appId}.shared.read"
-		pathPattern="/app/{appId}/community/{communityId}/shared/{entityId}"
+		pathPattern="/app/{appId}/community/{communityId}/shared/{localId}"
 		method="GET" />
 	
 	

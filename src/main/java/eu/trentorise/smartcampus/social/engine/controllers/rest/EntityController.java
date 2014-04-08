@@ -50,7 +50,7 @@ public class EntityController extends RestController {
 		if (!permissionManager.checkEntityPermission(userId,
 				StringUtils.hasText(entity.getUri()) ? entity.getUri()
 						: entityManager.defineUri(appId, entity), false)) {
-			throw new SecurityException();
+			throw new SecurityException("Invalid access to entity");
 		}
 		// set owner
 		entity.setOwner(userId);
@@ -74,6 +74,26 @@ public class EntityController extends RestController {
 		}
 
 		return new Result(entityManager.saveOrUpdate(appId, entity));
+	}
+
+	@RequestMapping(method = RequestMethod.DELETE, value = "/user/{appId}/entity/{localId}")
+	public @ResponseBody
+	Result deleteByUser(@PathVariable String appId, @PathVariable String localId) {
+
+		if (!permissionManager.checkEntityPermission(getUserId(),
+				entityManager.defineUri(appId, localId), false)) {
+			throw new SecurityException("Invalid access to entity");
+		}
+
+		return new Result(entityManager.deleteEntity(entityManager.defineUri(
+				appId, localId)));
+	}
+
+	@RequestMapping(method = RequestMethod.DELETE, value = "/app/{appId}/entity/{localId}")
+	public @ResponseBody
+	Result deleteByApp(@PathVariable String appId, @PathVariable String localId) {
+		return new Result(entityManager.deleteEntity(entityManager.defineUri(
+				appId, localId)));
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/{appId}/entity/update")
@@ -103,7 +123,7 @@ public class EntityController extends RestController {
 				|| !permissionManager.checkEntityPermission(communityId,
 						StringUtils.hasText(entity.getUri()) ? entity.getUri()
 								: entityManager.defineUri(appId, entity), true)) {
-			throw new SecurityException();
+			throw new SecurityException("you not manage the community");
 		}
 
 		// set owner
@@ -113,7 +133,7 @@ public class EntityController extends RestController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/app/entity/{uri}/info")
 	public @ResponseBody
-	Result gigaMethod(@PathVariable String uri) {
+	Result getEntityInfo(@PathVariable String uri) {
 		Entity entity = entityManager.readEntity(uri);
 		return new Result(entity == null ? null : entity.toEntityInfo());
 	}
@@ -159,7 +179,7 @@ public class EntityController extends RestController {
 
 		if (!permissionManager.checkEntityPermission(getUserId(),
 				entityManager.defineUri(appId, localId), false)) {
-			throw new SecurityException();
+			throw new SecurityException("invalid acces to entity");
 		}
 
 		return new Result(entityManager.readEntity(entityManager.defineUri(
@@ -179,7 +199,7 @@ public class EntityController extends RestController {
 			@RequestParam(value = "sortList", required = false) Set<String> sortList) {
 
 		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
-			throw new SecurityException();
+			throw new SecurityException("you not manage the community");
 		}
 		return new Result(entityManager.readEntities(
 				null,
@@ -197,7 +217,7 @@ public class EntityController extends RestController {
 		if (!permissionManager.checkCommunityPermission(appId, communityId)
 				|| !permissionManager.checkEntityPermission(communityId,
 						entityManager.defineUri(appId, localId), true)) {
-			throw new SecurityException();
+			throw new SecurityException("you not manage the community");
 		}
 
 		return new Result(entityManager.readEntity(entityManager.defineUri(
@@ -262,7 +282,7 @@ public class EntityController extends RestController {
 			@RequestParam(value = "sortList", required = false) Set<String> sortList) {
 
 		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
-			throw new SecurityException();
+			throw new SecurityException("you not manage the community");
 		}
 		return new Result(entityManager.readShared(
 				communityId,
@@ -278,7 +298,7 @@ public class EntityController extends RestController {
 			@PathVariable String communityId, @PathVariable String localId) {
 
 		if (!permissionManager.checkCommunityPermission(appId, communityId)) {
-			throw new SecurityException();
+			throw new SecurityException("you not manage the community");
 		}
 		return new Result(entityManager.readShared(communityId, true,
 				entityManager.defineUri(appId, localId)));

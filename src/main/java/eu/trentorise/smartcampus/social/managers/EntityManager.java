@@ -41,8 +41,8 @@ import eu.trentorise.smartcampus.social.engine.model.SocialGroup;
 import eu.trentorise.smartcampus.social.engine.model.SocialUser;
 import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.EntityRepository;
-import eu.trentorise.smartcampus.social.engine.repo.GroupRepository;
 import eu.trentorise.smartcampus.social.engine.repo.EntityTypeRepository;
+import eu.trentorise.smartcampus.social.engine.repo.GroupRepository;
 import eu.trentorise.smartcampus.social.engine.utils.RepositoryUtils;
 
 @Component
@@ -415,5 +415,11 @@ public class EntityManager implements EntityOperations {
 		}
 
 		return entity != null ? entity.toEntity(true) : null;
+	}
+
+	@Override
+	public boolean deleteEntity(String uri) {
+		entityRepository.delete(uri);
+		return true;
 	}
 }

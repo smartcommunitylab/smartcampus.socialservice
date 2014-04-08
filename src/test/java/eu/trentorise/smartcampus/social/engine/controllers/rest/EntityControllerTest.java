@@ -16,6 +16,7 @@
 
 package eu.trentorise.smartcampus.social.engine.controllers.rest;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -139,6 +140,24 @@ public class EntityControllerTest extends SCControllerTest {
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
 				jsonPath("$.data.name").value("entity share"));
+
+		// delete entity
+		request = setDefaultRequest(
+				delete("/user/{appId}/entity/{localId}", APPID_1,
+						entity.getLocalId()), Scope.USER);
+		response = mockMvc.perform(request);
+		setDefaultResult(response).andExpect(jsonPath("$.data").value(true));
+
+		request = setDefaultRequest(
+				post("/app/{appId}/{userId}/entity/create", APPID_1, USERID),
+				Scope.CLIENT).content(convertObjectToJsonString(entity));
+		response = mockMvc.perform(request);
+
+		request = setDefaultRequest(
+				delete("/app/{appId}/entity/{localId}", APPID_1,
+						entity.getLocalId()), Scope.CLIENT);
+		response = mockMvc.perform(request);
+
 	}
 
 	@Test
