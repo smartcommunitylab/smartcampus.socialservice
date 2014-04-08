@@ -54,11 +54,11 @@
 	<!-- sharing -->
 	
 	<!-- creation entity -->
-	<resourceMapping uri="socialservice.user.{appId}.entities.write"
+	<resourceMapping uri="socialservice.app.{appId}.entities.write"
 		pathPattern="/app/{appId}/{userId}/entity/create" method="POST" />
 	
 	<!-- update entity -->
-	<resourceMapping uri="socialservice.user.{appId}.entities.manage"
+	<resourceMapping uri="socialservice.app.{appId}.entities.manage"
 		pathPattern="/app/{appId}/{userId}/entity/update" method="PUT" />
 	
 	<resourceMapping uri="socialservice.user.{appId}.entities.manage"
