@@ -103,10 +103,14 @@ public class PermissionManager {
 		SocialEntity entity = entityRepo.findOne(uri);
 		if (isCommunity) {
 			return entity == null
-					|| entity.getCommunityOwner().getId().toString()
-							.equals(ownerId);
+					|| (entity.getCommunitiesSharedWith() != null
+							&& entity.getCommunityOwner() != null && entity
+							.getCommunityOwner().getId().toString()
+							.equals(ownerId));
 		} else {
-			return entity == null || entity.getOwner().getId().equals(ownerId);
+			return entity == null
+					|| (entity.getOwner() != null && entity.getOwner().getId()
+							.equals(ownerId));
 		}
 	}
 
