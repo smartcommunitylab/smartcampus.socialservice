@@ -16,6 +16,8 @@
 
 package eu.trentorise.smartcampus.social.engine.beans;
 
+import eu.trentorise.smartcampus.social.managers.EntityManager;
+
 public class Entity {
 	private String name;
 	private String owner;
@@ -113,8 +115,8 @@ public class Entity {
 		info.setUri(uri);
 		info.setLocalId(localId);
 		try {
-			info.setAppId(uri != null ? uri.substring(0, uri.indexOf("."))
-					: null);
+			info.setAppId(uri != null ? uri.substring(0,
+					uri.indexOf(EntityManager.URI_CONCAT_CHAR)) : null);
 		} catch (IndexOutOfBoundsException e) {
 			info.setAppId(null);
 		}

@@ -51,6 +51,8 @@ public class EntityManager implements EntityOperations {
 
 	private static final Logger logger = Logger.getLogger(EntityManager.class);
 
+	public static final String URI_CONCAT_CHAR = "-";
+
 	@Autowired
 	EntityRepository entityRepository;
 
@@ -304,7 +306,7 @@ public class EntityManager implements EntityOperations {
 			throw new IllegalArgumentException("localId should be valid");
 		}
 
-		return namespace + "." + localId;
+		return namespace + URI_CONCAT_CHAR + localId;
 	}
 
 	public static Visibility getVisibility(SocialEntity entity) {

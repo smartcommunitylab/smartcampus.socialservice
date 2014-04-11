@@ -50,6 +50,7 @@ import eu.trentorise.smartcampus.social.engine.repo.CommunityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.EntityRepository;
 import eu.trentorise.smartcampus.social.engine.repo.EntityTypeRepository;
 import eu.trentorise.smartcampus.social.managers.CommunityManager;
+import eu.trentorise.smartcampus.social.managers.EntityManager;
 import eu.trentorise.smartcampus.social.managers.EntityTypeManager;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -86,6 +87,9 @@ public class EntityControllerTest extends SCControllerTest {
 	@Autowired
 	CommunityRepository communityRepo;
 
+	@Autowired
+	EntityManager entityManager;
+
 	@Before
 	public void setup() throws Exception {
 		this.mockMvc = webAppContextSetup(this.wac).addFilter(
@@ -119,8 +123,8 @@ public class EntityControllerTest extends SCControllerTest {
 		response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
 				jsonPath("$.data.uri").value(
-						APPID_1 + "." + entity.getLocalId())).andExpect(
-				jsonPath("$.data.owner").value("1"));
+						entityManager.defineUri(APPID_1, entity.getLocalId())))
+				.andExpect(jsonPath("$.data.owner").value("1"));
 
 		request = setDefaultRequest(get("/user/entity"), Scope.USER);
 		response = mockMvc.perform(request);
@@ -175,7 +179,7 @@ public class EntityControllerTest extends SCControllerTest {
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response);
 
-		String uri = APPID_1 + ".3455";
+		String uri = entityManager.defineUri(APPID_1, "3455");
 		request = setDefaultRequest(get("/app/entity/{uri}/info", uri),
 				Scope.CLIENT);
 		response = mockMvc.perform(request);
@@ -194,7 +198,7 @@ public class EntityControllerTest extends SCControllerTest {
 				convertObjectToJsonString(entity));
 		response = mockMvc.perform(request);
 
-		uri = APPID_1 + ".5555";
+		uri = entityManager.defineUri(APPID_1, "5555");
 		request = setDefaultRequest(get("/app/entity/{uri}/info", uri),
 				Scope.CLIENT);
 		response = mockMvc.perform(request);
@@ -301,7 +305,8 @@ public class EntityControllerTest extends SCControllerTest {
 		MvcResult result = setDefaultResult(response)
 				.andExpect(
 						jsonPath("$.data.uri").value(
-								APPID_1 + "." + entity.getLocalId()))
+								entityManager.defineUri(APPID_1,
+										entity.getLocalId())))
 				.andExpect(
 						jsonPath("$.data.communityOwner").value(
 								community.getId())).andReturn();
@@ -408,7 +413,8 @@ public class EntityControllerTest extends SCControllerTest {
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
 				jsonPath("$.data", Matchers.hasSize(8))).andExpect(
-				jsonPath("$.data[0].uri").value("space2.34552"));
+				jsonPath("$.data[0].uri").value(
+						entityManager.defineUri(APPID_2, "34552")));
 
 		request = setDefaultRequest(get("/user/{appId}/entity", APPID_1),
 				Scope.USER);
