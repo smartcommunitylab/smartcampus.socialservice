@@ -99,6 +99,10 @@
 	<resourceMapping uri="socialservice.user.shared.read"
 		pathPattern="/user/{appId}/shared/{localId}" method="GET" />
 	
+	<resourceMapping uri="socialservice.user.shared.read"
+		pathPattern="/user/shared/{uri}" method="GET" />
+	
+	
 	<resourceMapping uri="socialservice.community.{appId}.shared.read"
 		pathPattern="/app/{appId}/community/{communityId}/shared" method="GET" />
 	
