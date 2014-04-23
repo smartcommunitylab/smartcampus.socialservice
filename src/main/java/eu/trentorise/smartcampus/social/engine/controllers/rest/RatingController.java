@@ -59,7 +59,8 @@ public class RatingController extends RestController {
 			@PathVariable String localId) {
 		String userId = getUserId();
 		String entityURI = entityManager.defineUri(appId, localId);
-		if (!permissionManager.checkSharingPermission(entityURI, userId)) {
+		if (!permissionManager.checkEntityPermission(userId, entityURI, false)
+				&& !permissionManager.checkSharingPermission(entityURI, userId)) {
 			throw new SecurityException();
 		}
 		return new Result(ratingManager.rate(entityURI, userId,
