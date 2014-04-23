@@ -54,13 +54,12 @@ public class EntityTypeManager implements EntityTypeOperations {
 					"video/mpg", "video/rm", "video/srt", "video/swf",
 					"video/vob", "video/wmv", "application/zip", "text/doc",
 					"text/plain", "text/txt", "text/xml", "text/rtf",
-					"text/pdf"));
+					"text/pdf", "application/octet-stream"));
 	private static final String[] SORTEABLE_PARAMS = { "id", "name", "mimeType" };
 	@Autowired
 	EntityTypeRepository typeRepository;
 
-	private static final Logger logger = Logger
-			.getLogger(GroupManager.class);
+	private static final Logger logger = Logger.getLogger(EntityTypeManager.class);
 
 	@Override
 	public EntityType create(String name, String mimeType) {
@@ -115,8 +114,8 @@ public class EntityTypeManager implements EntityTypeOperations {
 	@Override
 	public EntityType readType(String entityTypeId) {
 		if (StringUtils.hasLength(entityTypeId)) {
-			SocialEntityType readedType = typeRepository.findOne(RepositoryUtils
-					.convertId(entityTypeId));
+			SocialEntityType readedType = typeRepository
+					.findOne(RepositoryUtils.convertId(entityTypeId));
 			if (readedType != null) {
 				return readedType.toEntityType();
 			}
