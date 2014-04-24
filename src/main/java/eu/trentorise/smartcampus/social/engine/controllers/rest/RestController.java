@@ -288,20 +288,15 @@ public class RestController extends SCController {
 	 *         comment object returned from the query
 	 */
 	protected String getJSONStringResult(String serverResponse) {
-		String commentList = "";
+		String commentList = null;
 		try {
 			// here I have to read the content of rows in json output
 			JSONObject jsonResult = new JSONObject(serverResponse);
 			commentList = jsonResult.getString("results");
-			// commentList = commentList.substring(commentList.indexOf("[")+1,
-			// commentList.indexOf("]"));
-			// if(commentList.compareTo("") == 0){
-			// commentList = "null";
-			// }
 		} catch (JSONException ex) {
-			ex.printStackTrace();
+			logger.error("Exception parsing mongoose response: "
+					+ serverResponse);
 		}
 		return commentList;
 	}
-
 }
