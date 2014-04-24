@@ -17,7 +17,6 @@
 package eu.trentorise.smartcampus.social.engine.controllers.rest;
 
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -43,8 +42,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.context.WebApplicationContext;
 
 import eu.trentorise.smartcampus.social.engine.beans.Comment;
-import eu.trentorise.smartcampus.social.managers.EntityManager;
 import eu.trentorise.smartcampus.social.managers.CommentManager;
+import eu.trentorise.smartcampus.social.managers.EntityManager;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -174,18 +173,6 @@ public class CommentControllerTest extends SCControllerTest {
 	}
 
 	@Test
-	public void readComments() throws Exception {
-		RequestBuilder request = setDefaultRequest(get("/user/comment"),
-				Scope.USER);
-		ResultActions response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				content().string(
-						allOf(containsString(COMMENT_TEST1),
-								containsString(COMMENT_TEST2),
-								containsString(COMMENT_TEST3))));
-	}
-
-	@Test
 	public void readCommentById() throws Exception {
 		String id = COMMENTID_TEST1;
 		RequestBuilder request = setDefaultRequest(
@@ -193,13 +180,6 @@ public class CommentControllerTest extends SCControllerTest {
 		ResultActions response = mockMvc.perform(request);
 		setDefaultResult(response).andExpect(
 				content().string(containsString(COMMENT_TEST1)));
-
-		// null passed
-		id = null;
-		request = setDefaultRequest(get("/user/comment/{commentId}", id),
-				Scope.USER);
-		response = mockMvc.perform(request);
-		setDefaultResult(response);
 	}
 
 	@Test
@@ -235,69 +215,6 @@ public class CommentControllerTest extends SCControllerTest {
 				get("/user/{appId}/comment/{localId}", null, null), Scope.USER);
 		ResultActions response = mockMvc.perform(request);
 		setForbiddenException(response);
-	}
-
-	@Test
-	public void readCommentsByAuthor() throws Exception {
-		RequestBuilder request = setDefaultRequest(get("/user/comment"),
-				Scope.USER).param("author", NAME_SURNAME);
-		ResultActions response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				content().string(
-						allOf(containsString(COMMENT_TEST1),
-								containsString(COMMENT_TEST2),
-								containsString(COMMENT_TEST3))));
-
-		// add pagination
-		request = setDefaultRequest(get("/user/comment"), Scope.USER)
-				.param("author", NAME_SURNAME).param("pageNum", "1")
-				.param("pageSize", "5");
-		response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				content().string(
-						anyOf(containsString(COMMENT_TEST1),
-								containsString(COMMENT_TEST2),
-								containsString(COMMENT_TEST3))));
-
-		// add sort
-		request = setDefaultRequest(get("/user/comment"), Scope.USER)
-				.param("author", NAME_SURNAME).param("pageNum", "1")
-				.param("pageSize", "5").param("sortList", "creationTime")
-				.param("sortDirection", "-1");
-		response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				content().string(
-						anyOf(containsString(COMMENT_TEST1),
-								containsString(COMMENT_TEST2),
-								containsString(COMMENT_TEST3))));
-
-		// add time limit
-		Long now = System.currentTimeMillis();
-		Long yesterday = now - 86400000;
-		Long tomorrow = now + 86400000;
-		request = setDefaultRequest(get("/user/comment"), Scope.USER)
-				.param("author", NAME_SURNAME)
-				.param("fromDate", yesterday.toString())
-				.param("toDate", tomorrow.toString());
-		response = mockMvc.perform(request);
-		setDefaultResult(response).andExpect(
-				content().string(
-						anyOf(containsString(COMMENT_TEST1),
-								containsString(COMMENT_TEST2),
-								containsString(COMMENT_TEST3))));
-
-		// author not exists
-		request = setDefaultRequest(get("/user/comment"), Scope.USER).param(
-				"author", NAME_SURNAME_NE);
-		response = mockMvc.perform(request);
-		setVoidResult(response);
-
-		// author null
-		String nullAuthor = null;
-		request = setDefaultRequest(get("/user/comment"), Scope.USER).param(
-				"author", nullAuthor);
-		response = mockMvc.perform(request);
-		setDefaultResult(response);
 	}
 
 	@Test

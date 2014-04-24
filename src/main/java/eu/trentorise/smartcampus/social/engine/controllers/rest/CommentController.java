@@ -85,148 +85,23 @@ public class CommentController extends RestController {
 	private static final String ENTITY_URI = "entityURI";
 	private static final String COMMENT_TEXT = "commentText";
 
-	@RequestMapping(method = RequestMethod.GET, value = "/user/comment")
-	public @ResponseBody
-	Result getUserComments(
-			@RequestParam(value = "author", required = false) String author,
-			@RequestParam(value = "pageNum", required = false) Integer pageNum,
-			@RequestParam(value = "pageSize", required = false) Integer pageSize,
-			@RequestParam(value = "fromDate", required = false) Long fromDate,
-			@RequestParam(value = "toDate", required = false) Long toDate,
-			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
-			@RequestParam(value = "sortList", required = false) Set<String> sortList,
-			@RequestParam(value = "findType", required = false) Integer findType)
-			throws IOException {
-		String fromServer = "";
-		Result result = null;
-
-		String uri = createUri(mongoRestHost, mongoRestPort, mongoRestDB,
-				mongoRestCollection);
-
-		// create query
-		String query = "";
-		List<String> parameters = new ArrayList<String>();
-		List<String> values = new ArrayList<String>();
-		List<Integer> types = new ArrayList<Integer>();
-		if (StringUtils.hasLength(author)) {
-			parameters.add(AUTHOR);
-			values.add(author);
-			types.add(QUERY_TYPE_STRING);
-		}
-		if (fromDate != null) {
-			parameters.add(CREATION_TIME);
-			values.add(fromDate.toString());
-			types.add(QUERY_TYPE_GT);
-		}
-		if (toDate != null) {
-			parameters.add(CREATION_TIME);
-			values.add(toDate.toString());
-			types.add(QUERY_TYPE_LT);
-		}
-		if (!parameters.isEmpty()) {
-			query = composeQuery(parameters, values, types, QUERY_AND_CONDITION);
-		}
-		// sort
-		String sort = "";
-		if (sortList != null && !sortList.isEmpty()) {
-			List<String> params = new ArrayList<String>();
-			params.addAll(sortList);
-			if (sortDirection != null) {
-				sort = orderResult(params, sortDirection.intValue());
-			} else {
-				sort = orderResult(params, 0);
-			}
-		}
-		// set limit
-		String limit = "";
-		String queryCount = "";
-		int totElements = 0;
-		if (pageNum != null) {
-			if (pageSize == null) {
-				pageSize = INIT_PAGE_SIZE;
-			}
-
-			queryCount = uri.concat(mongoCount).concat(query);
-			// create and manage the rest call for count operation
-			URL url = new URL(queryCount);
-			HttpURLConnection connection = (HttpURLConnection) url
-					.openConnection();
-			connection.setRequestMethod("GET");
-			connection.setRequestProperty("Accept", "application/json");
-
-			if (connection.getResponseCode() != 200) {
-				throw new RuntimeException("Failed : HTTP error code : "
-						+ connection.getResponseCode());
-			}
-
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					(connection.getInputStream())));
-
-			String output;
-			fromServer = "";
-			while ((output = br.readLine()) != null) {
-				fromServer = fromServer.concat(output);
-			}
-			connection.disconnect();
-
-			String tot = fromServer.substring(10, fromServer.indexOf(",")); // 10
-																			// is
-																			// the
-																			// index
-																			// of
-																			// the
-																			// "count"
-																			// string
-																			// +
-																			// size
-																			// +
-																			// 1
-																			// in
-																			// the
-																			// response
-			totElements = Integer.parseInt(tot);
-
-			// check the max page I can request
-			if (pageNum.intValue() * pageSize.intValue() > totElements) {
-				logger.error(String
-						.format("The requested page %s exceded the max available page %s",
-								pageNum.intValue(),
-								totElements / pageSize.intValue()));
-				pageNum = totElements / pageSize.intValue();
-			}
-			limit = setPagination(pageSize, pageNum);
-		}
-		uri = uri.concat(mongoQuery).concat(query).concat(sort).concat(limit);
-
-		URL url = new URL(uri);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestMethod("GET");
-		connection.setRequestProperty("Accept", "application/json");
-
-		if (connection.getResponseCode() != 200) {
-			throw new RuntimeException("Failed : HTTP error code : "
-					+ connection.getResponseCode());
-		}
-
-		BufferedReader br = new BufferedReader(new InputStreamReader(
-				(connection.getInputStream())));
-
-		String output;
-		fromServer = "";
-		while ((output = br.readLine()) != null) {
-			fromServer = fromServer.concat(output);
-		}
-		connection.disconnect();
-
-		result = new Result(getJSONStringResult(fromServer));
-		return result;
-	}
-
 	@RequestMapping(method = RequestMethod.GET, value = "/user/comment/{commentId}")
 	public @ResponseBody
-	Result getUserComment(@PathVariable String commentId,
-			@RequestParam(value = "findType", required = false) Integer findType)
-			throws IOException {
+	Result getUserComment(@PathVariable String commentId) throws IOException {
+
+		Comment comment = commentManager.readComment(commentId);
+		String entityURI = comment != null ? comment.getEntityURI() : null;
+
+		if (entityURI == null
+				|| (!permissionManager.checkEntityPermission(getUserId(),
+						entityURI, false) && !permissionManager
+						.checkSharingPermission(entityURI, getUserId()))) {
+			throw new SecurityException("Access not allowed");
+		}
+
+		// use always sleepy mongoose
+		Integer findType = 1;
+
 		Result result = null;
 		if (findType == null) { // force the usage of api rest mongodb server
 			findType = 1;
@@ -300,17 +175,26 @@ public class CommentController extends RestController {
 			@RequestParam(value = "fromDate", required = false) Long fromDate,
 			@RequestParam(value = "toDate", required = false) Long toDate,
 			@RequestParam(value = "sortDirection", required = false) Integer sortDirection,
-			@RequestParam(value = "sortList", required = false) Set<String> sortList,
-			@RequestParam(value = "findType", required = false) Integer findType)
+			@RequestParam(value = "sortList", required = false) Set<String> sortList)
 			throws IOException {
 		String fromServer = "";
 
 		String entityURI = entityManager.defineUri(appId, localId);
 		Result result = null;
 
+		if (!permissionManager.checkEntityPermission(getUserId(), entityURI,
+				false)
+				&& !permissionManager.checkSharingPermission(entityURI,
+						getUserId())) {
+			throw new SecurityException("Access not allowed");
+		}
+		// use always sleepy mongoose
+		Integer findType = 1;
+
 		if (findType == null) { // force the usage of api rest mongodb server
 			findType = 1;
 		}
+
 		if (findType == 0) {
 			// query with mongo driver in manager
 			if (StringUtils.hasLength(commentText)
@@ -485,6 +369,12 @@ public class CommentController extends RestController {
 			throws IOException {
 		String userId = getUserId();
 		String entityURI = entityManager.defineUri(appId, localId);
+
+		if (!permissionManager.checkEntityPermission(userId, entityURI, false)
+				&& !permissionManager.checkSharingPermission(entityURI, userId)) {
+			throw new SecurityException("Access not allowed");
+		}
+
 		String user = concatNameAndSurname(getUserObject(userId).getName(),
 				getUserObject(userId).getSurname());
 
@@ -516,30 +406,18 @@ public class CommentController extends RestController {
 
 	}
 
-	// Used for tests
-	@RequestMapping(method = RequestMethod.PUT, value = "/user/entity/{entityId}/comment/{commentId}")
-	public @ResponseBody
-	Result removeUserEntityComment(@PathVariable String commentId) {
-		String userId = getUserId();
-		String user = concatNameAndSurname(getUserObject(userId).getName(),
-				getUserObject(userId).getSurname());
-
-		// check permission
-		if (!permissionManager.checkCommentPermission(commentId, user)) {
-			throw new IllegalArgumentException(String.format(
-					"User '%s' has no permission to remove comment '%s'.",
-					user, commentId));
-		}
-		return new Result(commentManager.remove(commentId));
-	}
-
 	@RequestMapping(method = RequestMethod.DELETE, value = "/user/{appId}/comment/{localId}")
 	public @ResponseBody
 	Result removeEntityComments(@PathVariable String appId,
 			@PathVariable String localId) {
 
-		return new Result(commentManager.removeByEntity(entityManager
-				.defineUri(appId, localId)));
+		String entityURI = entityManager.defineUri(appId, localId);
+
+		if (!permissionManager.checkEntityPermission(getUserId(), entityURI,
+				false)) {
+			throw new SecurityException("Access not allowed");
+		}
+		return new Result(commentManager.removeByEntity(entityURI));
 	}
 
 	private String concatNameAndSurname(String name, String surname) {
