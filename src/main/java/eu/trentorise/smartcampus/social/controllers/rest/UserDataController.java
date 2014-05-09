@@ -109,7 +109,7 @@ public class UserDataController extends RestController {
 
 		return new Entities(sharingManager.getShared(user.getSocialId(),
 				Collections.singletonList(user.getSocialId()), null, null,
-				position, size, type, false, true));
+				position, size, type, false, false));
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/user/entities/{eid}")
