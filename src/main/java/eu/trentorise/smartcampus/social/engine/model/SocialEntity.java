@@ -184,6 +184,8 @@ public class SocialEntity implements Serializable {
 		entity.setExternalUri(externalUri);
 		entity.setRating(rating);
 		entity.setTotalVoters(totalVoters);
+		entity.setCreationTime(creationTime);
+		entity.setLastModifiedTime(lastModifiedTime);
 		if (showVisibility) {
 			entity.setVisibility(EntityManager.getVisibility(this));
 		}

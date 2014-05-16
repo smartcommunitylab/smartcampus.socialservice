@@ -29,6 +29,8 @@ public class Entity {
 	private double rating;
 	private int totalVoters;
 	private Visibility visibility;
+	private long creationTime;
+	private long lastModifiedTime;
 
 	public String getOwner() {
 		return owner;
@@ -123,5 +125,21 @@ public class Entity {
 		info.setUserOwner(owner);
 		info.setCommunityOwner(communityOwner);
 		return info;
+	}
+
+	public long getCreationTime() {
+		return creationTime;
+	}
+
+	public void setCreationTime(long creationTime) {
+		this.creationTime = creationTime;
+	}
+
+	public long getLastModifiedTime() {
+		return lastModifiedTime;
+	}
+
+	public void setLastModifiedTime(long lastModifiedTime) {
+		this.lastModifiedTime = lastModifiedTime;
 	}
 }
