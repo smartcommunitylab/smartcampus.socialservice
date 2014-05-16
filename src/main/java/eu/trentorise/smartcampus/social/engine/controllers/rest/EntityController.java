@@ -186,6 +186,18 @@ public class EntityController extends RestController {
 				appId, localId)));
 	}
 
+	@RequestMapping(method = RequestMethod.GET, value = "/user/entity/{entityURI}")
+	public @ResponseBody
+	Result readMyEntityByURI(@PathVariable String entityURI) {
+
+		if (!permissionManager.checkEntityPermission(getUserId(), entityURI,
+				false)) {
+			throw new SecurityException("invalid acces to entity");
+		}
+
+		return new Result(entityManager.readEntity(entityURI));
+	}
+
 	@RequestMapping(method = RequestMethod.GET, value = "/app/{appId}/community/{communityId}/entity")
 	public @ResponseBody
 	Result readCommunityEntities(
