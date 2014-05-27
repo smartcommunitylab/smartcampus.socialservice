@@ -46,7 +46,7 @@ public class RestController extends SCController {
 	}
 
 	private static final int INIT_PAGE = 0;
-	protected static final int INIT_PAGE_SIZE = 10;
+	protected static final int INIT_PAGE_SIZE = 20;
 
 	private static final int QUERY_NO_CONDITION = -1;
 	private static final int QUERY_AND_CONDITION = 0;
