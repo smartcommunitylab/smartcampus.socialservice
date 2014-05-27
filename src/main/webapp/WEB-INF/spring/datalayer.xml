@@ -17,8 +17,7 @@
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
         http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa-1.0.xsd">
 
-    <context:property-placeholder location="classpath:socialservice.properties" />
-
+    
     <bean id="entityManagerFactory"
 		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
 		<property name="persistenceXmlLocation" value="classpath:META-INF/persistence.xml" />
