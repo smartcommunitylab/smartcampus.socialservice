@@ -25,9 +25,6 @@
 	<mvc:annotation-driven />
 	
 	
-<!-- 	<bean -->
-<!-- 		class="org.springframework.web.context.support.StandardServletEnvironment" /> -->
-	
 	<context:property-placeholder location="classpath:socialservice.properties" />
 	
 	<!-- Scan controllers in this package -->
