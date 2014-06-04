@@ -143,8 +143,8 @@ public class EntityManager implements EntityOperations {
 			persistedEntity.setExternalUri(entity.getExternalUri());
 		}
 		// set visibility
-		setVisibility(entity.getOwner(), persistedEntity,
-				entity.getVisibility());
+		setVisibility(RepositoryUtils.getOwnerId(persistedEntity),
+				persistedEntity, entity.getVisibility());
 		// save
 		persistedEntity = entityRepository.save(persistedEntity);
 		return persistedEntity.toEntity(true);

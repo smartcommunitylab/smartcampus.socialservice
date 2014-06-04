@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.List;
 
 import eu.trentorise.smartcampus.social.engine.beans.Limit;
+import eu.trentorise.smartcampus.social.engine.model.SocialEntity;
 import eu.trentorise.smartcampus.social.engine.utils.SocialComparator.ORDER;
 
 public class RepositoryUtils {
@@ -39,6 +40,16 @@ public class RepositoryUtils {
 		} catch (NumberFormatException e) {
 			throw new IllegalArgumentException(id + " not valid");
 		}
+	}
+
+	public static String getOwnerId(SocialEntity entity) {
+		String id = null;
+		if (entity != null) {
+			id = entity.getOwner() != null ? entity.getOwner().getId() : null;
+			id = id != null ? id : entity.getCommunityOwner() != null ? ""
+					+ entity.getCommunityOwner().getId() : null;
+		}
+		return id;
 	}
 
 	public static <T> List<T> getSublistPagination(List<T> list, Limit limit) {
