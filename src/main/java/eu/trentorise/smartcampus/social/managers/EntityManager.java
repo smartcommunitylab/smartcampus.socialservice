@@ -77,12 +77,13 @@ public class EntityManager implements EntityOperations {
 			throw new IllegalArgumentException("entity cannot be null");
 		}
 
-		if (StringUtils.hasLength(entity.getUri())) {
-			persistedEntity = entityRepository.findOne(entity.getUri());
+		String uri = entity.getUri();
+		if (StringUtils.hasLength(uri)) {
+			persistedEntity = entityRepository.findOne(uri);
+		} else {
+			uri = defineUri(namespace, entity);
+			persistedEntity = entityRepository.findOne(uri);
 		}
-
-		String uri = defineUri(namespace, entity);
-		persistedEntity = entityRepository.findOne(uri);
 
 		// entity doesn't exist -> create it
 		if (persistedEntity == null) {
