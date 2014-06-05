@@ -59,7 +59,8 @@ public class EntityTypeManager implements EntityTypeOperations {
 	@Autowired
 	EntityTypeRepository typeRepository;
 
-	private static final Logger logger = Logger.getLogger(EntityTypeManager.class);
+	private static final Logger logger = Logger
+			.getLogger(EntityTypeManager.class);
 
 	@Override
 	public EntityType create(String name, String mimeType) {
@@ -70,17 +71,14 @@ public class EntityTypeManager implements EntityTypeOperations {
 					String.format("param 'name' should be valid."));
 		}
 
-		if (!StringUtils.hasLength(mimeType)) {
-			throw new IllegalArgumentException(
-					String.format("param 'mimeType' should be valid."));
-		}
-
 		String normalizedName = RepositoryUtils.normalizeString(name);
-		String normalizedMimeType = RepositoryUtils
-				.normalizeStringLowerCase(mimeType);
+		String normalizedMimeType = mimeType != null ? RepositoryUtils
+				.normalizeStringLowerCase(mimeType) : null;
+
 		List<SocialEntityType> findedTypes = typeRepository
 				.findByNameIgnoreCaseAndMimeType(normalizedName,
 						normalizedMimeType);
+
 		if (findedTypes == null || findedTypes.size() == 0) { // If there is not
 																// a type like
 																// the "newType"
@@ -361,8 +359,8 @@ public class EntityTypeManager implements EntityTypeOperations {
 	 * @return boolean true if type correct, false in all other case
 	 */
 	private boolean checkMimeType(String mimeType) {
-		return mimeType != null
-				&& allowedMimeType.contains(mimeType.toLowerCase());
+		return mimeType == null
+				|| allowedMimeType.contains(mimeType.toLowerCase());
 	}
 
 }

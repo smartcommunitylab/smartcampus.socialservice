@@ -118,6 +118,10 @@ public class EntityTypeManagerTest {
 		entityTypeManager.create("", "");
 	}
 
+	public void createOnlyWithName() {
+		Assert.assertNotNull(entityTypeManager.create("new type", null));
+	}
+
 	@Test
 	public void test2_ReadType() {
 		EntityType readedType = entityTypeManager.readTypeByNameAndMimeType(
