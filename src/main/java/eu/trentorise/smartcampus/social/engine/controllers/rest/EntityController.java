@@ -281,6 +281,13 @@ public class EntityController extends RestController {
 				entityManager.defineUri(appId, localId)));
 	}
 
+	@RequestMapping(method = RequestMethod.GET, value = "/app/{appId}/shared/{userId}/{entityURI}")
+	public @ResponseBody
+	Result readSharedEntityByApp(@PathVariable String entityURI,
+			@PathVariable String userId) {
+		return new Result(entityManager.readShared(userId, false, entityURI));
+	}
+
 	@RequestMapping(method = RequestMethod.GET, value = "/user/shared/{entityURI}")
 	public @ResponseBody
 	Result readSharedEntity(@PathVariable String entityURI) {
