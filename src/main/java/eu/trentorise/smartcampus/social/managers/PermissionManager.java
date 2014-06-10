@@ -95,6 +95,11 @@ public class PermissionManager {
 		}
 	}
 
+	public boolean checkEntitySpace(String appId, String uri) {
+		SocialEntity entity = entityRepo.findOne(uri);
+		return entity == null || entity.getNamespace().equals(appId);
+	}
+
 	public boolean checkEntityPermission(String ownerId, String uri,
 			boolean isCommunity) {
 		if (ownerId == null || uri == null) {

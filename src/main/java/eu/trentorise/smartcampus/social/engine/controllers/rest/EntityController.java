@@ -89,11 +89,35 @@ public class EntityController extends RestController {
 				appId, localId)));
 	}
 
+	@RequestMapping(method = RequestMethod.DELETE, value = "/user/{appId}/entity/uri/{entityURI}")
+	public @ResponseBody
+	Result deleteURIByUser(@PathVariable String appId,
+			@PathVariable String entityURI) {
+
+		if (!permissionManager.checkEntityPermission(getUserId(), entityURI,
+				false)) {
+			throw new SecurityException("Invalid access to entity");
+		}
+
+		return new Result(entityManager.deleteEntity(entityURI));
+	}
+
 	@RequestMapping(method = RequestMethod.DELETE, value = "/app/{appId}/entity/{localId}")
 	public @ResponseBody
 	Result deleteByApp(@PathVariable String appId, @PathVariable String localId) {
 		return new Result(entityManager.deleteEntity(entityManager.defineUri(
 				appId, localId)));
+	}
+
+	@RequestMapping(method = RequestMethod.DELETE, value = "/app/{appId}/entity/uri/{entityURI}")
+	public @ResponseBody
+	Result deleteURIByApp(@PathVariable String appId,
+			@PathVariable String entityURI) {
+		if (!permissionManager.checkEntitySpace(appId, entityURI)) {
+			throw new SecurityException("Entity not belongs to space " + appId);
+		}
+
+		return new Result(entityManager.deleteEntity(entityURI));
 	}
 
 	@RequestMapping(method = RequestMethod.PUT, value = "/user/{appId}/entity/update")

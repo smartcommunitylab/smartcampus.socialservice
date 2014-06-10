@@ -71,6 +71,14 @@
 	<resourceMapping uri="socialservice.user.{appId}.entities.manage"
 		pathPattern="/user/{appId}/entity/{localId}" method="DELETE" />
 	
+	<resourceMapping uri="socialservice.app.{appId}.entities.manage"
+		pathPattern="/app/{appId}/entity/uri/{uri}" method="DELETE" />
+	
+	<resourceMapping uri="socialservice.user.{appId}.entities.manage"
+		pathPattern="/user/{appId}/entity/uri/{uri}" method="DELETE" />
+	
+	
+	
 	<resourceMapping uri="socialservice.community.{appId}.entities.write"
 		pathPattern="/app/{appId}/community/{communityId}/entity" method="POST" />
 	
