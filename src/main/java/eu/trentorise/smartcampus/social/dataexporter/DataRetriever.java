@@ -3,6 +3,8 @@ package eu.trentorise.smartcampus.social.dataexporter;
 import it.unitn.disi.sweb.webapi.client.WebApiException;
 import it.unitn.disi.sweb.webapi.client.smartcampus.SCWebApiClient;
 import it.unitn.disi.sweb.webapi.model.entity.Entity;
+import it.unitn.disi.sweb.webapi.model.entity.Value;
+import it.unitn.disi.sweb.webapi.model.smartcampus.ac.Operation;
 import it.unitn.disi.sweb.webapi.model.smartcampus.livetopics.LiveTopic;
 import it.unitn.disi.sweb.webapi.model.smartcampus.livetopics.LiveTopicContentType;
 import it.unitn.disi.sweb.webapi.model.smartcampus.livetopics.LiveTopicSource;
@@ -13,10 +15,11 @@ import it.unitn.disi.sweb.webapi.model.smartcampus.social.UserGroup;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +27,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import com.mysql.jdbc.Statement;
 
 public class DataRetriever {
 	private static final String HOST = "sweb.smartcampuslab.it";
@@ -43,13 +48,12 @@ public class DataRetriever {
 
 	private static final String DEFAULT_APPID = "smartcampus";
 
-	private static final boolean CONVERT_USERS = false;
-	private static final boolean CONVERT_GROUPS = false;
+	private static final boolean CONVERT_USERS = true;
+	private static final boolean CONVERT_GROUPS = true;
 	private static final boolean CONVERT_GROUP_MEMBERS = false;
-	private static final boolean CONVERT_COMMUNITIES = false;
+	private static final boolean CONVERT_COMMUNITIES = true;
 	private static final boolean CONVERT_COMMUNITY_MEMBERS = false;
 	private static final boolean CONVERT_ENTITIES = true;
-	private static final boolean CONVERT_SHARING = true;
 
 	private static SCWebApiClient client;
 	private static Connection connUserDb;
@@ -57,6 +61,7 @@ public class DataRetriever {
 
 	private static Map<String, String> userData = new HashMap<String, String>();
 	private static Map<Long, List<String>> communityData = new HashMap<Long, List<String>>();
+	private static Map<String, Long> eTypes = new HashMap<String, Long>();
 
 	private static void init() {
 		// init
@@ -78,6 +83,25 @@ public class DataRetriever {
 		} catch (Exception e) {
 			exitMsg(String.format("Exception connecting to social db %, %s",
 					SOCIAL_DB_URL, e.getMessage()));
+		}
+
+		readEtypes();
+
+	}
+
+	private static void readEtypes() {
+		java.sql.Statement stmt;
+		try {
+			stmt = connSocialDb.createStatement();
+			ResultSet rs = stmt
+					.executeQuery("SELECT id,name FROM social_entity_type");
+			while (rs.next()) {
+				eTypes.put(rs.getString("name"), rs.getLong("id"));
+			}
+
+			System.out.println("ETypes loaded");
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -318,11 +342,59 @@ public class DataRetriever {
 
 	}
 
-	private static void insertEntity(List<User> users) {
+	private static Long getETypeRel(String name) {
 		java.sql.PreparedStatement stmt = null;
+		Long id = null;
 		try {
+			id = eTypes.get(name);
+			if (id == null) {
+				stmt = connSocialDb.prepareStatement(
+						"INSERT INTO social_entity_type (name) VALUES (?)",
+						Statement.RETURN_GENERATED_KEYS);
+				stmt.setString(1, name);
+				stmt.execute();
+				ResultSet keys = stmt.getGeneratedKeys();
+				keys.next();
+				id = keys.getLong(1);
+				eTypes.put(name, id);
+				System.out.println(String.format("Added type %s, id: %s", name,
+						id));
+			}
+		} catch (SQLException e1) {
+			System.err
+					.println(String
+							.format("Exception creating statement to convert community members, %s",
+									e1.getMessage()));
+		}
+
+		return id;
+	}
+
+	private static void insertEntity(List<User> users) {
+		try {
+			PreparedStatement stmt = null;
+			PreparedStatement userSharingStmt = connSocialDb
+					.prepareStatement("INSERT INTO user_shared_with VALUES(?,?)");
+			PreparedStatement groupSharingStmt = connSocialDb
+					.prepareStatement("INSERT INTO group_shared_with VALUES(?,?)");
+			PreparedStatement communitySharingStmt = connSocialDb
+					.prepareStatement("INSERT INTO community_shared_with VALUES(?,?)");
+			// (`uri`,
+			// `creation_time`,
+			// `external_uri`,
+			// `last_modified_time`,
+			// `local_id`,
+			// `name`,
+			// `namespace`,
+			// 8.`public_shared`,
+			// 9.`rating`,
+			// 10.`total_voters`,
+			// 11.`community_owner`,
+			// 12.`owner`,
+			// 13,`type`)
+
 			stmt = connSocialDb
-					.prepareStatement("INSERT INTO social_community_members VALUES (?,?)");
+					.prepareStatement("INSERT INTO social_entity (uri,creation_time,last_modified_time,external_uri,local_id,name,namespace,owner,type,public_shared, rating, total_voters ) VALUES (?,?,?,?,?,?,?,?,?,false,0,0)");
 
 			for (User u : users) {
 				LiveTopic filter = new LiveTopic();
@@ -330,60 +402,120 @@ public class DataRetriever {
 				long ownerId = u.getSocialId();
 				filter.setActorId(ownerId); // <-- mandatory
 
-				filterSource.setAllCommunities(true);
-				filterSource.setAllUsers(true);
-				filterSource.setAllKnownCommunities(true);
-				filterSource.setAllKnownUsers(true);
-				filterSource
-						.setGroupIds(new HashSet<Long>(Arrays.asList(221l)));
+				filterSource.setUserIds(Collections.singleton(ownerId));
 				filter.setSource(filterSource);
 
 				LiveTopicSubject subject = new LiveTopicSubject();
 				subject.setAllSubjects(true); // <-- important
-				// filter.setSubjects(Collections.singleton(subject));
+				filter.setSubjects(Collections.singleton(subject));
 
 				LiveTopicContentType type = new LiveTopicContentType();
 				type.setAllTypes(true);
-				// type.setEntityTypeIds(new HashSet<Long>());
+				type.setEntityTypeIds(new HashSet<Long>());
 				filter.setType(type); // <-- mandatory
 				filter.setStatus(LiveTopicStatus.ACTIVE); // <--
 				// mandatory
+
+				// community entities
 
 				List<Long> sharedIds;
 				try {
 					sharedIds = client.computeEntitiesForLiveTopic(filter,
 							null, null);
-					System.out.println(String.format("User %s has %s entities",
-							u.getUserId(), sharedIds.size()));
+					System.out.println(String.format(
+							"User %s (social %s) has %s entities",
+							u.getUserId(), u.getSocialId(), sharedIds.size()));
+					stmt.clearBatch();
 					if (!sharedIds.isEmpty()) {
 						List<Entity> results = client.readEntities(sharedIds,
 								null);
 						for (Entity e : results) {
-							System.out.println(e.getOwnerId()
-									+ " - "
-									+ e.getId()
-									+ " - "
-									+ e.getAttributeByName("name").getValues()
-											.get(0));
+							if ("community".equals(e.getEtype().getName()))
+								continue;
+							if ("person".equals(e.getEtype().getName()))
+								continue;
+
+							stmt.setString(1, e.getId().toString());
+							stmt.setLong(2, e.getCreationTime());
+							stmt.setLong(3, e.getCreationTime());
+							stmt.setString(4, e.getId().toString());
+							stmt.setString(5, e.getId().toString());
+							Value v = e.getAttributeByName("name")
+									.getFirstValue();
+							stmt.setString(6,
+									v == null ? "" : v.getStringValue());
+							stmt.setString(7, "sweb");
+							stmt.setString(8, u.getUserId().toString());
+							if (e.getEtype() != null) {
+								stmt.setLong(9, getETypeRel(e.getEtype()
+										.getName()));
+							}
+							stmt.addBatch();
+							LiveTopicSource visibility = client
+									.readAssignments(e.getId(), Operation.READ,
+											ownerId);
+
+							if (visibility.isAllUsers()) {
+								stmt.addBatch(String
+										.format("UPDATE social_entity SET public_shared=true WHERE uri='%s'",
+												e.getId().toString()));
+							}
+
+							for (Long uid : visibility.getUserIds()) {
+								userSharingStmt.setString(1, e.getId()
+										.toString());
+								userSharingStmt.setString(2,
+										userData.get(uid.toString()));
+								userSharingStmt.addBatch();
+							}
+
+							for (Long gid : visibility.getGroupIds()) {
+								groupSharingStmt.setString(1, e.getId()
+										.toString());
+								groupSharingStmt.setLong(2, gid);
+								groupSharingStmt.addBatch();
+							}
+
+							for (Long cid : visibility.getCommunityIds()) {
+								communitySharingStmt.setString(1, e.getId()
+										.toString());
+								communitySharingStmt.setLong(2, cid);
+								communitySharingStmt.addBatch();
+
+							}
+
+							/**
+							 * use for debug scope
+							 */
+
+							// System.out.println(String.format(
+							// "%s,%s,%s,%s,%s,%s,%s", visibility
+							// .isAllUsers(), visibility
+							// .isAllKnownUsers(), visibility
+							// .isAllKnownCommunities(),
+							// visibility.isAllCommunities(), visibility
+							// .getGroupIds().toString(),
+							// visibility.getUserIds().toString(),
+							// visibility.getCommunityIds().toString()));
 						}
 					}
+					stmt.executeBatch();
+					userSharingStmt.executeBatch();
+					groupSharingStmt.executeBatch();
+					communitySharingStmt.executeBatch();
+					System.out.println(String.format("Entities converted"));
 				} catch (WebApiException e1) {
 					System.err.println(String.format(
 							"Exception getting entities of user %s, %s",
 							u.getUserId(), e1.getMessage()));
 				}
 			}
-
 		} catch (SQLException e1) {
 			System.err
 					.println(String
 							.format("Exception creating statement to convert community members, %s",
 									e1.getMessage()));
 		}
-	}
-
-	private static void insertEntitySharing() {
-
 	}
 
 	public static final void main(String[] a) {
@@ -423,110 +555,9 @@ public class DataRetriever {
 		if (CONVERT_ENTITIES) {
 			insertEntity(users);
 		}
-	}
 
-	// public static final void main(String[] a) {
-	// System.out.println(String.format("SWEB HOST: %s", HOST));
-	// System.out.println(String.format("SWEB PORT: %s", PORT));
-	// System.out
-	// .println(String.format("DESTINATION FOLDER: %s", DESTINATION));
-	// System.out.println(String.format("DB URL: %s", DB_URL));
-	// System.out.println(String
-	// .format("PROFILE DB HOST: %s", PROFILE_DB_HOST));
-	// System.out.println(String
-	// .format("PROFILE DB PORT: %s", PROFILE_DB_PORT));
-	// System.out.println(String
-	// .format("PROFILE DB NAME: %s", PROFILE_DB_NAME));
-	//
-	// List<User> userIds = new ArrayList<User>();
-	//
-	// // collect all userId
-	// try {
-	// Class.forName("com.mysql.jdbc.Driver").newInstance();
-	// Connection conn = DriverManager.getConnection(DB_URL, DB_USER,
-	// DB_PWD);
-	// System.out.println("Connected to db " + DB_URL);
-	// java.sql.Statement stmt = conn.createStatement();
-	// ResultSet rs = stmt.executeQuery("SELECT id,social_id FROM user");
-	// while (rs.next()) {
-	// userIds.add(new User(rs.getLong("id"), rs.getLong("social_id")));
-	// }
-	// System.out
-	// .println(String.format("Founded %s users", userIds.size()));
-	// if (userIds.size() == 0) {
-	// System.exit(0);
-	// } else {
-	// for (User u : userIds) {
-	// try {
-	//
-	// LiveTopic filter = new LiveTopic();
-	// LiveTopicSource filterSource = new LiveTopicSource();
-	// long ownerId = u.getSocialId();
-	// if (ownerId > 0) {
-	// filter.setActorId(ownerId); // <-- mandatory
-	// }
-	//
-	// filter.setSource(filterSource);
-	//
-	// LiveTopicSubject subject = new LiveTopicSubject();
-	// subject.setAllSubjects(true); // <-- important
-	// filter.setSubjects(Collections.singleton(subject));
-	//
-	// LiveTopicContentType type = new LiveTopicContentType();
-	// type.setAllTypes(true);
-	// type.setEntityTypeIds(new HashSet<Long>());
-	// filter.setType(type); // <-- mandatory
-	// filter.setStatus(LiveTopicStatus.ACTIVE); // <--
-	// // mandatory
-	//
-	// List<Long> sharedIds = client
-	// .computeEntitiesForLiveTopic(filter, null, null);
-	// if (!sharedIds.isEmpty()) {
-	// // filter to retrieve only name attribute of entity
-	// // Filter f = new Filter(null, new HashSet<String>(
-	// // Arrays.asList("name")), false, false, 0, null,
-	// // null,
-	// // null, null);
-	// List<eu.trentorise.smartcampus.social.model.Entity> shared = new
-	// ArrayList<eu.trentorise.smartcampus.social.model.Entity>(
-	// sharedIds.size());
-	// List<Entity> results = client.readEntities(
-	// sharedIds, null);
-	// ShareVisibility vis = null;
-	// for (Entity e : results) {
-	// if ("community".equals(e.getEtype().getName()))
-	// continue;
-	// if ("person".equals(e.getEtype().getName()))
-	// continue;
-	// if (addVisibility)
-	// vis = getAssignments(ownerId, e.getId());
-	// shared.add(socialConverter.toEntity(e, addUser,
-	// vis));
-	// }
-	// return shared;
-	// } else {
-	// return Collections.emptyList();
-	// }
-	// } catch (WebApiException e) {
-	// logger.error("Exception getting user shared content", e);
-	// return Collections.emptyList();
-	// }
-	// }
-	// }
-	// } catch (URIException e) {
-	// System.err.println(String.format(
-	// "Exception open sweb stream fileId %s, %s", pictureUrl,
-	// e.getMessage()));
-	// } catch (WebApiException e) {
-	// System.err.println(String.format(
-	// "Exception open sweb stream fileId %s, %s", pictureUrl,
-	// e.getMessage()));
-	// } catch (IOException e) {
-	// System.err.println(String.format(
-	// "Exception writing on destination fileId %s, %s",
-	// pictureUrl, e.getMessage()));
-	// }
-	// }
+		System.out.println("DONE!");
+	}
 
 	private static void exitMsg(String msg) {
 		System.err.println(msg);
