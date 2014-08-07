@@ -252,7 +252,7 @@
 									</descriptorRefs>
 									<archive>
 										<manifest>
-											<mainClass>eu.trentorise.smartcampus.vas.communitymanager.dataexporter.DataRetriever</mainClass>
+											<mainClass>eu.trentorise.smartcampus.social.dataexporter.DataRetriever</mainClass>
 										</manifest>
 									</archive>
 									<appendAssemblyId>false</appendAssemblyId>

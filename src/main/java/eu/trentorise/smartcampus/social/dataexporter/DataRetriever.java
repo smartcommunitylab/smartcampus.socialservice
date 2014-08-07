@@ -35,11 +35,11 @@ public class DataRetriever {
 	private static final String HOST = "sweb.smartcampuslab.it";
 	private static final int PORT = 8080;
 
-	private static final String DB_URL = "jdbc:mysql://localhost/acprovider-test";
+	private static final String DB_URL = "jdbc:mysql://localhost/acprovider";
 	private static final String DB_USER = "ac";
 	private static final String DB_PWD = "ac";
 
-	private static final String SOCIAL_DB_URL = "jdbc:mysql://localhost/socialdb-test";
+	private static final String SOCIAL_DB_URL = "jdbc:mysql://localhost/socialdb";
 	private static final String SOCIAL_DB_USER = "social";
 	private static final String SOCIAL_DB_PWD = "social";
 
@@ -170,8 +170,9 @@ public class DataRetriever {
 						SOCIAL_DB_URL));
 			}
 		} catch (Exception e) {
-			exitMsg(String.format("Exception connecting to user db %s, %s",
-					DB_URL, e.getMessage()));
+			exitMsg(String.format(
+					"Exception inserting user in social db %s, %s",
+					SOCIAL_DB_URL, e.getMessage()));
 		}
 	}
 
