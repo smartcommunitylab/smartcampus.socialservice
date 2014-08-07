@@ -3,6 +3,7 @@ package eu.trentorise.smartcampus.social.dataexporter;
 import it.unitn.disi.sweb.webapi.client.WebApiException;
 import it.unitn.disi.sweb.webapi.client.smartcampus.SCWebApiClient;
 import it.unitn.disi.sweb.webapi.model.entity.Entity;
+import it.unitn.disi.sweb.webapi.model.entity.EntityBase;
 import it.unitn.disi.sweb.webapi.model.entity.Value;
 import it.unitn.disi.sweb.webapi.model.smartcampus.ac.Operation;
 import it.unitn.disi.sweb.webapi.model.smartcampus.livetopics.LiveTopic;
@@ -47,12 +48,13 @@ public class DataRetriever {
 	private static final String PROFILE_DB_NAME = "profiledb";
 
 	private static final String DEFAULT_APPID = "smartcampus";
+	private static final String DEFAULT_NAMESPACE = "sweb";
 
 	private static final boolean CONVERT_USERS = true;
 	private static final boolean CONVERT_GROUPS = true;
-	private static final boolean CONVERT_GROUP_MEMBERS = false;
+	private static final boolean CONVERT_GROUP_MEMBERS = true;
 	private static final boolean CONVERT_COMMUNITIES = true;
-	private static final boolean CONVERT_COMMUNITY_MEMBERS = false;
+	private static final boolean CONVERT_COMMUNITY_MEMBERS = true;
 	private static final boolean CONVERT_ENTITIES = true;
 
 	private static SCWebApiClient client;
@@ -370,6 +372,96 @@ public class DataRetriever {
 		return id;
 	}
 
+	private static void insertCommunityEntity() {
+		try {
+			List<Community> comm = Collections.emptyList();
+			comm = client.readCommunities();
+			PreparedStatement stmt = connSocialDb
+					.prepareStatement("INSERT INTO social_entity (uri,creation_time,last_modified_time,external_uri,local_id,name,namespace,community_owner,type,public_shared, rating, total_voters ) VALUES (?,?,?,?,?,?,?,?,?,false,0,0)");
+			PreparedStatement userSharingStmt = connSocialDb
+					.prepareStatement("INSERT INTO user_shared_with VALUES(?,?)");
+			PreparedStatement groupSharingStmt = connSocialDb
+					.prepareStatement("INSERT INTO group_shared_with VALUES(?,?)");
+			PreparedStatement communitySharingStmt = connSocialDb
+					.prepareStatement("INSERT INTO community_shared_with VALUES(?,?)");
+			stmt.clearBatch();
+			userSharingStmt.clearBatch();
+			groupSharingStmt.clearBatch();
+			communitySharingStmt.clearBatch();
+
+			for (Community c : comm) {
+				EntityBase eb = client.readEntityBase(c.getEntityBaseId());
+				List<Entity> sharedEntities = client.readEntities(null,
+						eb.getLabel(), null);
+				System.out.println(String.format(
+						"Community %s has %s entities", c.getId(),
+						sharedEntities.size()));
+
+				if (!sharedEntities.isEmpty()) {
+					for (Entity e : sharedEntities) {
+						if ("community".equals(e.getEtype().getName()))
+							continue;
+						if ("person".equals(e.getEtype().getName()))
+							continue;
+
+						stmt.setString(1, e.getId().toString());
+						stmt.setLong(2, e.getCreationTime());
+						stmt.setLong(3, e.getCreationTime());
+						stmt.setString(4, e.getId().toString());
+						stmt.setString(5, e.getId().toString());
+						Value v = e.getAttributeByName("name").getFirstValue();
+						stmt.setString(6, v == null ? "" : v.getStringValue());
+						stmt.setString(7, DEFAULT_NAMESPACE);
+						stmt.setLong(8, c.getId());
+						if (e.getEtype() != null) {
+							stmt.setLong(9, getETypeRel(e.getEtype().getName()));
+						}
+						stmt.addBatch();
+						LiveTopicSource visibility = client.readAssignments(
+								e.getId(), Operation.READ, c.getId());
+
+						if (visibility.isAllUsers()) {
+							stmt.addBatch(String
+									.format("UPDATE social_entity SET public_shared=true WHERE uri='%s'",
+											e.getId().toString()));
+						}
+
+						for (Long uid : visibility.getUserIds()) {
+							userSharingStmt.setString(1, e.getId().toString());
+							userSharingStmt.setString(2,
+									userData.get(uid.toString()));
+							userSharingStmt.addBatch();
+						}
+
+						for (Long gid : visibility.getGroupIds()) {
+							groupSharingStmt.setString(1, e.getId().toString());
+							groupSharingStmt.setLong(2, gid);
+							groupSharingStmt.addBatch();
+						}
+
+						for (Long cid : visibility.getCommunityIds()) {
+							communitySharingStmt.setString(1, e.getId()
+									.toString());
+							communitySharingStmt.setLong(2, cid);
+							communitySharingStmt.addBatch();
+
+						}
+					}
+					stmt.executeBatch();
+					userSharingStmt.executeBatch();
+					groupSharingStmt.executeBatch();
+					communitySharingStmt.executeBatch();
+					System.out.println(String.format("Entities converted"));
+				}
+			}
+		} catch (WebApiException e) {
+			System.err.println("Sweb exception converting community entities");
+		} catch (SQLException e) {
+			System.err
+					.println("SQL exception converting community entities in new social schema");
+		}
+	}
+
 	private static void insertEntity(List<User> users) {
 		try {
 			PreparedStatement stmt = null;
@@ -379,19 +471,6 @@ public class DataRetriever {
 					.prepareStatement("INSERT INTO group_shared_with VALUES(?,?)");
 			PreparedStatement communitySharingStmt = connSocialDb
 					.prepareStatement("INSERT INTO community_shared_with VALUES(?,?)");
-			// (`uri`,
-			// `creation_time`,
-			// `external_uri`,
-			// `last_modified_time`,
-			// `local_id`,
-			// `name`,
-			// `namespace`,
-			// 8.`public_shared`,
-			// 9.`rating`,
-			// 10.`total_voters`,
-			// 11.`community_owner`,
-			// 12.`owner`,
-			// 13,`type`)
 
 			stmt = connSocialDb
 					.prepareStatement("INSERT INTO social_entity (uri,creation_time,last_modified_time,external_uri,local_id,name,namespace,owner,type,public_shared, rating, total_voters ) VALUES (?,?,?,?,?,?,?,?,?,false,0,0)");
@@ -416,7 +495,7 @@ public class DataRetriever {
 				filter.setStatus(LiveTopicStatus.ACTIVE); // <--
 				// mandatory
 
-				// community entities
+				// user entities
 
 				List<Long> sharedIds;
 				try {
@@ -444,7 +523,7 @@ public class DataRetriever {
 									.getFirstValue();
 							stmt.setString(6,
 									v == null ? "" : v.getStringValue());
-							stmt.setString(7, "sweb");
+							stmt.setString(7, DEFAULT_NAMESPACE);
 							stmt.setString(8, u.getUserId().toString());
 							if (e.getEtype() != null) {
 								stmt.setLong(9, getETypeRel(e.getEtype()
@@ -513,7 +592,7 @@ public class DataRetriever {
 		} catch (SQLException e1) {
 			System.err
 					.println(String
-							.format("Exception creating statement to convert community members, %s",
+							.format("Exception creating statement to convert sweb entities, %s",
 									e1.getMessage()));
 		}
 	}
@@ -522,12 +601,28 @@ public class DataRetriever {
 		System.out.println(String.format("SWEB HOST: %s", HOST));
 		System.out.println(String.format("SWEB PORT: %s", PORT));
 		System.out.println(String.format("DB URL: %s", DB_URL));
+		System.out.println(String.format("DB USER: %s", DB_USER));
 		System.out.println(String
 				.format("PROFILE DB HOST: %s", PROFILE_DB_HOST));
 		System.out.println(String
 				.format("PROFILE DB PORT: %s", PROFILE_DB_PORT));
 		System.out.println(String
 				.format("PROFILE DB NAME: %s", PROFILE_DB_NAME));
+		System.out.println(String.format("SOCIAL DB URL: %s", SOCIAL_DB_URL));
+		System.out.println(String.format("SOCIAL DB USER: %s", SOCIAL_DB_USER));
+		System.out.println(String.format("DEFAULT APPID: %s", DEFAULT_APPID));
+		System.out.println(String.format("DEFAULT NAMESPACE: %s",
+				DEFAULT_NAMESPACE));
+		System.out.println(String.format("CONVERT USERS: %s", CONVERT_USERS));
+		System.out.println(String.format("CONVERT GROUPS: %s", CONVERT_GROUPS));
+		System.out.println(String.format("CONVERT GROUP MEMBERS: %s",
+				CONVERT_GROUP_MEMBERS));
+		System.out.println(String.format("CONVERT COMMUNITIES: %s",
+				CONVERT_COMMUNITIES));
+		System.out.println(String.format("CONVERT COMMUNITY MEMBERS: %s",
+				CONVERT_COMMUNITY_MEMBERS));
+		System.out.println(String.format("CONVERT ENTITIES: %s",
+				CONVERT_ENTITIES));
 
 		init();
 
@@ -555,6 +650,7 @@ public class DataRetriever {
 		if (CONVERT_ENTITIES) {
 			insertEntity(users);
 		}
+		insertCommunityEntity();
 
 		System.out.println("DONE!");
 	}
